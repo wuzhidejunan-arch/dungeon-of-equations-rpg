@@ -1,6 +1,6 @@
 import { BaseScene } from "./BaseScene.js";
 import { playerData } from "../data/playerData.js";
-import { createBasicTextures, preloadMapArt } from "../utils/textureFactory.js";
+import { createBasicTextures, preloadHomeMapArt } from "../utils/textureFactory.js";
 import { hidePrompt, showPrompt } from "../utils/ui.js";
 import { saveGame } from "../utils/saveSystem.js";
 import {
@@ -32,7 +32,7 @@ export class HomeScene extends BaseScene {
   }
 
   preload() {
-    preloadMapArt(this);
+    preloadHomeMapArt(this);
     preloadBgmAssets(this, audioKeys.bgm.normal);
   }
 

@@ -2,7 +2,7 @@ import { BaseScene } from "./BaseScene.js";
 import { playerData } from "../data/playerData.js";
 import { shopItems, npcMessages } from "../data/shopData.js";
 import { npcDialogues } from "../data/dialogueData.js";
-import { createBasicTextures, preloadMapArt } from "../utils/textureFactory.js";
+import { createBasicTextures, preloadWorldMapArt } from "../utils/textureFactory.js";
 import {
   createPanel,
   hidePanel,
@@ -45,7 +45,7 @@ export class WorldScene extends BaseScene {
   }
 
   preload() {
-    preloadMapArt(this);
+    preloadWorldMapArt(this);
     preloadBgmAssets(this, audioKeys.bgm.normal);
   }
 

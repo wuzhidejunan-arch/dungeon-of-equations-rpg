@@ -32,6 +32,36 @@ export function createBasicTextures(scene) {
   }
 }
 
+function loadImageIfMissing(scene, key, path) {
+  if (!scene.textures.exists(key)) {
+    scene.load.image(key, path);
+  }
+}
+
+export function preloadHomeMapArt(scene) {
+  loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
+  loadImageIfMissing(scene, "homeRoomMap", "assets/images/maps/home_room_map.png");
+}
+
+export function preloadWorldMapArt(scene) {
+  loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
+  loadImageIfMissing(scene, "worldGrassMap", "assets/images/maps/grass_map.png");
+  loadImageIfMissing(scene, "mapHome", "assets/images/map_objects/home.png");
+  loadImageIfMissing(scene, "mapDungeon", "assets/images/map_objects/dungeon.png");
+  loadImageIfMissing(scene, "mapShop", "assets/images/map_objects/shop.png");
+  loadImageIfMissing(scene, "mapTrainingGround", "assets/images/map_objects/training_ground.png");
+  loadImageIfMissing(scene, "mapStone", "assets/images/map_objects/stone.png");
+  loadImageIfMissing(scene, "mapNpc", "assets/images/map_objects/npc.png");
+}
+
+export function preloadDungeonMapArt(scene) {
+  loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
+  loadImageIfMissing(scene, "dungeonMap01", "assets/images/maps/dungeon_map_01.png");
+  loadImageIfMissing(scene, "dungeonMap02", "assets/images/maps/dungeon_map_02.png");
+  loadImageIfMissing(scene, "dungeonMap03", "assets/images/maps/dungeon_map_03.png");
+  loadImageIfMissing(scene, "dungeonBossMap", "assets/images/maps/dungeon_boss_map.png");
+}
+
 export function preloadMapArt(scene) {
   if (!scene.textures.exists("playerFront")) {
     scene.load.image("playerFront", "assets/images/characters/player_front.png");
