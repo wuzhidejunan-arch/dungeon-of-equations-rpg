@@ -26,7 +26,7 @@ import { GUIDE_STEP_IDS } from "../data/guideSteps.js";
 import { isTrainingStageCompleted } from "../utils/trainingSystem.js";
 import { isTesterMode } from "../utils/debugState.js";
 import { audioKeys } from "../config/audioKeys.js";
-import { playBgm, preloadBgmAssets } from "../utils/musicManager.js";
+import { loadAndPlayBgmAfterRender } from "../utils/musicManager.js";
 
 const DEBUG_WORLD_COLLISION = false;
 const DEBUG_WORLD_BODY_BOUNDS = false;
@@ -46,12 +46,9 @@ export class WorldScene extends BaseScene {
 
   preload() {
     preloadWorldMapArt(this);
-    preloadBgmAssets(this, audioKeys.bgm.normal);
   }
 
   create() {
-    playBgm(this, audioKeys.bgm.normal);
-
     this.interactTarget = null;
     this.shopOpen = false;
     ensureGuideState(playerData);
@@ -220,6 +217,7 @@ export class WorldScene extends BaseScene {
     });
 
     backgroundPreloadDungeonMapArt(this);
+    loadAndPlayBgmAfterRender(this, audioKeys.bgm.normal);
   }
 
   update() {

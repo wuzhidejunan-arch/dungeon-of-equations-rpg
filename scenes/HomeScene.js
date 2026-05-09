@@ -11,7 +11,7 @@ import {
 } from "../utils/guideSystem.js";
 import { GUIDE_STEP_IDS } from "../data/guideSteps.js";
 import { audioKeys } from "../config/audioKeys.js";
-import { playBgm, preloadBgmAssets } from "../utils/musicManager.js";
+import { loadAndPlayBgmAfterRender } from "../utils/musicManager.js";
 
 const WORLD_HOME_EXIT_POSITION = { x: 220, y: 290 };
 const HOME_INTERIOR_ENTRY_POSITION = { x: 400, y: 500 };
@@ -33,12 +33,9 @@ export class HomeScene extends BaseScene {
 
   preload() {
     preloadHomeMapArt(this);
-    preloadBgmAssets(this, audioKeys.bgm.normal);
   }
 
   create() {
-    playBgm(this, audioKeys.bgm.normal);
-
     this.interactTarget = null;
     ensureGuideState(playerData);
 
@@ -90,6 +87,8 @@ export class HomeScene extends BaseScene {
     if (this.showGameOverOnCreate) {
       this.showGameOverPopup();
     }
+
+    loadAndPlayBgmAfterRender(this, audioKeys.bgm.normal);
   }
 
   createWalls() {
