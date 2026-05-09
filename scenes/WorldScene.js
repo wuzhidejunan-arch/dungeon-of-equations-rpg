@@ -2,7 +2,7 @@ import { BaseScene } from "./BaseScene.js";
 import { playerData } from "../data/playerData.js";
 import { shopItems, npcMessages } from "../data/shopData.js";
 import { npcDialogues } from "../data/dialogueData.js";
-import { createBasicTextures, preloadWorldMapArt } from "../utils/textureFactory.js";
+import { backgroundPreloadDungeonMapArt, createBasicTextures, preloadWorldMapArt } from "../utils/textureFactory.js";
 import {
   createPanel,
   hidePanel,
@@ -218,6 +218,8 @@ export class WorldScene extends BaseScene {
     this.physics.add.overlap(this.player, this.dungeonZone, () => {
       this.interactTarget = "dungeon";
     });
+
+    backgroundPreloadDungeonMapArt(this);
   }
 
   update() {

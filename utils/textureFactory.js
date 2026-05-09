@@ -35,8 +35,18 @@ export function createBasicTextures(scene) {
 function loadImageIfMissing(scene, key, path) {
   if (!scene.textures.exists(key)) {
     scene.load.image(key, path);
+    return true;
   }
+
+  return false;
 }
+
+const DUNGEON_MAP_ART = [
+  ["dungeonMap01", "assets/images/maps/dungeon_map_01.png"],
+  ["dungeonMap02", "assets/images/maps/dungeon_map_02.png"],
+  ["dungeonMap03", "assets/images/maps/dungeon_map_03.png"],
+  ["dungeonBossMap", "assets/images/maps/dungeon_boss_map.png"],
+];
 
 export function preloadHomeMapArt(scene) {
   loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
@@ -56,10 +66,29 @@ export function preloadWorldMapArt(scene) {
 
 export function preloadDungeonMapArt(scene) {
   loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
-  loadImageIfMissing(scene, "dungeonMap01", "assets/images/maps/dungeon_map_01.png");
-  loadImageIfMissing(scene, "dungeonMap02", "assets/images/maps/dungeon_map_02.png");
-  loadImageIfMissing(scene, "dungeonMap03", "assets/images/maps/dungeon_map_03.png");
-  loadImageIfMissing(scene, "dungeonBossMap", "assets/images/maps/dungeon_boss_map.png");
+  DUNGEON_MAP_ART.forEach(([key, path]) => loadImageIfMissing(scene, key, path));
+}
+
+export function backgroundPreloadDungeonMapArt(scene, retried = false) {
+  if (!scene?.load || !scene?.textures) return;
+
+  const sceneKey = scene.sys?.settings?.key || null;
+  if (sceneKey && !scene.scene?.isActive(sceneKey)) return;
+
+  if (scene.load.isLoading?.()) {
+    if (!retried && scene.time?.delayedCall) {
+      scene.time.delayedCall(250, () => backgroundPreloadDungeonMapArt(scene, true));
+    }
+    return;
+  }
+
+  const queuedAny = DUNGEON_MAP_ART
+    .map(([key, path]) => loadImageIfMissing(scene, key, path))
+    .some(Boolean);
+
+  if (queuedAny) {
+    scene.load.start();
+  }
 }
 
 export function preloadMapArt(scene) {
