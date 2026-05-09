@@ -226,7 +226,10 @@ export class HomeScene extends BaseScene {
       }
     } else {
       this.interactTarget = null;
-      if (!tutorialActive || guideStep.id !== GUIDE_STEP_IDS.HOME_MOVE) {
+      if (
+        !tutorialActive ||
+        (guideStep.id !== GUIDE_STEP_IDS.HOME_MOVE && guideStep.id !== GUIDE_STEP_IDS.BAG_INTRO)
+      ) {
         hidePrompt(this.promptText);
       }
     }
@@ -234,13 +237,17 @@ export class HomeScene extends BaseScene {
     if (tutorialActive) {
       if (guideStep.id === GUIDE_STEP_IDS.HOME_MOVE) {
         showPrompt(this.promptText, guideStep.prompt);
+      } else if (guideStep.id === GUIDE_STEP_IDS.BAG_INTRO) {
+        showPrompt(this.promptText, guideStep.prompt);
       } else if (guideStep.id === GUIDE_STEP_IDS.HOME_INTERACT && !nearDoor) {
         showPrompt(this.promptText, guideStep.prompt);
       }
     }
 
     if (this.isInventoryHotkeyPressed()) {
-      this.openInventory();
+      if (this.openInventory()) {
+        saveGame();
+      }
       return;
     }
 

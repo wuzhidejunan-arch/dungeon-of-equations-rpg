@@ -36,7 +36,7 @@ export function getCurrentGuideStep(target = playerData) {
   const state = ensureGuideState(target);
 
   if (state.currentStepId === GUIDE_STEP_IDS.BAG_INTRO && state.bagOpened) {
-    state.currentStepId = GUIDE_STEP_IDS.GO_TRAINING_GROUND;
+    state.currentStepId = guideSteps[GUIDE_STEP_IDS.BAG_INTRO].next;
   }
 
   return guideSteps[state.currentStepId] || guideSteps[GUIDE_STEP_IDS.TUTORIAL_DONE];

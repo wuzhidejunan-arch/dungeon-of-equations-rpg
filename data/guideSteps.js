@@ -18,18 +18,18 @@ export const guideSteps = {
   [GUIDE_STEP_IDS.HOME_MOVE]: {
     id: GUIDE_STEP_IDS.HOME_MOVE,
     prompt: 'WASD to move',
-    next: GUIDE_STEP_IDS.HOME_INTERACT,
+    next: GUIDE_STEP_IDS.BAG_INTRO,
   },
   [GUIDE_STEP_IDS.HOME_INTERACT]: {
     id: GUIDE_STEP_IDS.HOME_INTERACT,
     prompt: 'Go to the door',
     allowedTargets: ['exitHome'],
-    next: GUIDE_STEP_IDS.BAG_INTRO,
+    next: GUIDE_STEP_IDS.GO_TRAINING_GROUND,
   },
   [GUIDE_STEP_IDS.BAG_INTRO]: {
     id: GUIDE_STEP_IDS.BAG_INTRO,
     prompt: 'Press B to open your bag',
-    next: GUIDE_STEP_IDS.GO_TRAINING_GROUND,
+    next: GUIDE_STEP_IDS.HOME_INTERACT,
   },
   [GUIDE_STEP_IDS.GO_TRAINING_GROUND]: {
     id: GUIDE_STEP_IDS.GO_TRAINING_GROUND,
