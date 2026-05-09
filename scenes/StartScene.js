@@ -28,12 +28,10 @@ export class StartScene extends Phaser.Scene {
   }
 
   preload() {
-    preloadBgmAssets(this, audioKeys.bgm.normal);
+    // Keep the first menu paint fast; BGM loads after StartScene is visible.
   }
 
   create() {
-    playBgm(this, audioKeys.bgm.normal);
-
     const { width, height } = this.scale;
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x0f172a);
@@ -140,6 +138,23 @@ export class StartScene extends Phaser.Scene {
 
     this.restoreEnemyVisualTestState();
     this.refreshDevTestUi();
+    this.loadStartBgmAfterRender();
+  }
+
+  loadStartBgmAfterRender() {
+    const bgmKey = audioKeys.bgm.normal;
+
+    if (this.cache.audio.exists(bgmKey)) {
+      playBgm(this, bgmKey);
+      return;
+    }
+
+    preloadBgmAssets(this, bgmKey);
+    this.load.once('complete', () => {
+      if (!this.scene.isActive('StartScene')) return;
+      playBgm(this, bgmKey);
+    });
+    this.load.start();
   }
 
   createModeCard(x, y, mode, index) {
