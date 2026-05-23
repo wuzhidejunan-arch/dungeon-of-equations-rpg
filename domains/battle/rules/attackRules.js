@@ -74,8 +74,7 @@ function buildEnemyRuleMismatchFeedback(ctx) {
 }
 
 function buildWrongAttackTypeFeedback(ctx) {
-  const neededAnswerText = getFriendlyRuleAnswerText(ctx.scene);
-  return `The math is right. But this monster needs ${neededAnswerText}. Try ${neededAnswerText}.`;
+  return buildEnemyRuleMismatchFeedback(ctx);
 }
 
 function buildResult(ctx, overrides = {}) {
@@ -115,7 +114,7 @@ function formatBattleOperatorDisplay(operator) {
     return '×';
   }
 
-  if (operator === '/' || operator === '繩' || operator === '÷') {
+  if (operator === '/' || operator === '÷') {
     return '÷';
   }
 
@@ -251,9 +250,10 @@ export function skillConditionRule(ctx) {
   const isDirectAttack = isDirectAttackSkill(ctx.skill);
   const enemyRuleId = getEnemyPrimaryRule(ctx.scene.enemy);
   const skillRuleId = getSkillPrimaryRule(ctx.skill);
+  const isBeginner = getDifficultyKey(ctx.scene) === 'beginner';
 
   prependFeedback(ctx, 'failure', { outcome: 'failure', skill: ctx.skill.name });
-  ctx.phases.push(...buildGuidedTeachingPhases(ctx, 'Wrong math sign. Action failed.'));
+  ctx.phases.push(...buildGuidedTeachingPhases(ctx, isBeginner ? 'This does not work. Try again.' : 'Wrong math sign. Action failed.'));
   ctx.phases.push(buildBattlePhaseLine(
     battleResultPhases.RESULT_SKILL_CHECK,
     getSkillTextTemplate(ctx.skill, 'fail', `${ctx.skill.name} failed.`).replace('{skill}', ctx.skill.name),
@@ -279,9 +279,13 @@ export function skillConditionRule(ctx) {
       { outcome: 'failure', skill: ctx.skill.name, result: ctx.result, enemy: ctx.scene.enemy.name },
     ));
   } else {
+    const failureText = isBeginner
+      ? `${ctx.skill.name} needs ${ctx.skillNeedText}. Your answer was ${ctx.result}. Try again.`
+      : `${ctx.skill.name} needs ${ctx.skillNeedText}. Your answer was ${ctx.result}, which is ${ctx.resultTypeText}. Action failed.`;
+
     ctx.phases.push(buildBattlePhaseLine(
       battleResultPhases.RESULT_SKILL_CHECK,
-      `${ctx.skill.name} needs ${ctx.skillNeedText}. Your answer was ${ctx.result}, which is ${ctx.resultTypeText}. Action failed.`,
+      failureText,
       { outcome: 'failure', skill: ctx.skill.name, result: ctx.result },
     ));
   }
@@ -374,7 +378,12 @@ export function enemyGateRule(ctx) {
   }, { utilityOnly: true });
 
   prependFeedback(ctx, 'ineffective', { outcome: 'partial_success', skill: ctx.skill.name });
-  ctx.phases.push(...buildGuidedTeachingPhases(ctx, 'Right skill type, but the answer did not match. Action failed.'));
+  ctx.phases.push(...buildGuidedTeachingPhases(
+    ctx,
+    getDifficultyKey(ctx.scene) === 'beginner'
+      ? `Not yet. Try ${getFriendlyRuleAnswerText(ctx.scene)}.`
+      : 'Right skill type, but the answer did not match. Action failed.',
+  ));
   ctx.phases.push(buildBattlePhaseLine(
     battleResultPhases.RESULT_SKILL_CHECK,
     getSkillTextTemplate(ctx.skill, 'success', `${ctx.skill.name} works.`).replace('{skill}', ctx.skill.name),

@@ -297,6 +297,7 @@ ${this.stageRegistry.getStageFailMessage(stageId, { passScore, total: questions.
 
     const pickedValue = question.options[optionIndex];
     const correct = pickedValue === question.answer;
+    const operationText = question.expression.includes('-') ? 'subtraction' : 'addition';
 
     this.store.patch((state) => {
       if (correct) {
@@ -309,10 +310,10 @@ ${this.stageRegistry.getStageFailMessage(stageId, { passScore, total: questions.
       state.message.text = correct
         ? `Correct. ${question.expression} = ${question.answer}.
 
-You split the number equally in the right way.`
+You solved the ${operationText}.`
         : `Not quite. ${question.expression} = ${question.answer}, not ${pickedValue}.
 
-Think about how many are in each equal group.`;
+Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
       state.ui.mode = TRAINING_MODES.MESSAGE;
       state.message.afterMode = TRAINING_MODES.STAGE2_TYPE;
     }, { type: 'training:stage2AnswerSelected', correct });
@@ -332,8 +333,8 @@ Think about how many are in each equal group.`;
 
     this.store.patch((state) => {
       state.message.text = typeCorrect
-        ? buildClassificationSuccessMessage(question.answer, selectedCategoryLabel, validCategories)
-        : buildClassificationWrongMessage(question.answer, validCategories);
+        ? `Correct. That answer is ${selectedCategoryLabel}.`
+        : 'Not quite. Check the number kind again.';
 
       if (typeCorrect) {
         state.stage2.correctCount += 1;
@@ -343,13 +344,13 @@ Think about how many are in each equal group.`;
       state.stage2.pendingTypeQuestion = null;
       state.stage2.currentAnswerCorrect = false;
       state.selection.optionIndex = 0;
-    }, { type: 'training:stage2TypeSelected', typeCorrect, fullCorrect });
+    }, { type: 'training:stage2TypeSelected', typeCorrect });
 
     const nextIndex = this.store.get(['stage2', 'questionIndex']);
     const correctCount = this.store.get(['stage2', 'correctCount']);
     if (nextIndex >= questions.length) {
       const passed = correctCount >= passScore;
-      const scoreLine = `You got ${correctCount}/${BEGINNER_STAGE2_STEP_TOTAL}. Need at least ${passScore}/${BEGINNER_STAGE2_STEP_TOTAL}.`;
+      const scoreLine = `You got ${correctCount}/${BEGINNER_STAGE2_STEP_TOTAL} points. Need ${passScore}/${BEGINNER_STAGE2_STEP_TOTAL} points.`;
 
       if (passed) {
         if (!isTrainingStageCompleted(2)) {
@@ -494,19 +495,15 @@ function getValidNumberCategories(value) {
     return ['Zero'];
   }
 
-  const categories = [];
+  if (isPrimeValue(value)) {
+    return ['Prime'];
+  }
 
   if (Math.abs(value % 2) === 1) {
-    categories.push('Odd');
-  } else if (value % 2 === 0) {
-    categories.push('Even');
+    return ['Odd'];
   }
 
-  if (isPrimeValue(value)) {
-    categories.push('Prime');
-  }
-
-  return categories;
+  return ['Even'];
 }
 
 function isPrimeValue(value) {

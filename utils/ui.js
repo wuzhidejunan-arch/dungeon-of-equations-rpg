@@ -1,23 +1,59 @@
+export const UI_HINT_WOOD_PLATE_KEY = "uiHintWoodPlate";
+export const UI_STATUS_WOOD_PANEL_KEY = "uiStatusWoodPanel";
+
+const UI_HINT_WOOD_PLATE_PATH = "assets/ui/ui_hint_wood_plate.png";
+const UI_STATUS_WOOD_PANEL_PATH = "assets/ui/ui_status_wood_panel.png";
+const HINT_PLATE_WIDTH = 305;
+const HINT_PLATE_HEIGHT = 58;
+const HINT_PLATE_CENTER_X = 168.5;
+const HINT_PLATE_CENTER_Y = 38;
+
+export function preloadHudUiAssets(scene) {
+  scene.load.image(UI_HINT_WOOD_PLATE_KEY, UI_HINT_WOOD_PLATE_PATH);
+  scene.load.image(UI_STATUS_WOOD_PANEL_KEY, UI_STATUS_WOOD_PANEL_PATH);
+}
+
 export function createPrompt(scene) {
-  return scene.add
-    .text(20, 18, "", {
+  const hasHintPlate = scene.textures.exists(UI_HINT_WOOD_PLATE_KEY);
+  const promptPlate = hasHintPlate
+    ? scene.add
+        .image(HINT_PLATE_CENTER_X, HINT_PLATE_CENTER_Y, UI_HINT_WOOD_PLATE_KEY)
+        .setDisplaySize(HINT_PLATE_WIDTH, HINT_PLATE_HEIGHT)
+        .setAlpha(0.88)
+        .setScrollFactor(0)
+        .setDepth(99)
+        .setVisible(false)
+    : null;
+
+  const promptText = scene.add
+    .text(HINT_PLATE_CENTER_X, HINT_PLATE_CENTER_Y, "", {
       fontSize: "18px",
-      color: "#ffffff",
-      backgroundColor: "#0f172a",
-      padding: { x: 12, y: 6 },
+      color: hasHintPlate ? "#f4e6c1" : "#ffffff",
+      fontStyle: "bold",
+      align: "center",
+      wordWrap: { width: HINT_PLATE_WIDTH - 42 },
+      ...(hasHintPlate
+        ? {}
+        : { backgroundColor: "#0f172a", padding: { x: 12, y: 6 } }),
     })
+    .setOrigin(0.5)
     .setScrollFactor(0)
     .setDepth(100)
     .setVisible(false);
+
+  promptText.promptPlate = promptPlate;
+  return promptText;
 }
 
 export function showPrompt(promptText, message) {
   promptText.setText(message);
   promptText.setVisible(true);
+  promptText.promptPlate?.setVisible(true);
 }
 
 export function hidePrompt(promptText) {
   promptText.setVisible(false);
+  promptText.promptPlate?.setVisible(false);
 }
 
 export function createPanel(scene, x, y, width, height, text = "") {

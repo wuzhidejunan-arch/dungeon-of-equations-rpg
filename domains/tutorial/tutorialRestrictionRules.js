@@ -81,7 +81,7 @@ export function skillRestrictionRule(ctx) {
     return ctx;
   }
 
-  ctx.result = deny(formatMessage(ctx, 'wrongSkill', 'Use the right move.'));
+  ctx.result = deny(formatMessage(ctx, 'wrongSkill', 'Use the right skill.'));
   ctx.stop = true;
   return ctx;
 }

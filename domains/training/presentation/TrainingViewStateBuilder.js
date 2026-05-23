@@ -20,10 +20,15 @@ function getStageStatusLabel(stageId) {
 function getStageGoalText(stageId, stageRegistry) {
   const battle = stageRegistry.getStageBattleConfig(stageId);
   const hasBattle = Boolean(battle?.enemyKey || battle?.winKey || battle?.enemyDataKey);
+  if (stageId === 3 && hasBattle) return 'Goal: win the practice battle using what you learned.';
   if (hasBattle) return 'Goal: beat the practice battle.';
 
   const questions = stageRegistry.getStageQuestions(stageId) || [];
   const passScore = stageRegistry.getStagePassScore(stageId);
+  if (stageId === 2 && questions.length && passScore) {
+    return `Goal: get ${passScore} points`;
+  }
+
   if (questions.length && passScore) {
     return `Goal: get ${passScore} right`;
   }

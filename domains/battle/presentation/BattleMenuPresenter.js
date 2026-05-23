@@ -41,14 +41,14 @@ export class BattleMenuPresenter {
     const scene = this.scene;
     const skillPositions = Array.isArray(scene.skillMenuPositions) && scene.skillMenuPositions.length
       ? scene.skillMenuPositions.map((position) => ({
-        x: position.x - 26,
+        x: position.x - 24,
         y: position.y,
       }))
       : [
-        { x: 114, y: 538 },
-        { x: 296, y: 538 },
-        { x: 114, y: 564 },
-        { x: 296, y: 564 },
+        { x: 116, y: 497 },
+        { x: 298, y: 497 },
+        { x: 116, y: 523 },
+        { x: 298, y: 523 },
       ];
 
     const skillEntries = (scene.playerSkills || []).map((skill) => ({
@@ -62,6 +62,7 @@ export class BattleMenuPresenter {
     if (scene.skillCursorText && cursorPos) {
       scene.skillCursorText.setPosition(cursorPos.x, cursorPos.y);
     }
+    scene.resultText?.setPosition?.(95, 453);
 
     const skill = scene.playerSkills?.[scene.selectedSkillIndex];
     const tutorialNotice = getTutorialSkillAvailabilityNotice(scene);
@@ -78,7 +79,7 @@ export class BattleMenuPresenter {
 
     const rows = [
       ...getSkillDetailRows(skill),
-      { label: getBattleUIValue('skillUsesLabel', 'Uses'), value: ppText },
+      { label: getBattleUIValue('skillUsesLabel', 'Left'), value: ppText },
     ];
 
     scene.renderSkillInfo?.(formatInfoRows(rows));
@@ -95,16 +96,16 @@ export class BattleMenuPresenter {
     const layouts = {
       main: mainPositions,
       bonus: [
-        { x: 558, y: 478 },
-        { x: 558, y: 520 },
+        { x: 590, y: 463 },
+        { x: 590, y: 505 },
       ],
     };
 
     const buildVerticalLayout = (count) => {
       const step = count > 4 ? 24 : 28;
       return Array.from({ length: count }, (_, index) => ({
-        x: 558,
-        y: 468 + (index * step),
+        x: 590,
+        y: 450 + (index * step),
       }));
     };
 

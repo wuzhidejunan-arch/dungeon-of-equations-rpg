@@ -121,8 +121,8 @@ export class BattleSceneRenderer {
 
   updateHpBars(viewState) {
     const scene = this.scene;
-    scene.enemyHpBarFill.width = 180 * (viewState?.hp?.enemy?.ratio || 0);
-    scene.playerHpBarFill.width = 178 * (viewState?.hp?.player?.ratio || 0);
+    scene.enemyHpBarFill.width = 220 * (viewState?.hp?.enemy?.ratio || 0);
+    scene.playerHpBarFill.width = 220 * (viewState?.hp?.player?.ratio || 0);
   }
 
   refreshStatus(viewState) {

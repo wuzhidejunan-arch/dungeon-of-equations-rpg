@@ -1,7 +1,7 @@
 import { BaseScene } from './BaseScene.js';
 import { playerData } from '../data/playerData.js';
 import { createBasicTextures, preloadDungeonMapArt } from '../utils/textureFactory.js';
-import { hidePrompt, showPrompt } from '../utils/ui.js';
+import { hidePrompt, preloadHudUiAssets, showPrompt } from '../utils/ui.js';
 import { saveGame } from '../utils/saveSystem.js';
 import { getDifficultyDungeonEnemy } from '../config/difficultySettings.js';
 import { dungeonConfig } from '../config/dungeonConfig.js';
@@ -38,6 +38,7 @@ export class DungeonScene extends BaseScene {
 
   preload() {
     preloadDungeonMapArt(this);
+    preloadHudUiAssets(this);
     this.preloadCurrentBossVisual();
     preloadBgmAssets(this, audioKeys.bgm.dungeon);
   }

@@ -20,7 +20,7 @@ export const battleFeedbackSpec = {
     },
     failure: {
       label: 'Fail',
-      detail: 'Wrong skill for this move. No damage.',
+      detail: 'Wrong skill for this step. No damage.',
     },
     ineffective: {
       label: 'Blocked',

@@ -20,7 +20,7 @@ export const BattleMathMixin = {
     if (operator === '?' || operator === '*' || operator === '×' || operator === 'x' || operator === 'X') {
       return '?';
     }
-    if (operator === '/' || operator === '÷' || operator === '繩') {
+    if (operator === '/' || operator === '÷') {
       return '/';
     }
     return operator;
@@ -115,7 +115,7 @@ export const BattleMathMixin = {
     return {
       success: true,
       code: 'challenge_chain_valid',
-      message: 'Challenge chain is valid.',
+      message: 'This two-row answer works.',
       values: {
         step1Result,
         carriedResult: step1Result,
@@ -154,7 +154,7 @@ export const BattleMathMixin = {
         success: false,
         outcome: 'chain_invalid',
         code: inputValidation.code,
-        message: `The two-row answer is not correct. ${inputValidation.message}`,
+        message: `This two-row answer does not work. ${inputValidation.message}`,
         values: inputValidation.values || null,
       };
     }
@@ -165,7 +165,7 @@ export const BattleMathMixin = {
         success: false,
         outcome: 'rule_miss',
         code: finalRuleValidation.code,
-        message: `Challenge attack missed: ${finalRuleValidation.message}`,
+        message: `Challenge attack does not work: ${finalRuleValidation.message}`,
         values: finalRuleValidation.values || null,
       };
     }
@@ -174,7 +174,7 @@ export const BattleMathMixin = {
       success: true,
       outcome: 'rule_match',
       code: finalRuleValidation.code,
-      message: `Challenge attack ready: ${finalRuleValidation.message}`,
+      message: `Challenge attack works: ${finalRuleValidation.message}`,
       values: finalRuleValidation.values || null,
     };
   },

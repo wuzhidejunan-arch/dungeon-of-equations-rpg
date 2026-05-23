@@ -1,6 +1,11 @@
 ﻿import { battleMenuStates } from '../data/battleStates.js';
 import { battleResultPhases } from '../data/battlePhases.js';
-import { formatBattleTemplate, getBattleText, getBattleUIText } from '../utils/battleSchema.js';
+import {
+  formatBattleTemplate,
+  getBattleText,
+  getBattleUIText,
+  getChainBuilderHelperText,
+} from '../utils/battleSchema.js';
 import { getSkillUnavailableReason, isSkillUsable } from '../utils/playerSkills.js';
 import { getTutorialBackRestriction, formatTutorialTemplate, validateTutorialBuilderAction } from './tutorialFlowController.js';
 import { battleBuilderModes } from '../config/battleBuilderModes.js';
@@ -18,7 +23,7 @@ function getChallengeOperatorGlyph(value) {
     return '\u00d7';
   }
 
-  if (value === '/' || value === '繩' || value === '÷') {
+  if (value === '/' || value === '÷') {
     return '\u00f7';
   }
 
@@ -46,13 +51,13 @@ function getDisplayOperatorText(scene, value, cardType = '') {
     return getChallengeOperatorGlyph(value) || `${value}`;
   }
 
+  if (value === '/' || value === '÷') {
+    return '÷';
+  }
+
   if (usesModernOperatorGlyphs(scene)) {
     if (value === '?' || value === '*') {
       return '×';
-    }
-
-    if (value === '/' || value === '÷' || value === '繩') {
-      return '÷';
     }
   }
 
@@ -71,57 +76,223 @@ function formatDisplayExpression(scene, left, operator, right, result) {
 function setPanelBounds(panel, x, y, width, height) {
   if (!panel) return;
   panel.setPosition?.(x, y);
-  panel.setSize?.(width, height);
-  panel.setDisplaySize?.(width, height);
+  setBuilderImageSize(panel, width, height);
+}
+
+const mathBuilderAssets = Object.freeze({
+  panel: 'mathBuilderPanel',
+  slotEmpty: 'mathBuilderSlotEmpty',
+  tokenIdle: 'mathBuilderTokenIdle',
+  tokenSelected: 'mathBuilderTokenSelected',
+  buttonIdle: 'mathBuilderButtonIdle',
+});
+
+const singleLineBuilderLayout = Object.freeze({
+  panel: { x: 400, y: 330, width: 660, height: 410 },
+  title: { x: 400, y: 185 },
+  goal: { x: 170, y: 222, width: 490 },
+  feedback: { x: 170, y: 262, width: 490 },
+  cards: {
+    centerX: 400,
+    y: 302,
+    width: 54,
+    height: 54,
+    gap: 18,
+  },
+  slots: {
+    width: 72,
+    height: 56,
+    left: { x: 260, y: 375 },
+    op: { x: 350, y: 375 },
+    right: { x: 440, y: 375 },
+    equals: { x: 520, y: 375 },
+    result: { x: 568, y: 375 },
+  },
+  buttons: {
+    width: 112,
+    height: 46,
+    back: { x: 274, y: 450 },
+    clear: { x: 400, y: 450 },
+    confirm: { x: 526, y: 450 },
+  },
+});
+
+const chainedBuilderLayout = Object.freeze({
+  panel: { x: 400, y: 310, width: 720, height: 540 },
+  title: { x: 400, y: 130 },
+  goal: { x: 165, y: 170, width: 470 },
+  feedback: { x: 165, y: 192, width: 470 },
+  cards: {
+    width: 50,
+    height: 50,
+    gap: 62,
+  },
+  slots: {
+    width: 62,
+    height: 50,
+  },
+  buttons: {
+    width: 112,
+    height: 46,
+  },
+});
+
+function hasTexture(scene, key) {
+  return Boolean(scene?.textures?.exists?.(key));
+}
+
+function createBuilderImageOrFallback(scene, key, x, y, width, height, fallbackFill, fallbackStroke) {
+  const node = hasTexture(scene, key)
+    ? scene.add.image(x, y, key).setDisplaySize(width, height)
+    : scene.add.rectangle(x, y, width, height, fallbackFill, 1);
+
+  if (!hasTexture(scene, key) && fallbackStroke) {
+    node.setStrokeStyle?.(fallbackStroke.width, fallbackStroke.color);
+  }
+
+  node.builderDisplayWidth = width;
+  node.builderDisplayHeight = height;
+  return node;
+}
+
+function setBuilderImageSize(node, width, height) {
+  node.builderDisplayWidth = width;
+  node.builderDisplayHeight = height;
+  node.setSize?.(width, height);
+  node.setDisplaySize?.(width, height);
+}
+
+function setBuilderCardTexture(card, selected = false) {
+  const textureKey = selected ? mathBuilderAssets.tokenSelected : mathBuilderAssets.tokenIdle;
+  if (!card?.setTexture || !hasTexture(card.scene, textureKey)) return;
+  card.setTexture(textureKey);
+  card.setDisplaySize?.(card.builderDisplayWidth || 44, card.builderDisplayHeight || 44);
+}
+
+const SINGLE_LINE_BUILDER_CONTENT_OFFSET_X = -30;
+const SINGLE_LINE_BUILDER_NON_BUTTON_OFFSET_Y = 15;
+const CHAIN_BUILDER_EXPRESSION_OFFSET_X = -30;
+const CHAIN_BUILDER_BUTTON_OFFSET_X = -30;
+const CHAIN_BUILDER_OPERATOR_OFFSET_X = -30;
+const CHAIN_BUILDER_CONTENT_OFFSET_Y = -50;
+const CHAIN_BUILDER_BUTTON_OFFSET_Y = -32;
+const BUILDER_BUTTON_TEXT_VISUAL_ADJUST_Y = -3;
+function centerTextByBounds(text, targetCenterX, targetCenterY) {
+  if (!text) return;
+  text?.setOrigin?.(0.5, 0.5);
+  text?.setPosition?.(targetCenterX, targetCenterY);
+  text?.updateText?.();
+
+  const bounds = text?.getBounds?.();
+  if (!bounds) return;
+
+  const actualCenterX = bounds.x + (bounds.width / 2);
+  const actualCenterY = bounds.y + (bounds.height / 2);
+  text.x += targetCenterX - actualCenterX;
+  text.y += targetCenterY - actualCenterY;
+}
+
+function centerButtonTextByBounds(text, targetCenterX, targetCenterY) {
+  centerTextByBounds(text, targetCenterX, targetCenterY);
+  if (text) {
+    text.y += BUILDER_BUTTON_TEXT_VISUAL_ADJUST_Y;
+  }
+}
+
+function singleLineX(x) {
+  return x + SINGLE_LINE_BUILDER_CONTENT_OFFSET_X;
+}
+
+function singleLineNonButtonY(y) {
+  return y + SINGLE_LINE_BUILDER_NON_BUTTON_OFFSET_Y;
+}
+
+function chainExpressionX(x) {
+  return x + CHAIN_BUILDER_EXPRESSION_OFFSET_X;
+}
+
+function chainButtonX(x) {
+  return x + CHAIN_BUILDER_BUTTON_OFFSET_X;
+}
+
+function chainOperatorX(x) {
+  return x + CHAIN_BUILDER_OPERATOR_OFFSET_X;
+}
+
+function chainContentY(y) {
+  return y + CHAIN_BUILDER_CONTENT_OFFSET_Y;
+}
+
+function chainButtonY(y) {
+  return y + CHAIN_BUILDER_BUTTON_OFFSET_Y;
 }
 
 export function applyBuilderLayout(scene) {
   if (isChainedBuilder(scene)) {
-    setPanelBounds(scene.builderPanel, 400, 342, 676, 424);
-    scene.builderTitleText?.setPosition?.(188, 166);
-    scene.builderGoalText?.setPosition?.(188, 200);
-    scene.builderFeedbackText?.setPosition?.(188, 236);
-    scene.builderSlots.step1Left?.setPosition?.(294, 362);
-    scene.builderSlots.step1Op?.setPosition?.(370, 362);
-    scene.builderSlots.step1Right?.setPosition?.(446, 362);
-    scene.builderSlots.step2Op?.setPosition?.(370, 434);
-    scene.builderSlots.step2Right?.setPosition?.(446, 434);
-    scene.builderStep1EqualsText?.setPosition?.(526, 362);
-    scene.builderStep1ResultText?.setPosition?.(570, 362);
-    scene.builderStep2CarryText?.setPosition?.(294, 434);
-    scene.builderStep2EqualsText?.setPosition?.(526, 434);
-    scene.equalsText?.setPosition?.(526, 434);
-    scene.resultPreviewText?.setPosition?.(570, 434);
-    scene.backButton?.background?.setPosition?.(314, 542);
-    scene.backButton?.text?.setPosition?.(314, 542);
-    scene.clearButton?.background?.setPosition?.(440, 542);
-    scene.clearButton?.text?.setPosition?.(440, 542);
-    scene.confirmButton?.background?.setPosition?.(566, 542);
-    scene.confirmButton?.text?.setPosition?.(566, 542);
+    setPanelBounds(
+      scene.builderPanel,
+      chainedBuilderLayout.panel.x,
+      chainedBuilderLayout.panel.y,
+      chainedBuilderLayout.panel.width,
+      chainedBuilderLayout.panel.height,
+    );
+    scene.builderTitleText?.setPosition?.(chainedBuilderLayout.title.x, chainedBuilderLayout.title.y);
+    scene.builderGoalText?.setPosition?.(chainedBuilderLayout.goal.x, chainedBuilderLayout.goal.y);
+    scene.builderGoalText?.setWordWrapWidth?.(chainedBuilderLayout.goal.width);
+    scene.builderFeedbackText?.setPosition?.(chainedBuilderLayout.feedback.x, chainedBuilderLayout.feedback.y);
+    scene.builderFeedbackText?.setWordWrapWidth?.(chainedBuilderLayout.feedback.width);
+    scene.builderSlots.step1Left?.setPosition?.(chainExpressionX(294), chainContentY(362));
+    scene.builderSlots.step1Op?.setPosition?.(chainExpressionX(370), chainContentY(362));
+    scene.builderSlots.step1Right?.setPosition?.(chainExpressionX(446), chainContentY(362));
+    scene.builderSlots.step2Op?.setPosition?.(chainExpressionX(370), chainContentY(434));
+    scene.builderSlots.step2Right?.setPosition?.(chainExpressionX(446), chainContentY(434));
+    scene.builderStep1EqualsText?.setPosition?.(chainExpressionX(526), chainContentY(362));
+    scene.builderStep1ResultText?.setPosition?.(chainExpressionX(570), chainContentY(362));
+    scene.builderStep2CarryText?.setPosition?.(chainExpressionX(294), chainContentY(434));
+    scene.builderStep2EqualsText?.setPosition?.(chainExpressionX(526), chainContentY(434));
+    scene.equalsText?.setPosition?.(chainExpressionX(526), chainContentY(434));
+    scene.resultPreviewText?.setPosition?.(chainExpressionX(570), chainContentY(434));
+    scene.backButton?.background?.setPosition?.(chainButtonX(314), chainButtonY(542));
+    centerButtonTextByBounds(scene.backButton?.text, chainButtonX(314), chainButtonY(542));
+    scene.clearButton?.background?.setPosition?.(chainButtonX(440), chainButtonY(542));
+    centerButtonTextByBounds(scene.clearButton?.text, chainButtonX(440), chainButtonY(542));
+    scene.confirmButton?.background?.setPosition?.(chainButtonX(566), chainButtonY(542));
+    centerButtonTextByBounds(scene.confirmButton?.text, chainButtonX(566), chainButtonY(542));
     return;
   }
 
-  setPanelBounds(scene.builderPanel, 400, 320, 500, 290);
-  scene.builderTitleText?.setPosition?.(260, 190);
-  scene.builderGoalText?.setPosition?.(260, 228);
-  scene.builderFeedbackText?.setPosition?.(260, 268);
-  scene.builderSlots.step1Left?.setPosition?.(272, 336);
-  scene.builderSlots.step1Op?.setPosition?.(340, 336);
-  scene.builderSlots.step1Right?.setPosition?.(408, 336);
-  scene.builderSlots.step2Op?.setPosition?.(340, 408);
-  scene.builderSlots.step2Right?.setPosition?.(408, 408);
-  scene.builderStep1EqualsText?.setPosition?.(474, 336);
-  scene.builderStep1ResultText?.setPosition?.(516, 336);
-  scene.builderStep2CarryText?.setPosition?.(272, 408);
-  scene.builderStep2EqualsText?.setPosition?.(474, 408);
-  scene.backButton?.background?.setPosition?.(315, 470);
-  scene.backButton?.text?.setPosition?.(315, 470);
-  scene.clearButton?.background?.setPosition?.(425, 470);
-  scene.clearButton?.text?.setPosition?.(425, 470);
-  scene.confirmButton?.background?.setPosition?.(530, 470);
-  scene.confirmButton?.text?.setPosition?.(530, 470);
-  scene.equalsText?.setPosition?.(550, 372);
-  scene.resultPreviewText?.setPosition?.(594, 372);
+  setPanelBounds(
+    scene.builderPanel,
+    singleLineBuilderLayout.panel.x,
+    singleLineBuilderLayout.panel.y,
+    singleLineBuilderLayout.panel.width,
+    singleLineBuilderLayout.panel.height,
+  );
+  scene.builderTitleText?.setPosition?.(singleLineBuilderLayout.title.x, singleLineBuilderLayout.title.y);
+  scene.builderGoalText?.setPosition?.(singleLineBuilderLayout.goal.x, singleLineBuilderLayout.goal.y);
+  scene.builderGoalText?.setWordWrapWidth?.(singleLineBuilderLayout.goal.width);
+  scene.builderFeedbackText?.setPosition?.(singleLineBuilderLayout.feedback.x, singleLineBuilderLayout.feedback.y);
+  scene.builderFeedbackText?.setWordWrapWidth?.(singleLineBuilderLayout.feedback.width);
+  scene.builderSlots.left?.setPosition?.(singleLineBuilderLayout.slots.left.x, singleLineBuilderLayout.slots.left.y);
+  scene.builderSlots.op?.setPosition?.(singleLineBuilderLayout.slots.op.x, singleLineBuilderLayout.slots.op.y);
+  scene.builderSlots.right?.setPosition?.(singleLineBuilderLayout.slots.right.x, singleLineBuilderLayout.slots.right.y);
+  scene.builderSlots.step1Left?.setPosition?.(singleLineX(272), 336);
+  scene.builderSlots.step1Op?.setPosition?.(singleLineX(340), 336);
+  scene.builderSlots.step1Right?.setPosition?.(singleLineX(408), 336);
+  scene.builderSlots.step2Op?.setPosition?.(singleLineX(340), 408);
+  scene.builderSlots.step2Right?.setPosition?.(singleLineX(408), 408);
+  scene.builderStep1EqualsText?.setPosition?.(singleLineX(474), 336);
+  scene.builderStep1ResultText?.setPosition?.(singleLineX(516), 336);
+  scene.builderStep2CarryText?.setPosition?.(singleLineX(272), 408);
+  scene.builderStep2EqualsText?.setPosition?.(singleLineX(474), 408);
+  scene.backButton?.background?.setPosition?.(singleLineBuilderLayout.buttons.back.x, singleLineBuilderLayout.buttons.back.y);
+  centerButtonTextByBounds(scene.backButton?.text, singleLineBuilderLayout.buttons.back.x, singleLineBuilderLayout.buttons.back.y);
+  scene.clearButton?.background?.setPosition?.(singleLineBuilderLayout.buttons.clear.x, singleLineBuilderLayout.buttons.clear.y);
+  centerButtonTextByBounds(scene.clearButton?.text, singleLineBuilderLayout.buttons.clear.x, singleLineBuilderLayout.buttons.clear.y);
+  scene.confirmButton?.background?.setPosition?.(singleLineBuilderLayout.buttons.confirm.x, singleLineBuilderLayout.buttons.confirm.y);
+  centerButtonTextByBounds(scene.confirmButton?.text, singleLineBuilderLayout.buttons.confirm.x, singleLineBuilderLayout.buttons.confirm.y);
+  scene.equalsText?.setPosition?.(singleLineBuilderLayout.slots.equals.x, singleLineBuilderLayout.slots.equals.y);
+  scene.resultPreviewText?.setPosition?.(singleLineBuilderLayout.slots.result.x, singleLineBuilderLayout.slots.result.y);
 }
 
 function isChainedBuilder(scene) {
@@ -202,7 +373,10 @@ function formatChallengeFeedback(lines = []) {
     .replace('Challenge chain failed: ', '')
     .replace('Challenge attack missed: ', '')
     .replace('Challenge attack ready: ', '')
-    .replace('Challenge chain is valid.', 'Chain valid.')
+    .replace('Challenge attack does not work: ', '')
+    .replace('Challenge attack works: ', '')
+    .replace('Challenge chain is valid.', 'This two-row answer works.')
+    .replace('Chain valid.', 'This two-row answer works.')
     .replace('Challenge final result matches the enemy rule:', 'Final answer matches rule:')
     .replace('Challenge final result does not match the enemy rule:', 'Final answer misses rule:')
     .replace('Step 1 is not calculated correctly.', 'Step 1 math is wrong.')
@@ -283,9 +457,16 @@ export function activateChallengeUtilitySkill(scene, skill) {
 }
 
 function createSlot(scene, x, y, width, height, slotType) {
-  const rect = scene.add
-    .rectangle(x, y, width, height, 0xffffff, 1)
-    .setStrokeStyle(3, 0x1a1a1a)
+  const rect = createBuilderImageOrFallback(
+    scene,
+    mathBuilderAssets.slotEmpty,
+    x,
+    y,
+    width,
+    height,
+    0xffffff,
+    { width: 3, color: 0x1a1a1a },
+  )
     .setDepth(302)
     .setVisible(false);
 
@@ -295,9 +476,16 @@ function createSlot(scene, x, y, width, height, slotType) {
 }
 
 function createActionButton(scene, x, y, width, height, label, onClick) {
-  const background = scene.add
-    .rectangle(x, y, width, height, 0xffffff, 1)
-    .setStrokeStyle(3, 0x1a1a1a)
+  const background = createBuilderImageOrFallback(
+    scene,
+    mathBuilderAssets.buttonIdle,
+    x,
+    y,
+    width,
+    height,
+    0xffffff,
+    { width: 3, color: 0x1a1a1a },
+  )
     .setDepth(302)
     .setVisible(false)
     .setInteractive({ useHandCursor: true });
@@ -305,12 +493,13 @@ function createActionButton(scene, x, y, width, height, label, onClick) {
   const text = scene.add
     .text(x, y, label, {
       fontSize: '18px',
-      color: '#1a1a1a',
+      color: '#f8e7b0',
       fontStyle: 'bold',
     })
-    .setOrigin(0.5)
+    .setOrigin(0.5, 0.5)
     .setDepth(303)
     .setVisible(false);
+  centerButtonTextByBounds(text, x, y);
 
   background.on('pointerup', onClick);
 
@@ -318,9 +507,16 @@ function createActionButton(scene, x, y, width, height, label, onClick) {
 }
 
 function createDraggableCard(scene, x, y, width, height, textValue, color, cardType, value) {
-  const card = scene.add
-    .rectangle(x, y, width, height, color, 1)
-    .setStrokeStyle(3, 0x1a1a1a)
+  const card = createBuilderImageOrFallback(
+    scene,
+    mathBuilderAssets.tokenIdle,
+    x,
+    y,
+    width,
+    height,
+    color,
+    { width: 3, color: 0x1a1a1a },
+  )
     .setDepth(305)
     .setVisible(true)
     .setInteractive({ draggable: true, useHandCursor: true });
@@ -328,12 +524,13 @@ function createDraggableCard(scene, x, y, width, height, textValue, color, cardT
   const label = scene.add
     .text(x, y, getDisplayCardTextForScene(scene, cardType, textValue), {
       fontSize: '22px',
-      color: '#1a1a1a',
+      color: '#f8e7b0',
       fontStyle: 'bold',
     })
-    .setOrigin(0.5)
+    .setOrigin(0.5, 0.5)
     .setDepth(306)
     .setVisible(true);
+  centerTextByBounds(label, x, y);
 
   card.label = label;
   card.cardType = cardType;
@@ -342,10 +539,18 @@ function createDraggableCard(scene, x, y, width, height, textValue, color, cardT
   card.homeY = y;
   card.assignedSlot = null;
 
-  scene.input.setDraggable(card);
-
+  card.on('pointerover', () => setBuilderCardTexture(card, true));
+  card.on('pointerout', () => {
+    if (!card.__builderDragging) {
+      setBuilderCardTexture(card, false);
+    }
+  });
   card.on('pointerup', () => {
-    if (!scene.builderActive) return;
+    if (!scene.builderActive || card.__builderDragMoved) {
+      card.__builderDragMoved = false;
+      return;
+    }
+
     if (!card.assignedSlot) {
       const preferredSlot = getNextPreferredSlot(scene, card);
 
@@ -354,6 +559,8 @@ function createDraggableCard(scene, x, y, width, height, textValue, color, cardT
       }
     }
   });
+
+  scene.input.setDraggable(card);
 
   return card;
 }
@@ -364,35 +571,43 @@ export function createBuilderUI(scene) {
     .setDepth(298)
     .setVisible(false);
 
-  scene.builderPanel = scene.add
-    .rectangle(400, 320, 500, 290, 0xffffff)
-    .setStrokeStyle(4, 0x1a1a1a)
+  scene.builderPanel = createBuilderImageOrFallback(
+    scene,
+    mathBuilderAssets.panel,
+    singleLineBuilderLayout.panel.x,
+    singleLineBuilderLayout.panel.y,
+    singleLineBuilderLayout.panel.width,
+    singleLineBuilderLayout.panel.height,
+    0xffffff,
+    { width: 4, color: 0x1a1a1a },
+  )
     .setDepth(300)
     .setVisible(false);
 
   scene.builderTitleText = scene.add
-    .text(260, 190, getBattleUIText('builder.title', 'Build'), {
-      fontSize: '20px',
+    .text(singleLineBuilderLayout.title.x, singleLineBuilderLayout.title.y, getBattleUIText('builder.title', 'Build'), {
+      fontSize: '30px',
       color: '#1a1a1a',
       fontStyle: 'bold',
     })
+    .setOrigin(0.5)
     .setDepth(302)
     .setVisible(false);
 
   scene.builderGoalText = scene.add
-    .text(260, 228, '', {
-      fontSize: '14px',
+    .text(singleLineBuilderLayout.goal.x, singleLineBuilderLayout.goal.y, '', {
+      fontSize: '17px',
       color: '#333333',
-      wordWrap: { width: 360 },
+      wordWrap: { width: singleLineBuilderLayout.goal.width },
     })
     .setDepth(302)
     .setVisible(false);
 
   scene.builderFeedbackText = scene.add
-    .text(260, 268, '', {
-      fontSize: '13px',
+    .text(singleLineBuilderLayout.feedback.x, singleLineBuilderLayout.feedback.y, '', {
+      fontSize: '14px',
       color: '#1a1a1a',
-      wordWrap: { width: 360 },
+      wordWrap: { width: singleLineBuilderLayout.feedback.width },
       lineSpacing: 4,
     })
     .setDepth(302)
@@ -401,18 +616,18 @@ export function createBuilderUI(scene) {
   scene.cardsLabelText = null;
 
   scene.builderSlots = {
-    left: createSlot(scene, 308, 372, 60, 46, 'number'),
-    op: createSlot(scene, 392, 372, 60, 46, 'operator'),
-    right: createSlot(scene, 476, 372, 60, 46, 'number'),
-    step1Left: createSlot(scene, 272, 336, 56, 44, 'number'),
-    step1Op: createSlot(scene, 340, 336, 56, 44, 'operator'),
-    step1Right: createSlot(scene, 408, 336, 56, 44, 'number'),
-    step2Op: createSlot(scene, 340, 408, 56, 44, 'operator'),
-    step2Right: createSlot(scene, 408, 408, 56, 44, 'number'),
+    left: createSlot(scene, singleLineBuilderLayout.slots.left.x, singleLineBuilderLayout.slots.left.y, singleLineBuilderLayout.slots.width, singleLineBuilderLayout.slots.height, 'number'),
+    op: createSlot(scene, singleLineBuilderLayout.slots.op.x, singleLineBuilderLayout.slots.op.y, singleLineBuilderLayout.slots.width, singleLineBuilderLayout.slots.height, 'operator'),
+    right: createSlot(scene, singleLineBuilderLayout.slots.right.x, singleLineBuilderLayout.slots.right.y, singleLineBuilderLayout.slots.width, singleLineBuilderLayout.slots.height, 'number'),
+    step1Left: createSlot(scene, singleLineX(272), 336, chainedBuilderLayout.slots.width, chainedBuilderLayout.slots.height, 'number'),
+    step1Op: createSlot(scene, singleLineX(340), 336, chainedBuilderLayout.slots.width, chainedBuilderLayout.slots.height, 'operator'),
+    step1Right: createSlot(scene, singleLineX(408), 336, chainedBuilderLayout.slots.width, chainedBuilderLayout.slots.height, 'number'),
+    step2Op: createSlot(scene, singleLineX(340), 408, chainedBuilderLayout.slots.width, chainedBuilderLayout.slots.height, 'operator'),
+    step2Right: createSlot(scene, singleLineX(408), 408, chainedBuilderLayout.slots.width, chainedBuilderLayout.slots.height, 'number'),
   };
 
   scene.builderStep1EqualsText = scene.add
-    .text(474, 336, '=', {
+    .text(singleLineX(474), 336, '=', {
       fontSize: '28px',
       color: '#1a1a1a',
       fontStyle: 'bold',
@@ -422,7 +637,7 @@ export function createBuilderUI(scene) {
     .setVisible(false);
 
   scene.builderStep1ResultText = scene.add
-    .text(516, 336, '?', {
+    .text(singleLineX(516), 336, '?', {
       fontSize: '24px',
       color: '#1a1a1a',
       fontStyle: 'bold',
@@ -432,7 +647,7 @@ export function createBuilderUI(scene) {
     .setVisible(false);
 
   scene.builderStep2CarryText = scene.add
-    .text(272, 408, '?', {
+    .text(singleLineX(272), 408, '?', {
       fontSize: '24px',
       color: '#1a1a1a',
       fontStyle: 'bold',
@@ -442,7 +657,7 @@ export function createBuilderUI(scene) {
     .setVisible(false);
 
   scene.builderStep2EqualsText = scene.add
-    .text(474, 408, '=', {
+    .text(singleLineX(474), 408, '=', {
       fontSize: '28px',
       color: '#1a1a1a',
       fontStyle: 'bold',
@@ -452,7 +667,7 @@ export function createBuilderUI(scene) {
     .setVisible(false);
 
   scene.equalsText = scene.add
-    .text(550, 372, '=', {
+    .text(singleLineBuilderLayout.slots.equals.x, singleLineBuilderLayout.slots.equals.y, '=', {
       fontSize: '34px',
       color: '#1a1a1a',
       fontStyle: 'bold',
@@ -462,7 +677,7 @@ export function createBuilderUI(scene) {
     .setVisible(false);
 
   scene.resultPreviewText = scene.add
-    .text(594, 372, '?', {
+    .text(singleLineBuilderLayout.slots.result.x, singleLineBuilderLayout.slots.result.y, '?', {
       fontSize: '26px',
       color: '#1a1a1a',
       fontStyle: 'bold',
@@ -473,9 +688,9 @@ export function createBuilderUI(scene) {
 
   scene.propertyPreviewText = null;
 
-  scene.backButton = createActionButton(scene, 315, 470, 88, 40, getBattleText('builder.backButton', 'Back'), () => scene.returnToSkillMenu());
-  scene.clearButton = createActionButton(scene, 425, 470, 96, 40, getBattleText('builder.clearButton', 'Clear'), () => scene.clearBuilderSlots());
-  scene.confirmButton = createActionButton(scene, 530, 470, 88, 40, getBattleText('builder.okButton', 'OK'), () => scene.confirmBuilderAction());
+  scene.backButton = createActionButton(scene, singleLineBuilderLayout.buttons.back.x, singleLineBuilderLayout.buttons.back.y, singleLineBuilderLayout.buttons.width, singleLineBuilderLayout.buttons.height, getBattleText('builder.backButton', 'Back'), () => scene.returnToSkillMenu());
+  scene.clearButton = createActionButton(scene, singleLineBuilderLayout.buttons.clear.x, singleLineBuilderLayout.buttons.clear.y, singleLineBuilderLayout.buttons.width, singleLineBuilderLayout.buttons.height, getBattleText('builder.clearButton', 'Clear'), () => scene.clearBuilderSlots());
+  scene.confirmButton = createActionButton(scene, singleLineBuilderLayout.buttons.confirm.x, singleLineBuilderLayout.buttons.confirm.y, singleLineBuilderLayout.buttons.width, singleLineBuilderLayout.buttons.height, getBattleText('builder.okButton', 'OK'), () => scene.confirmBuilderAction());
 
   scene.builderHintText = null;
 }
@@ -485,21 +700,28 @@ export function registerBuilderDragHandlers(scene) {
 
   const dragstart = (_, gameObject) => {
     if (!scene.builderActive) return;
+    gameObject.__builderDragging = true;
+    gameObject.__builderDragMoved = false;
+    setBuilderCardTexture(gameObject, true);
     gameObject.setDepth(330);
+    gameObject.label?.setDepth?.(331);
   };
 
   const drag = (_, gameObject, dragX, dragY) => {
     if (!scene.builderActive) return;
+    gameObject.__builderDragMoved = true;
     gameObject.x = dragX;
     gameObject.y = dragY;
-    gameObject.label.x = dragX;
-    gameObject.label.y = dragY;
+    centerTextByBounds(gameObject.label, dragX, dragY);
   };
 
   const dragend = (pointer, gameObject) => {
     if (!scene.builderActive) return;
     tryPlaceCardInSlot(scene, pointer, gameObject);
+    gameObject.__builderDragging = false;
+    setBuilderCardTexture(gameObject, false);
     gameObject.setDepth(305);
+    gameObject.label?.setDepth?.(306);
   };
 
   scene.__builderDragHandlers = { dragstart, drag, dragend };
@@ -559,72 +781,94 @@ export function openBuilder(scene, actionType) {
   scene.renderBuilderHeader(chosenSkill, scene.enemy);
   scene.renderTipText('');
   if (isChainedBuilder(scene)) {
-    setPanelBounds(scene.builderPanel, 400, 350, 720, 480);
-    scene.builderTitleText?.setPosition?.(165, 154);
-    scene.builderGoalText?.setPosition?.(165, 192);
-    scene.builderFeedbackText?.setPosition?.(165, 232);
-    scene.builderSlots.step1Left?.setPosition?.(296, 372);
-    scene.builderSlots.step1Op?.setPosition?.(378, 372);
-    scene.builderSlots.step1Right?.setPosition?.(460, 372);
-    scene.builderSlots.step2Op?.setPosition?.(378, 458);
-    scene.builderSlots.step2Right?.setPosition?.(460, 458);
-    scene.builderStep1EqualsText?.setPosition?.(548, 372);
-    scene.builderStep1ResultText?.setPosition?.(594, 372);
-    scene.builderStep2CarryText?.setPosition?.(296, 458);
-    scene.builderStep2EqualsText?.setPosition?.(548, 458);
-    scene.equalsText?.setPosition?.(594, 415);
-    scene.resultPreviewText?.setPosition?.(642, 415);
-    scene.backButton?.background?.setPosition?.(300, 570);
-    scene.backButton?.text?.setPosition?.(300, 570);
-    scene.clearButton?.background?.setPosition?.(440, 570);
-    scene.clearButton?.text?.setPosition?.(440, 570);
-    scene.confirmButton?.background?.setPosition?.(580, 570);
-    scene.confirmButton?.text?.setPosition?.(580, 570);
+    setPanelBounds(
+      scene.builderPanel,
+      chainedBuilderLayout.panel.x,
+      chainedBuilderLayout.panel.y,
+      chainedBuilderLayout.panel.width,
+      chainedBuilderLayout.panel.height,
+    );
+    scene.builderTitleText?.setPosition?.(chainedBuilderLayout.title.x, chainedBuilderLayout.title.y);
+    scene.builderGoalText?.setPosition?.(chainedBuilderLayout.goal.x, chainedBuilderLayout.goal.y);
+    scene.builderGoalText?.setWordWrapWidth?.(chainedBuilderLayout.goal.width);
+    scene.builderFeedbackText?.setPosition?.(chainedBuilderLayout.feedback.x, chainedBuilderLayout.feedback.y);
+    scene.builderFeedbackText?.setWordWrapWidth?.(chainedBuilderLayout.feedback.width);
+    scene.builderSlots.step1Left?.setPosition?.(chainExpressionX(296), chainContentY(372));
+    scene.builderSlots.step1Op?.setPosition?.(chainExpressionX(378), chainContentY(372));
+    scene.builderSlots.step1Right?.setPosition?.(chainExpressionX(460), chainContentY(372));
+    scene.builderSlots.step2Op?.setPosition?.(chainExpressionX(378), chainContentY(458));
+    scene.builderSlots.step2Right?.setPosition?.(chainExpressionX(460), chainContentY(458));
+    scene.builderStep1EqualsText?.setPosition?.(chainExpressionX(548), chainContentY(372));
+    scene.builderStep1ResultText?.setPosition?.(chainExpressionX(594), chainContentY(372));
+    scene.builderStep2CarryText?.setPosition?.(chainExpressionX(296), chainContentY(458));
+    scene.builderStep2EqualsText?.setPosition?.(chainExpressionX(548), chainContentY(458));
+    scene.equalsText?.setPosition?.(chainExpressionX(548), chainContentY(458));
+    scene.resultPreviewText?.setPosition?.(chainExpressionX(594), chainContentY(458));
+    scene.backButton?.background?.setPosition?.(chainButtonX(314), chainButtonY(542));
+    centerButtonTextByBounds(scene.backButton?.text, chainButtonX(314), chainButtonY(542));
+    scene.clearButton?.background?.setPosition?.(chainButtonX(440), chainButtonY(542));
+    centerButtonTextByBounds(scene.clearButton?.text, chainButtonX(440), chainButtonY(542));
+    scene.confirmButton?.background?.setPosition?.(chainButtonX(566), chainButtonY(542));
+    centerButtonTextByBounds(scene.confirmButton?.text, chainButtonX(566), chainButtonY(542));
     scene.builderTitleText?.setText?.(`${chosenSkill.name.toUpperCase()} - CHAIN`);
-    scene.builderGoalText?.setText?.('Guide: Step 1 uses × or ÷. Step 2 uses the carry with + or -.');
+    scene.builderGoalText?.setText?.(getChainBuilderHelperText());
     scene.builderFeedbackText?.setText?.('');
     scene.builderFeedbackText?.setVisible?.(false);
   } else {
-    scene.builderPanel?.setPosition?.(400, 320);
-    scene.builderPanel?.setSize?.(500, 290);
-    scene.builderTitleText?.setPosition?.(260, 190);
-    scene.builderGoalText?.setPosition?.(260, 228);
-    scene.builderFeedbackText?.setPosition?.(260, 268);
-    scene.builderSlots.step1Left?.setPosition?.(272, 336);
-    scene.builderSlots.step1Op?.setPosition?.(340, 336);
-    scene.builderSlots.step1Right?.setPosition?.(408, 336);
-    scene.builderSlots.step2Op?.setPosition?.(340, 408);
-    scene.builderSlots.step2Right?.setPosition?.(408, 408);
-    scene.builderStep1EqualsText?.setPosition?.(474, 336);
-    scene.builderStep1ResultText?.setPosition?.(516, 336);
-    scene.builderStep2CarryText?.setPosition?.(272, 408);
-    scene.builderStep2EqualsText?.setPosition?.(474, 408);
-    scene.backButton?.background?.setPosition?.(315, 470);
-    scene.backButton?.text?.setPosition?.(315, 470);
-    scene.clearButton?.background?.setPosition?.(425, 470);
-    scene.clearButton?.text?.setPosition?.(425, 470);
-    scene.confirmButton?.background?.setPosition?.(530, 470);
-    scene.confirmButton?.text?.setPosition?.(530, 470);
-    scene.equalsText?.setPosition?.(550, 372);
-    scene.resultPreviewText?.setPosition?.(594, 372);
+    setPanelBounds(
+      scene.builderPanel,
+      singleLineBuilderLayout.panel.x,
+      singleLineBuilderLayout.panel.y,
+      singleLineBuilderLayout.panel.width,
+      singleLineBuilderLayout.panel.height,
+    );
+    scene.builderTitleText?.setPosition?.(singleLineBuilderLayout.title.x, singleLineBuilderLayout.title.y);
+    scene.builderGoalText?.setPosition?.(singleLineBuilderLayout.goal.x, singleLineBuilderLayout.goal.y);
+    scene.builderGoalText?.setWordWrapWidth?.(singleLineBuilderLayout.goal.width);
+    scene.builderFeedbackText?.setPosition?.(singleLineBuilderLayout.feedback.x, singleLineBuilderLayout.feedback.y);
+    scene.builderFeedbackText?.setWordWrapWidth?.(singleLineBuilderLayout.feedback.width);
+    scene.builderSlots.left?.setPosition?.(singleLineBuilderLayout.slots.left.x, singleLineBuilderLayout.slots.left.y);
+    scene.builderSlots.op?.setPosition?.(singleLineBuilderLayout.slots.op.x, singleLineBuilderLayout.slots.op.y);
+    scene.builderSlots.right?.setPosition?.(singleLineBuilderLayout.slots.right.x, singleLineBuilderLayout.slots.right.y);
+    scene.builderSlots.step1Left?.setPosition?.(singleLineX(272), 336);
+    scene.builderSlots.step1Op?.setPosition?.(singleLineX(340), 336);
+    scene.builderSlots.step1Right?.setPosition?.(singleLineX(408), 336);
+    scene.builderSlots.step2Op?.setPosition?.(singleLineX(340), 408);
+    scene.builderSlots.step2Right?.setPosition?.(singleLineX(408), 408);
+    scene.builderStep1EqualsText?.setPosition?.(singleLineX(474), 336);
+    scene.builderStep1ResultText?.setPosition?.(singleLineX(516), 336);
+    scene.builderStep2CarryText?.setPosition?.(singleLineX(272), 408);
+    scene.builderStep2EqualsText?.setPosition?.(singleLineX(474), 408);
+    scene.backButton?.background?.setPosition?.(singleLineBuilderLayout.buttons.back.x, singleLineBuilderLayout.buttons.back.y);
+    centerButtonTextByBounds(scene.backButton?.text, singleLineBuilderLayout.buttons.back.x, singleLineBuilderLayout.buttons.back.y);
+    scene.clearButton?.background?.setPosition?.(singleLineBuilderLayout.buttons.clear.x, singleLineBuilderLayout.buttons.clear.y);
+    centerButtonTextByBounds(scene.clearButton?.text, singleLineBuilderLayout.buttons.clear.x, singleLineBuilderLayout.buttons.clear.y);
+    scene.confirmButton?.background?.setPosition?.(singleLineBuilderLayout.buttons.confirm.x, singleLineBuilderLayout.buttons.confirm.y);
+    centerButtonTextByBounds(scene.confirmButton?.text, singleLineBuilderLayout.buttons.confirm.x, singleLineBuilderLayout.buttons.confirm.y);
+    scene.equalsText?.setPosition?.(singleLineBuilderLayout.slots.equals.x, singleLineBuilderLayout.slots.equals.y);
+    scene.resultPreviewText?.setPosition?.(singleLineBuilderLayout.slots.result.x, singleLineBuilderLayout.slots.result.y);
     scene.builderFeedbackText?.setText?.('');
     scene.builderFeedbackText?.setVisible?.(false);
   }
 
   if (isChainedBuilder(scene)) {
-    scene.builderGoalText?.setText?.('Guide: Step 1 uses × or ÷. Step 2 uses the carry with + or -.');
+    scene.builderGoalText?.setText?.(getChainBuilderHelperText());
   }
 
   if (isChainedBuilder(scene) && scene.difficultyKey === 'challenge') {
-    scene.builderGoalText?.setText?.('Chain: use the Row 1 answer in Row 2.\nOnly the last answer counts.');
+    scene.builderGoalText?.setText?.(getChainBuilderHelperText());
   }
 
+  const builderStartText = scene.difficultyKey === 'beginner'
+    ? 'Put numbers and + or - in the boxes. Press Enter.'
+    : formatBattleTemplate(getBattleUIText('prompts.builderStart', '{skill}! Make the right answer.'), { skill: chosenSkill.name });
+
   scene.renderResultText(
-    formatBattleTemplate(getBattleUIText('prompts.builderStart', '{skill}! Make the right answer.'), { skill: chosenSkill.name }),
+    builderStartText,
     battleResultPhases.INFO,
     { skill: chosenSkill.name },
   );
-  scene.addBattleLog(getBattleText('logs.builderOpened', `Player opened ${actionType} builder.`, { action: actionType }));
+  scene.addBattleLog(getBattleText('logs.builderOpened', `Player opened ${actionType} math boxes.`, { action: actionType }));
 }
 
 export function closeBuilder(scene, resetAction = true) {
@@ -672,38 +916,45 @@ export function clearBuilderCards(scene) {
 export function createBuilderCards(scene) {
   if (isChainedBuilder(scene)) {
     const numberX = 170;
-    const numberStartY = 318;
-    const numberGap = 58;
-    const operatorX = 635;
-    const operatorGap = 48;
-    const operatorStartY = 292;
+    const numberStartY = chainContentY(318);
+    const numberGap = chainedBuilderLayout.cards.gap;
+    const operatorX = chainOperatorX(635);
+    const operatorGap = chainedBuilderLayout.cards.gap;
+    const operatorStartY = chainContentY(318);
 
     scene.turnNumbers.forEach((value, index) => {
-      const card = createDraggableCard(scene, numberX, numberStartY + index * numberGap, 44, 44, `${value}`, 0xffffff, 'number', value);
+      const card = createDraggableCard(scene, numberX, numberStartY + index * numberGap, chainedBuilderLayout.cards.width, chainedBuilderLayout.cards.height, `${value}`, 0xffffff, 'number', value);
       scene.builderCards.push(card);
     });
 
     getStep1Operators(scene).forEach((value, index) => {
-      const card = createDraggableCard(scene, operatorX, operatorStartY + (index * operatorGap), 44, 44, value, 0xffffff, 'operator', value);
+      const card = createDraggableCard(scene, operatorX, operatorStartY + (index * operatorGap), chainedBuilderLayout.cards.width, chainedBuilderLayout.cards.height, value, 0xffffff, 'operator', value);
       scene.builderCards.push(card);
     });
     return;
   }
 
-  const numberY = 314;
-  const operatorY = 314;
-  const numberStartX = 290;
-  const numberGap = 56;
-  const operatorStartX = 515;
-  const operatorGap = 58;
+  const tokenEntries = [
+    ...scene.turnNumbers.map((value) => ({ text: `${value}`, type: 'number', value })),
+    ...scene.availableOperators.map((value) => ({ text: value, type: 'operator', value })),
+  ];
+  const tokenStep = singleLineBuilderLayout.cards.width + singleLineBuilderLayout.cards.gap;
+  const tokenRowWidth = (tokenEntries.length * singleLineBuilderLayout.cards.width)
+    + (Math.max(tokenEntries.length - 1, 0) * singleLineBuilderLayout.cards.gap);
+  const tokenStartX = singleLineBuilderLayout.cards.centerX - (tokenRowWidth / 2) + (singleLineBuilderLayout.cards.width / 2);
 
-  scene.turnNumbers.forEach((value, index) => {
-    const card = createDraggableCard(scene, numberStartX + index * numberGap, numberY, 44, 44, `${value}`, 0xffffff, 'number', value);
-    scene.builderCards.push(card);
-  });
-
-  scene.availableOperators.forEach((value, index) => {
-    const card = createDraggableCard(scene, operatorStartX + index * operatorGap, operatorY, 44, 44, value, 0xffffff, 'operator', value);
+  tokenEntries.forEach((entry, index) => {
+    const card = createDraggableCard(
+      scene,
+      tokenStartX + (index * tokenStep),
+      singleLineBuilderLayout.cards.y,
+      singleLineBuilderLayout.cards.width,
+      singleLineBuilderLayout.cards.height,
+      entry.text,
+      0xffffff,
+      entry.type,
+      entry.value,
+    );
     scene.builderCards.push(card);
   });
 }
@@ -725,8 +976,7 @@ export function assignCardToSlot(scene, card, slot) {
   if (card.assignedSlot === slot) {
     card.x = slot.x;
     card.y = slot.y;
-    card.label.x = slot.x;
-    card.label.y = slot.y;
+    centerTextByBounds(card.label, slot.x, slot.y);
     scene.refreshPreview();
     return;
   }
@@ -743,8 +993,7 @@ export function assignCardToSlot(scene, card, slot) {
   card.assignedSlot = slot;
   card.x = slot.x;
   card.y = slot.y;
-  card.label.x = slot.x;
-  card.label.y = slot.y;
+  centerTextByBounds(card.label, slot.x, slot.y);
 
   scene.refreshPreview();
 }
@@ -757,8 +1006,7 @@ export function resetCardPosition(scene, card) {
 
   card.x = card.homeX;
   card.y = card.homeY;
-  card.label.x = card.homeX;
-  card.label.y = card.homeY;
+  centerTextByBounds(card.label, card.homeX, card.homeY);
   scene.refreshPreview();
 }
 
@@ -894,8 +1142,7 @@ export function confirmBuilderAction(scene) {
   const result = scene.calculateExpression(leftCard.value, opCard.value, rightCard.value);
 
   if (result === null || Number.isNaN(result)) {
-    const operatorLabel = usesModernOperatorGlyphs(scene) ? '÷' : '/';
-    scene.renderResultText(`That ${operatorLabel} answer is not valid. Use exact division only.`, battleResultPhases.INFO);
+    scene.renderResultText('This division does not make a whole number. Try again.', battleResultPhases.INFO);
     return;
   }
 

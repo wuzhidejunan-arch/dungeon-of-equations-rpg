@@ -22,7 +22,7 @@ function getGuidedIntermediateRuleText(scene) {
     return '';
   }
 
-  return `Rule: Your answer must be ${getEnemyRuleSummaryText(scene.enemy)}.\nArmor helps the monster block damage. Use Armor Break first.`;
+  return `Rule: Your answer must be ${getEnemyRuleSummaryText(scene.enemy)}.\nArmor blocks big damage. Use Armor Break first.`;
 }
 
 function getEnemyRulePanelText(scene) {
@@ -44,7 +44,7 @@ export class BattleViewStateBuilder {
       : getBattleText('commands.mainMenu', 'FIGHT\nBAG\nRUN');
     const promptText = scene.pendingBonusChoice
       ? getBattleText('prompts.bonusMenu', 'Choose your attack style.')
-      : getBattleText('prompts.mainMenu', 'Choose your move');
+      : getBattleText('prompts.mainMenu', 'Choose Fight, Bag, or Run.');
     const phase = scene.pendingBonusChoice ? battleResultPhases.RESULT_BUFF : battleResultPhases.INFO;
 
     return {

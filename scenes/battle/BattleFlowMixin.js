@@ -37,6 +37,6 @@ export const BattleFlowMixin = {
 
   returnToMainMenuWithPrompt(prompt = null, phase = battleResultPhases.INFO) {
     this.showMainMenu();
-    this.renderResultText(prompt || getBattleStateText(battleMenuStates.MAIN, 'resultTextKey', 'Choose your move'), phase);
+    this.renderResultText(prompt || getBattleStateText(battleMenuStates.MAIN, 'resultTextKey', 'Choose Fight, Bag, or Run.'), phase);
   },
 };

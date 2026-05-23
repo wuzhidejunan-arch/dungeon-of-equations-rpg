@@ -1,7 +1,7 @@
 import { BaseScene } from "./BaseScene.js";
 import { playerData } from "../data/playerData.js";
 import { createBasicTextures, preloadHomeMapArt } from "../utils/textureFactory.js";
-import { hidePrompt, showPrompt } from "../utils/ui.js";
+import { hidePrompt, preloadHudUiAssets, showPrompt } from "../utils/ui.js";
 import { saveGame } from "../utils/saveSystem.js";
 import {
   advanceGuideStep,
@@ -33,6 +33,7 @@ export class HomeScene extends BaseScene {
 
   preload() {
     preloadHomeMapArt(this);
+    preloadHudUiAssets(this);
   }
 
   create() {

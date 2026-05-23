@@ -43,6 +43,7 @@ const createEnemy = ({
   counterEffects = [],
   ui = {},
   battleModifiers = {},
+  isTrainingDummy = false,
 }) => ({
   id,
   name,
@@ -61,6 +62,7 @@ const createEnemy = ({
   counterEffects,
   skills,
   battleModifiers,
+  isTrainingDummy,
 });
 
 export const enemyData = {
@@ -74,6 +76,7 @@ export const enemyData = {
     goldReward: 0,
     expReward: 0,
     rule: 'even',
+    isTrainingDummy: true,
     ui: { blockText: 'The bot waits for the right number type.' },
     skills: [
       createEnemySkill({ id: 'tap', name: 'Tap', chance: 100, formula: { type: 'flat', base: 2 }, ui: { hitText: '{amount} damage to player.', resultText: '{enemy} used {skill} and dealt {amount} damage.' } }),
@@ -252,15 +255,16 @@ export const enemyData = {
     goldReward: 24,
     expReward: 22,
     rule: 'even',
+    isTrainingDummy: true,
     ui: {
-      ruleText: 'Your answer must be even.\nArmor helps the monster block damage. Use Armor Break first.',
+      ruleText: 'Your answer must be even.\nArmor blocks big damage. Use Armor Break first.',
       blockText: 'Armor Dummy blocked that practice hit.',
     },
     counterEffects: [
       {
         trigger: 'on_player_attack_hit',
         condition: { type: 'enemy_debuff_inactive', debuff: 'defenseDown' },
-        message: 'Armor is still up. Break it first, then land an even Heavy Strike.',
+        message: 'Armor is still up. Use Armor Break first. Then use an even Heavy Strike.',
         effects: [],
       },
       {
@@ -351,19 +355,19 @@ export const enemyData = {
     expReward: 28,
     rule: 'even',
     ui: {
-      ruleText: 'Your answer must be even.\nArmor helps the monster block damage. Use Armor Break first.',
+      ruleText: 'Your answer must be even.\nArmor blocks big damage. Use Armor Break first.',
       blockText: 'Armor Core Lord barely felt that hit.',
     },
     counterEffects: [
       {
         trigger: 'on_player_attack_hit',
         condition: { type: 'enemy_debuff_inactive', debuff: 'defenseDown' },
-        message: 'Its armor is still up. Break the armor, then use an even Heavy Strike.',
+        message: 'Armor is still up. Use Armor Break first. Then use an even Heavy Strike.',
         effects: [],
       },
       {
         trigger: 'on_player_attack_blocked',
-        message: 'Wrong damage result. Armor Core Lord still needs an even Heavy Strike.',
+        message: 'Heavy Strike needs an even answer. Try again.',
         effects: [],
       },
     ],
@@ -386,6 +390,7 @@ export const enemyData = {
     goldReward: 0,
     expReward: 0,
     rule: 'even',
+    isTrainingDummy: true,
     ui: {
       ruleText: 'Only the last answer counts.\nYour answer must be even.',
       blockText: 'Chain Dummy only checks the final answer.',
@@ -419,7 +424,7 @@ export const enemyData = {
     rule: 'even',
     ui: {
       ruleText: 'Only the last answer counts.\nYour answer must be even.',
-      blockText: 'Chain Crawler ignores the wrong final answer.',
+      blockText: 'Chain Crawler needs the right final answer.',
     },
     skills: [
       createEnemySkill({ id: 'chain_bounce', name: 'Chain Bounce', chance: 70, formula: { type: 'flat', base: 4 }, ui: { hitText: '{amount} damage to player.', resultText: '{enemy} used {skill} and dealt {amount} damage.' } }),
@@ -522,12 +527,12 @@ export const enemyData = {
     rule: 'prime',
     ui: {
       ruleText: 'Only the last answer counts.\nYour answer must be prime.',
-      blockText: 'Chain Oracle Lord ignores the wrong final answer.',
+      blockText: 'Chain Oracle Lord needs the right final answer.',
     },
     counterEffects: [
       {
         trigger: 'on_player_attack_blocked',
-        message: 'The final answer missed the rule. Control both rows, then land a prime result.',
+        message: 'The final answer missed the rule. Use both rows, then make a prime result.',
         effects: [],
       },
       {

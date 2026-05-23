@@ -7,6 +7,7 @@ import {
   createPanel,
   hidePanel,
   hidePrompt,
+  preloadHudUiAssets,
   showPanel,
   showPrompt,
 } from "../utils/ui.js";
@@ -30,6 +31,19 @@ import { loadAndPlayBgmAfterRender } from "../utils/musicManager.js";
 
 const DEBUG_WORLD_COLLISION = false;
 const DEBUG_WORLD_BODY_BOUNDS = false;
+const BOOK_PANEL_KEY = "uiBookPanelFrame";
+const BOOK_PANEL_PATH = "assets/ui/ui_book_panel_frame.png";
+const BOOK_PANEL_LAYOUT = {
+  x: 400,
+  y: 300,
+  width: 900,
+  height: 610,
+};
+const BOOK_TEXT_COLORS = {
+  primary: "#2f1f12",
+  secondary: "#4b3522",
+  accent: "#7a4d00",
+};
 
 export class WorldScene extends BaseScene {
   constructor() {
@@ -46,6 +60,8 @@ export class WorldScene extends BaseScene {
 
   preload() {
     preloadWorldMapArt(this);
+    preloadHudUiAssets(this);
+    this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
   }
 
   create() {
@@ -600,33 +616,31 @@ export class WorldScene extends BaseScene {
   }
 
   createShopUI() {
-    const panelX = 408;
-    const panelY = 328;
-    const panelWidth = 660;
-    const panelHeight = 456;
-    const listBoxX = 286;
-    const listBoxY = 356;
+    const panelX = BOOK_PANEL_LAYOUT.x;
+    const panelY = BOOK_PANEL_LAYOUT.y;
+    const panelWidth = BOOK_PANEL_LAYOUT.width;
+    const panelHeight = BOOK_PANEL_LAYOUT.height;
+    const listBoxX = 245;
+    const listBoxY = 340;
     const listBoxWidth = 300;
-    const listBoxHeight = 232;
-    const listBoxLeft = listBoxX - (listBoxWidth / 2);
-    const listBoxRight = listBoxX + (listBoxWidth / 2);
-    const listBoxTop = listBoxY - (listBoxHeight / 2);
-    const detailBoxX = 594;
-    const detailBoxY = 356;
-    const detailBoxWidth = 220;
-    const detailBoxHeight = 232;
-    const listInnerLeftPadding = 28;
-    const listTitleTopPadding = 30;
-    const listTitleToRowsSpacing = 42;
-    const cursorX = listBoxLeft + 24;
-    const itemNameX = listBoxLeft + listInnerLeftPadding + 22;
-    const listTitleX = listBoxLeft + listInnerLeftPadding;
-    const listTitleY = listBoxTop + listTitleTopPadding;
-    const listStartY = listTitleY + listTitleToRowsSpacing;
-    const rowSpacing = 36;
+    const listBoxHeight = 280;
+    const detailBoxX = 575;
+    const detailBoxY = 340;
+    const detailBoxWidth = 260;
+    const detailBoxHeight = 280;
+    const cursorX = 120;
+    const itemNameX = 145;
+    const listTitleX = 245;
+    const listTitleY = 220;
+    const listStartY = 265;
+    const rowSpacing = 48;
     const visibleRowCount = 4;
-    const detailTextX = 518;
-    const detailTextY = 350;
+    const detailTextX = 445;
+    const detailLineYs = [265, 305, 345, 385];
+    const shopMessageY = 450;
+    const shopHelpY = 490;
+    this.shopMessageY = shopMessageY;
+    this.shopHelpY = shopHelpY;
 
     this.shopItemRowPositions = Array.from({ length: visibleRowCount }, (_, index) => ({
       nameX: itemNameX,
@@ -634,50 +648,56 @@ export class WorldScene extends BaseScene {
       y: listStartY + (index * rowSpacing),
     }));
 
+    this.shopDimOverlay = this.add
+      .rectangle(400, 300, 800, 600, 0x000000, 0.28)
+      .setScrollFactor(0)
+      .setDepth(199)
+      .setVisible(false);
+
     this.shopPanelBg = this.add
-      .rectangle(panelX, panelY, panelWidth, panelHeight, 0x111827, 0.96)
-      .setStrokeStyle(2, 0x64748b)
+      .image(panelX, panelY, BOOK_PANEL_KEY)
+      .setDisplaySize(panelWidth, panelHeight)
       .setScrollFactor(0)
       .setDepth(200)
       .setVisible(false);
 
     this.shopListBox = this.add
-      .rectangle(listBoxX, listBoxY, listBoxWidth, listBoxHeight, 0x17212b, 0.92)
-      .setStrokeStyle(2, 0x64748b)
+      .zone(listBoxX, listBoxY, listBoxWidth, listBoxHeight)
       .setScrollFactor(0)
       .setDepth(201)
       .setVisible(false);
 
     this.shopDetailBox = this.add
-      .rectangle(detailBoxX, detailBoxY, detailBoxWidth, detailBoxHeight, 0x17212b, 0.92)
-      .setStrokeStyle(2, 0x64748b)
+      .zone(detailBoxX, detailBoxY, detailBoxWidth, detailBoxHeight)
       .setScrollFactor(0)
       .setDepth(201)
       .setVisible(false);
 
     this.shopTitleText = this.add
-      .text(184, 132, "Shop", {
-        fontSize: "30px",
-        color: "#f8fafc",
+      .text(400, 110, "Shop", {
+        fontSize: "40px",
+        color: BOOK_TEXT_COLORS.primary,
         fontStyle: "bold",
       })
+      .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(202)
       .setVisible(false);
 
     this.shopPromptText = this.add
-      .text(184, 174, npcMessages.shop, {
-        fontSize: "18px",
-        color: "#cbd5e1",
+      .text(400, 145, npcMessages.shop, {
+        fontSize: "19px",
+        color: BOOK_TEXT_COLORS.secondary,
       })
+      .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(202)
       .setVisible(false);
 
     this.shopGoldText = this.add
-      .text(184, 214, "", {
+      .text(145, 185, "", {
         fontSize: "18px",
-        color: "#facc15",
+        color: BOOK_TEXT_COLORS.accent,
         fontStyle: "bold",
       })
       .setScrollFactor(0)
@@ -687,27 +707,29 @@ export class WorldScene extends BaseScene {
     this.shopListTitleText = this.add
       .text(listTitleX, listTitleY, "Items", {
         fontSize: "18px",
-        color: "#f8fafc",
+        color: BOOK_TEXT_COLORS.primary,
         fontStyle: "bold",
       })
+      .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(202)
       .setVisible(false);
 
     this.shopDetailTitleText = this.add
-      .text(518, 304, "About this item", {
+      .text(575, 220, "Info", {
         fontSize: "18px",
-        color: "#f8fafc",
+        color: BOOK_TEXT_COLORS.primary,
         fontStyle: "bold",
       })
+      .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(202)
       .setVisible(false);
 
     this.shopCursorText = this.add
-      .text(cursorX, listStartY, ">", {
-        fontSize: "20px",
-        color: "#f8fafc",
+      .text(cursorX, listStartY, "▶", {
+        fontSize: "22px",
+        color: BOOK_TEXT_COLORS.accent,
         fontStyle: "bold",
       })
       .setScrollFactor(0)
@@ -717,7 +739,7 @@ export class WorldScene extends BaseScene {
     this.shopItemNameTexts = this.shopItemRowPositions.map((row) => (
       this.add.text(row.nameX, row.y, "", {
         fontSize: "18px",
-        color: "#f8fafc",
+        color: BOOK_TEXT_COLORS.primary,
       })
         .setScrollFactor(0)
         .setDepth(202)
@@ -725,22 +747,34 @@ export class WorldScene extends BaseScene {
     ));
 
     this.shopDetailText = this.add
-      .text(detailTextX, detailTextY, "", {
+      .text(detailTextX, detailLineYs[0], "", {
         fontSize: "18px",
-        color: "#cbd5e1",
+        color: BOOK_TEXT_COLORS.secondary,
         lineSpacing: 8,
-        wordWrap: { width: 164 },
+        wordWrap: { width: 220 },
       })
       .setScrollFactor(0)
       .setDepth(202)
       .setVisible(false);
+    this.shopDetailLineTexts = detailLineYs.map((lineY) => (
+      this.add.text(detailTextX, lineY, "", {
+        fontSize: "18px",
+        color: BOOK_TEXT_COLORS.secondary,
+        wordWrap: { width: 230 },
+      })
+        .setScrollFactor(0)
+        .setDepth(202)
+        .setVisible(false)
+    ));
 
     this.shopMessageText = this.add
-      .text(184, 502, "", {
+      .text(400, shopMessageY, "", {
         fontSize: "18px",
-        color: "#f8fafc",
-        wordWrap: { width: 510 },
+        color: BOOK_TEXT_COLORS.secondary,
+        align: "center",
+        wordWrap: { width: 620 },
       })
+      .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(202)
       .setVisible(false);
@@ -748,18 +782,20 @@ export class WorldScene extends BaseScene {
     this.shopHelpText = this.add
       .text(225, 474, "↑↓ Move   Enter Buy   ESC Close", {
         fontSize: "18px",
-        color: "#facc15",
+        color: BOOK_TEXT_COLORS.accent,
         fontStyle: "bold",
       })
       .setScrollFactor(0)
       .setDepth(202)
       .setVisible(false);
-    this.shopHelpText.setPosition(184, 538);
-    this.shopHelpText.setText("UP/DOWN Move   Enter Buy   ESC Close");
+    this.shopHelpText.setPosition(400, shopHelpY);
+    this.shopHelpText.setOrigin(0.5);
+    this.shopHelpText.setText("Up / Down: Move    Enter: Buy    ESC: Close");
   }
 
   setShopUIVisible(visible) {
     [
+      this.shopDimOverlay,
       this.shopPanelBg,
       this.shopListBox,
       this.shopDetailBox,
@@ -775,6 +811,7 @@ export class WorldScene extends BaseScene {
     ].forEach((node) => node?.setVisible(visible));
 
     (this.shopItemNameTexts || []).forEach((node) => node?.setVisible(visible));
+    (this.shopDetailLineTexts || []).forEach((node) => node?.setVisible(visible));
   }
 
   getVisibleShopItemWindow() {
@@ -843,8 +880,17 @@ export class WorldScene extends BaseScene {
 
     this.setShopUIVisible(true);
     this.shopGoldText.setText(`Gold: ${playerData.gold}`);
-    this.shopDetailText.setText(detailLines.join("\n"));
+    this.shopDetailText.setText("");
+    (this.shopDetailLineTexts || []).forEach((node, index) => {
+      const text = detailLines[index] || "";
+      node?.setText(text);
+      node?.setVisible(Boolean(text));
+    });
+    this.shopMessageText.setPosition(400, this.shopMessageY || 450);
+    this.shopMessageText.setOrigin(0.5);
     this.shopMessageText.setText(this.shopMessage || "Choose an item to buy.");
+    this.shopHelpText.setPosition(400, this.shopHelpY || 490);
+    this.shopHelpText.setOrigin(0.5);
 
     (this.shopItemNameTexts || []).forEach((node, index) => {
       const item = visibleItems[index] || null;

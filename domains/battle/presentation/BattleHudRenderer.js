@@ -9,10 +9,10 @@ export class BattleHudRenderer {
 
   buildItemMenuRows(count = 0) {
     const config = this.scene.itemMenuRowConfig || {
-      textX: 576,
-      cursorX: 556,
-      startY: 468,
-      rowSpacing: 24,
+      textX: 620,
+      cursorX: 596,
+      startY: 440,
+      rowSpacing: 22,
     };
 
     return Array.from({ length: count }, (_, index) => ({

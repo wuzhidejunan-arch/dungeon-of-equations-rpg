@@ -1,5 +1,6 @@
 import { battleMenuStates } from '../../../data/battleStates.js';
 import { battleResultPhases } from '../../../data/battlePhases.js';
+import { getBattleTutorialConfig } from '../../../engine/tutorialFlowController.js';
 
 export class BattleDialogCoordinator {
   constructor({ scene }) {
@@ -9,12 +10,26 @@ export class BattleDialogCoordinator {
   startBattleIntro() {
     const scene = this.scene;
     const isGuidedBattle = Boolean(scene?.isTrainingGuideBattle?.());
+    const tutorialConfig = isGuidedBattle ? getBattleTutorialConfig(scene) : null;
+    const isSimpleGuidedBattle = isGuidedBattle
+      && scene.difficultyKey === 'beginner'
+      && tutorialConfig?.guideMode !== 'challenge_overview'
+      && tutorialConfig?.requiredSkillStrategy !== 'armor_break_then_heavy';
 
     if (scene.battlePresentation && !isGuidedBattle) {
       return scene.battlePresentation.startBattleIntro();
     }
 
-    const introLines = isGuidedBattle
+    const introLines = isSimpleGuidedBattle
+      ? [
+          { phase: battleResultPhases.INFO, text: `A wild ${scene.enemy.name} appeared!` },
+          { phase: battleResultPhases.INFO, text: 'HP means health. If HP reaches 0, you lose.' },
+          { phase: battleResultPhases.INFO, text: 'Step 1: Choose Fight.' },
+          { phase: battleResultPhases.INFO, text: 'Step 2: Choose the correct attack skill.' },
+          { phase: battleResultPhases.INFO, text: 'Step 3: Make an even number.' },
+          { phase: battleResultPhases.INFO, text: 'Now choose Fight.' },
+        ]
+      : isGuidedBattle
       ? [
           { phase: battleResultPhases.INFO, text: `A wild ${scene.enemy.name} appeared!` },
           { phase: battleResultPhases.INFO, text: 'HP means health. If HP reaches 0, you lose.' },
@@ -26,12 +41,17 @@ export class BattleDialogCoordinator {
       : [
           { phase: battleResultPhases.INFO, text: `A wild ${scene.enemy.name} appeared!` },
           { phase: battleResultPhases.INFO, text: 'Battle start!' },
-          { phase: battleResultPhases.INFO, text: 'Choose your move' },
+          { phase: battleResultPhases.INFO, text: 'Choose Fight, Bag, or Run.' },
         ];
 
     this.showDialogSequence(introLines, () => {
       scene.showMainMenu();
-      scene.renderResultText(isGuidedBattle ? 'Mini-step 1: Choose Fight.' : 'Choose your move', battleResultPhases.INFO);
+      const promptText = isSimpleGuidedBattle
+        ? 'Step 1: Choose Fight.'
+        : isGuidedBattle
+          ? 'Mini-step 1: Choose Fight.'
+          : 'Choose Fight, Bag, or Run.';
+      scene.renderResultText(promptText, battleResultPhases.INFO);
     });
   }
 

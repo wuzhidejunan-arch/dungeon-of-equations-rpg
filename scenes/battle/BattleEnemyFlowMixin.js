@@ -7,7 +7,7 @@ export const BattleEnemyFlowMixin = {
   enemyTurn(playerLines = [], activeBonus = null, options = {}) {
     this.playEnemyTurnSequence(playerLines, activeBonus, {
       returnMenu: options.returnMenu || battleReturnMenus.MAIN,
-      returnPrompt: options.returnPrompt || getBattleUIText('prompts.mainMenu', 'Choose your move'),
+      returnPrompt: options.returnPrompt || getBattleUIText('prompts.mainMenu', 'Choose Fight, Bag, or Run.'),
       keepDialogPrompt: options.keepDialogPrompt !== false,
     });
   },

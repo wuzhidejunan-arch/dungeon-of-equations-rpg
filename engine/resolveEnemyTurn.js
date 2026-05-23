@@ -31,6 +31,28 @@ export function chooseEnemySkill(scene) {
 // in place because older helper entry points can still call `resolveEnemyTurn(scene, ...)`
 // without a fully wired controller.
 function resolveEnemyTurnLegacy(scene, { activeBonus = null } = {}) {
+  if (scene.enemy?.isTrainingDummy) {
+    const line = formatBattleTemplate(
+      getEntityUIText(scene.enemy, 'waitText', '{enemy} waits and lets you practice.'),
+      { enemy: scene.enemy.name },
+    );
+
+    scene.addBattleLog(line);
+    return {
+      skill: null,
+      damage: 0,
+      blocked: false,
+      line,
+      phases: [
+        {
+          phase: battleResultPhases.ENEMY_TURN,
+          text: line,
+          payload: { enemy: scene.enemy.name, skill: null, damage: 0, blocked: false },
+        },
+      ],
+    };
+  }
+
   const enemySkill = chooseEnemySkill(scene);
   const { results } = applyEffectList(scene, enemySkill.effects || [], {
     enemy: scene.enemy,

@@ -161,19 +161,19 @@ export function equipSkill(skillId) {
   ensurePlayerSkillState();
 
   if (!playerData.unlockedSkillIds.includes(skillId)) {
-    return { success: false, message: 'Skill is not unlocked.' };
+    return { success: false, message: 'Skill is not open yet.' };
   }
 
   if (playerData.equippedSkillIds.includes(skillId)) {
-    return { success: true, message: 'Skill already equipped.' };
+    return { success: true, message: 'Skill already chosen.' };
   }
 
   if (playerData.equippedSkillIds.length >= MAX_EQUIPPED_SKILLS) {
-    return { success: false, message: `Only ${MAX_EQUIPPED_SKILLS} skills can be equipped.` };
+    return { success: false, message: `Only ${MAX_EQUIPPED_SKILLS} skills can be chosen.` };
   }
 
   playerData.equippedSkillIds.push(skillId);
-  return { success: true, message: 'Skill equipped.' };
+  return { success: true, message: 'Skill chosen.' };
 }
 
 export function unequipSkill(skillId) {
@@ -184,7 +184,7 @@ export function unequipSkill(skillId) {
   }
 
   if (playerData.equippedSkillIds.length <= 1) {
-    return { success: false, message: 'At least 1 skill must stay equipped.' };
+    return { success: false, message: 'Keep at least 1 skill chosen.' };
   }
 
   playerData.equippedSkillIds = playerData.equippedSkillIds.filter((id) => id !== skillId);
@@ -210,14 +210,14 @@ function getSkillRestoreCheck(targetSkillId) {
   if (!state || state.maxPp === null) {
     return {
       success: false,
-      message: `${definition.name} cannot be restored.`,
+      message: `${definition.name} cannot be refilled.`,
     };
   }
 
   if (typeof state.pp !== 'number' || Number.isNaN(state.pp)) {
     return {
       success: false,
-      message: `${definition.name} cannot be restored right now.`,
+      message: `${definition.name} cannot be refilled right now.`,
     };
   }
 
@@ -249,7 +249,7 @@ export function canRestoreSkillUses(targetSkillId) {
     success: true,
     state,
     definition,
-    message: `${definition.name} can be restored.`,
+    message: `${definition.name} can be refilled.`,
   };
 }
 
@@ -275,8 +275,8 @@ export function applySkillUseRestore(targetSkillId, amount = 'full') {
     skillName: definition.name,
     amount: actualRestore,
     message: amount === 'full'
-      ? `${definition.name} is fully restored.`
-      : `${definition.name} recovered ${actualRestore} uses.`,
+      ? `${definition.name} is full again.`
+      : `${definition.name} got ${actualRestore} uses back.`,
   };
 }
 

@@ -8,7 +8,7 @@
   {
     key: 'intermediate',
     title: '2. Medium',
-    lines: ['Use x and ÷', 'After Beginner', 'Use the right moves'],
+    lines: ['Use x and ÷', 'After Beginner', 'Use the right skills'],
     active: true,
   },
   {

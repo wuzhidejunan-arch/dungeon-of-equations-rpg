@@ -81,7 +81,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Attack if the answer is odd.',
-      menuInfo: { label: 'Type', value: 'Attack' },
+      menuInfo: { label: 'Kind', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -102,7 +102,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Attack if the answer is even.',
-      menuInfo: { label: 'Type', value: 'Attack' },
+      menuInfo: { label: 'Kind', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -123,7 +123,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Attack if the answer is prime.',
-      menuInfo: { label: 'Type', value: 'Attack' },
+      menuInfo: { label: 'Kind', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -144,7 +144,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Guard if the answer is zero.',
-      menuInfo: { label: 'Type', value: 'Guard' },
+      menuInfo: { label: 'Kind', value: 'Guard' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -169,16 +169,16 @@ export const intermediatePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Use multiplication to power up your next hit.',
-      menuInfo: { label: 'Type', value: 'Buff' },
+      menuInfo: { label: 'Kind', value: 'Power Up' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
-        ready: 'ATK up.',
+        ready: 'Hit power up.',
         blocked: 'No damage.',
       },
     },
     condition: { type: 'operation_is', value: 'multiply' },
-    effects: [{ type: 'addTimedBuff', buff: 'attackBoost', multiplier: 1.8, turns: 2, message: 'ATK up! x{multiplier} for {turns} turns.' }],
+    effects: [{ type: 'addTimedBuff', buff: 'attackBoost', multiplier: 1.8, turns: 2, message: 'Your next hit is stronger for {turns} turns.' }],
     damageFormula: null,
   }),
   createSkill({
@@ -191,7 +191,7 @@ export const intermediatePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Use multiplication to attack.',
-      menuInfo: { label: 'Type', value: 'Burst' },
+      menuInfo: { label: 'Kind', value: 'Burst' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -212,17 +212,17 @@ export const intermediatePlayerSkillDefinitions = [
     operationType: 'divide',
     ui: {
       showInMenu: true,
-      description: 'Use division to lower enemy DEF.',
-      menuInfo: { label: 'Type', value: 'DEF Down' },
+      description: 'Use division to make the monster weaker.',
+      menuInfo: { label: 'Kind', value: 'Weaken' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
-        ready: 'Enemy DEF down.',
-        blocked: 'No damage, but DEF fell.',
+        ready: 'Monster weaker.',
+        blocked: 'No damage, but monster got weaker.',
       },
     },
     condition: { type: 'operation_is', value: 'divide' },
-    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'defenseDown', multiplier: 0.5, turns: 3, message: 'Enemy DEF down! x{multiplier} for {turns} turns.' }],
+    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'defenseDown', multiplier: 0.5, turns: 3, message: 'Monster is weaker for {turns} turns.' }],
     damageFormula: null,
   }),
   createSkill({
@@ -234,17 +234,17 @@ export const intermediatePlayerSkillDefinitions = [
     operationType: 'divide',
     ui: {
       showInMenu: true,
-      description: 'Use division to lower enemy ATK.',
-      menuInfo: { label: 'Type', value: 'ATK Down' },
+      description: 'Use division to make the monster hit weaker.',
+      menuInfo: { label: 'Kind', value: 'Weaker Hit' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
-        ready: 'Enemy ATK down.',
-        blocked: 'No damage, but ATK fell.',
+        ready: 'Monster hit weaker.',
+        blocked: 'No damage, but monster hit got weaker.',
       },
     },
     condition: { type: 'operation_is', value: 'divide' },
-    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'attackDown', multiplier: 0.5, turns: 3, message: 'Enemy ATK down! x{multiplier} for {turns} turns.' }],
+    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'attackDown', multiplier: 0.5, turns: 3, message: 'Monster hit is weaker for {turns} turns.' }],
     damageFormula: null,
   }),
 ];
@@ -258,7 +258,7 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Build a chain to attack.',
-      menuInfo: { label: 'Type', value: 'Attack' },
+      menuInfo: { label: 'Kind', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -279,7 +279,7 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Build a chain. Final answer must be more than 10.',
-      menuInfo: { label: 'Type', value: 'Heavy' },
+      menuInfo: { label: 'Kind', value: 'Heavy' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -300,7 +300,7 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Block the next enemy attack.',
-      menuInfo: { label: 'Type', value: 'Defend' },
+      menuInfo: { label: 'Kind', value: 'Defend' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -320,16 +320,16 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Power up your next hit.',
-      menuInfo: { label: 'Type', value: 'Buff' },
+      menuInfo: { label: 'Kind', value: 'Power Up' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
-        ready: 'ATK up.',
+        ready: 'Hit power up.',
         blocked: 'No damage.',
       },
     },
     condition: { type: 'skill_category', value: 'buff' },
-    effects: [{ type: 'addTimedBuff', buff: 'attackBoost', multiplier: 1.5, turns: 2, message: 'ATK up! x{multiplier} for {turns} turns.' }],
+    effects: [{ type: 'addTimedBuff', buff: 'attackBoost', multiplier: 1.5, turns: 2, message: 'Your next hit is stronger for {turns} turns.' }],
     damageFormula: null,
   }),
 ];
@@ -390,9 +390,9 @@ export const itemDefinitions = {
     menuLabel: 'Skill Potion',
     chooseSkillTarget: true,
     canUse: ({ skills }) => skills.some((skill) => skill.maxPp !== null && skill.pp < skill.maxPp),
-    failMessage: 'All skill uses are already full.',
+    failMessage: 'All skills are already full.',
     effects: [{ type: 'restoreSkillUses', mode: 'target', amount: 'full' }],
-    ui: { resultText: 'Restore one skill fully.' },
+    ui: { resultText: 'Refill one skill.' },
   }),
   'Power Potion': createItem({
     name: 'Power Potion',
@@ -401,8 +401,8 @@ export const itemDefinitions = {
     menuLabel: 'Power Potion',
     canUse: () => true,
     failMessage: 'This item cannot be used now.',
-    effects: [{ type: 'addTimedBuff', buff: 'attackBoost', multiplier: 1.2, turns: 3, message: 'Attack up! x{multiplier} damage for {turns} turns.' }],
-    ui: { resultText: 'Boost attack for 3 turns.' },
+    effects: [{ type: 'addTimedBuff', buff: 'attackBoost', multiplier: 1.2, turns: 3, message: 'Your hits are stronger for {turns} turns.' }],
+    ui: { resultText: 'Your hits get stronger.' },
   }),
   'Defense Potion': createItem({
     name: 'Defense Potion',
@@ -411,8 +411,8 @@ export const itemDefinitions = {
     menuLabel: 'Defense Potion',
     canUse: () => true,
     failMessage: 'This item cannot be used now.',
-    effects: [{ type: 'addTimedBuff', buff: 'defenseBoost', multiplier: 0.8, turns: 3, message: 'Defense up! {reduction}% less damage for {turns} turns.' }],
-    ui: { resultText: 'Reduce damage for 3 turns.' },
+    effects: [{ type: 'addTimedBuff', buff: 'defenseBoost', multiplier: 0.8, turns: 3, message: 'You take less damage for {turns} turns.' }],
+    ui: { resultText: 'You take less damage.' },
   }),
   'Chain Potion': createItem({
     name: 'Chain Potion',
@@ -422,7 +422,7 @@ export const itemDefinitions = {
     canUse: () => true,
     failMessage: 'This item cannot be used now.',
     effects: [{ type: 'addChainCount', amount: 2, message: 'Chain +{amount}.' }],
-    ui: { resultText: 'Raise chain by 2.' },
+    ui: { resultText: 'Add 2 to Chain.' },
   }),
 };
 

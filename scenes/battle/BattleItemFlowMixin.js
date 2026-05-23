@@ -63,7 +63,7 @@ export const BattleItemFlowMixin = {
       null,
       result.endTurnOptions || {
         returnMenu: battleReturnMenus.MAIN,
-        returnPrompt: getBattleUIText('prompts.mainMenu', 'Choose your move'),
+        returnPrompt: getBattleUIText('prompts.mainMenu', 'Choose Fight, Bag, or Run.'),
       },
     );
   },

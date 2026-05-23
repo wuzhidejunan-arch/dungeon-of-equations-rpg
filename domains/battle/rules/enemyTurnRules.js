@@ -43,6 +43,34 @@ export function createEnemyTurnRuleContext(scene, payload = {}) {
   };
 }
 
+export function skipTrainingDummyTurnRule(ctx) {
+  if (ctx.stop || !ctx.scene.enemy?.isTrainingDummy) return ctx;
+
+  const line = formatBattleTemplate(
+    getEntityUIText(ctx.scene.enemy, 'waitText', '{enemy} waits and lets you practice.'),
+    { enemy: ctx.scene.enemy.name },
+  );
+
+  ctx.line = line;
+  ctx.damage = 0;
+  ctx.blocked = false;
+  ctx.phases = [{
+    phase: battleResultPhases.ENEMY_TURN,
+    text: line,
+    payload: { enemy: ctx.scene.enemy.name, skill: null, damage: 0, blocked: false },
+  }];
+  ctx.scene.addBattleLog(line);
+  ctx.finalResult = {
+    skill: null,
+    damage: 0,
+    blocked: false,
+    line,
+    phases: ctx.phases,
+  };
+  ctx.stop = true;
+  return ctx;
+}
+
 export function selectEnemySkillRule(ctx) {
   if (ctx.stop) return ctx;
   ctx.enemySkill = chooseEnemySkill(ctx.scene);
@@ -125,6 +153,7 @@ export function finalizeEnemyTurnRule(ctx) {
 
 export function getDefaultEnemyTurnRules() {
   return [
+    ['skipTrainingDummyTurn', skipTrainingDummyTurnRule],
     ['selectEnemySkill', selectEnemySkillRule],
     ['applyEnemyEffects', applyEnemyEffectsRule],
     ['formatEnemyTurn', formatEnemyTurnRule],

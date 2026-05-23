@@ -99,7 +99,7 @@ export function validateTutorialBuilderAction(scene, payload = {}) {
         scene,
         'wrongSkill',
         { skill: getTutorialRequiredSkillName(scene), rule: requiredRule },
-        'Use the right move for this step.',
+        'Use the right skill for this step.',
       ),
     };
   }
@@ -112,10 +112,10 @@ export function validateTutorialBuilderAction(scene, payload = {}) {
   return {
     allowed: false,
     message: [
-      `You used ${skill?.name || 'this move'}.`,
+      `You used ${skill?.name || 'this skill'}.`,
       `Your answer was ${result}.`,
       `This monster needs an ${requiredRule} answer.`,
-      formatTutorialTemplate(scene, 'wrongResult', { skill: skill?.name || 'Move', rule: requiredRule }, 'Right move, but the answer was wrong. Try again.'),
+      formatTutorialTemplate(scene, 'wrongResult', { skill: skill?.name || 'Skill', rule: requiredRule }, 'Right skill, but the answer was wrong. Try again.'),
     ].join('\n'),
   };
 }
@@ -136,7 +136,7 @@ export function getTutorialSkillAvailabilityNotice(target = null) {
   const config = getBattleTutorialConfig(target);
   if (!config || isTesterMode()) return '';
   return config?.helperTexts?.skillAvailabilityNotice
-    || getBattleUIValue('tutorialSkillLimit', 'Tutorial step: only these moves are open now.');
+    || getBattleUIValue('tutorialSkillLimit', 'Tutorial step: only these skills are open now.');
 }
 
 function getTutorialRestrictionSystem(scene) {
@@ -160,31 +160,31 @@ export function getTutorialHelperText(scene) {
 
   if (config.guideMode === 'challenge_overview') {
     if (scene.menuState === 'dialog') {
-      return 'Read the answer text. It tells you if the move worked.';
+      return 'Read the answer text. It tells you if the skill worked.';
     }
 
     if (scene.builderActive || scene.menuState === 'builder') {
-      return 'Attack moves use both rows. Use the Row 1 answer in Row 2.';
+      return 'Attack skills use both rows. Use the Row 1 answer in Row 2.';
     }
 
     if (scene.menuState === 'skill') {
       const skill = scene.playerSkills?.[scene.selectedSkillIndex];
       if (skill?.category === 'attack') {
-        return `${skill.name} uses both rows. Only the last answer counts for the rule.`;
+        return `${skill.name} uses both rows. Only Row 2 answer counts for the rule.`;
       }
 
       if (skill?.category === 'guard' || skill?.category === 'buff') {
-        return `${skill?.name || 'This move'} works right away. It does not use the builder.`;
+        return `${skill?.name || 'This skill'} works right away. It does not use the math boxes.`;
       }
 
-      return 'Choose a Challenge move. Attack moves use both rows. Helper moves work right away.';
+      return 'Choose a Challenge skill. Attack skills use both rows. Defend and Self Buff work right away.';
     }
 
     if (scene.menuState === 'main') {
-      return 'Choose Fight. Try a helper move first. Then use an attack move with both rows.';
+      return 'Choose Fight. Try Defend or Self Buff first. Then use an attack skill with both rows.';
     }
 
-    return formatTutorialTemplate(scene, 'fallback', {}, 'Use Fight. Attack moves use both rows. Helper moves work right away.');
+    return formatTutorialTemplate(scene, 'fallback', {}, 'Use Fight. Attack skills use both rows. Defend and Self Buff work right away.');
   }
 
   const needSkill = getTutorialRequiredSkillName(scene);
@@ -192,15 +192,39 @@ export function getTutorialHelperText(scene) {
   const stepKey = getTutorialStepKey(scene);
   const armorBroken = stepKey === 'heavy_followup';
 
+  if (config.requiredSkillStrategy !== 'armor_break_then_heavy') {
+    if (scene.menuState === 'dialog') {
+      return formatTutorialTemplate(scene, 'dialog', { skill: needSkill, rule: needRule }, 'Read the battle message. Press Enter.');
+    }
+
+    if (scene.builderActive || scene.menuState === 'builder') {
+      return formatTutorialTemplate(scene, 'builder', { skill: needSkill, rule: needRule }, `Step 3: Make a ${needRule} answer using + or -. Press Enter.`);
+    }
+
+    if (scene.menuState === 'skill') {
+      const skill = scene.playerSkills?.[scene.selectedSkillIndex];
+      const isCorrect = skill?.id === getTutorialRequiredSkillId(scene);
+      return isCorrect
+        ? formatTutorialTemplate(scene, 'skillCorrect', { skill: needSkill, rule: needRule }, `Step 2: Good. Press Enter on ${needSkill}.`)
+        : formatTutorialTemplate(scene, 'skillWrong', { skill: needSkill, rule: needRule }, `Step 2: Choose ${needSkill}.`);
+    }
+
+    if (scene.menuState === 'main') {
+      return formatTutorialTemplate(scene, 'mainFightSelected', { skill: needSkill, rule: needRule }, 'Step 1: Choose Fight.');
+    }
+
+    return formatTutorialTemplate(scene, 'fallback', { skill: needSkill, rule: needRule }, `Choose Fight. Use ${needSkill}. Make a ${needRule} answer using + or -.`);
+  }
+
   if (scene.menuState === 'dialog') {
     return formatTutorialTemplate(scene, 'dialog', { skill: needSkill, rule: needRule }, 'Read the message box. Press Enter.');
   }
 
   if (scene.builderActive || scene.menuState === 'builder') {
     if (!armorBroken) {
-      return `Step 2: ${needSkill} is a helper move. Use correct division math. The monster rule does not stop it.`;
+      return `Step 2: ${needSkill} makes the monster weaker. Use division math.`;
     }
-    return `Step 3: The armor is broken. Now use ${needSkill} and make an ${needRule} answer.`;
+    return `Step 3: Armor is broken. Use ${needSkill}. Make an ${needRule} answer.`;
   }
 
   if (scene.menuState === 'skill') {
@@ -208,8 +232,8 @@ export function getTutorialHelperText(scene) {
     const isCorrect = skill?.id === getTutorialRequiredSkillId(scene);
     if (!armorBroken) {
       return isCorrect
-        ? `Mini-step 1: Good. ${needSkill} is the setup helper move. Press Enter to continue.`
-        : `Mini-step 1: Check the monster rule first. Start with ${needSkill}.`;
+        ? `Step 1: Good. Use ${needSkill} first. Press Enter.`
+        : `Step 1: Start with ${needSkill}. It makes the monster weaker.`;
     }
     return isCorrect
       ? `Step 3: Good. ${needSkill} is the next attack. Press Enter.`
@@ -218,9 +242,9 @@ export function getTutorialHelperText(scene) {
 
   if (scene.menuState === 'main') {
     if (!armorBroken) {
-      return 'Mini-step 1: Read the rule. Choose Fight, then use Armor Break first.';
+      return 'Step 1: Choose Fight. Use Armor Break first.';
     }
-    return 'Step 3: The armor is down. Choose Fight again and use Heavy Strike.';
+    return 'Step 3: Armor is down. Choose Fight. Use Heavy Strike.';
   }
 
   return formatTutorialTemplate(scene, 'fallback', { skill: needSkill, rule: needRule }, `Use Fight. Then use ${needSkill}.`);

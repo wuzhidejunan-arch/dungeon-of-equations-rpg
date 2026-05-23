@@ -8,9 +8,11 @@ export class BattleBuilderViewStateBuilder {
       builderMode: scene.builderMode || 'single_line',
       selectedSkill: chosenSkill,
       turnNumbers: scene.generateTurnNumbers?.() || [],
-      promptText: chosenSkill
-        ? formatBattleTemplate(getBattleUIText('prompts.builderStart', '{skill}! Make the right answer.'), { skill: chosenSkill.name })
-        : getBattleUIText('prompts.builderStartFallback', 'Make the right answer.'),
+      promptText: scene.difficultyKey === 'beginner'
+        ? 'Put numbers and + or - in the boxes. Press Enter.'
+        : chosenSkill
+          ? formatBattleTemplate(getBattleUIText('prompts.builderStart', '{skill}! Make the right answer.'), { skill: chosenSkill.name })
+          : getBattleUIText('prompts.builderStartFallback', 'Make the right answer.'),
     };
   }
 }

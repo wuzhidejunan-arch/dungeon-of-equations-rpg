@@ -111,28 +111,27 @@ export const intermediateDifficultyConfig = {
 
 This is a real battle.
 Read the rule.
-Pick the right move.
+Pick the right skill.
 Make the right answer.`,
           `Step 1:
 Look at the monster rule first.
 The rule tells you what answer you need.`,
           `Step 2:
-Pick the right move.
-You still need the right math.
-Some helper moves can still work\neven if the answer does not fit the monster rule.`,
+First use Armor Break.
+Armor Break makes the monster weaker.
+Then use Heavy Strike.`,
           `Step 3:
-Attack moves need two things:
-the right move
+Attack skills need two things:
+the right skill
 and the right answer.
 In this lesson, Heavy Strike needs an even answer.`,
           `Step 4:
 Some monsters need one answer, like 12.
 If that happens, the rule box shows the number.`,
           `Step 5:
-This battle has two turns.
-Armor helps the monster block damage.
-Turn 1 uses Armor Break.
-Turn 2 uses Heavy Strike.`,
+Armor blocks big damage.
+First use Armor Break.
+Then use Heavy Strike.`,
           `Watch the guide box.
 It tells you what to do next.
 Read the battle message after each action.`,
@@ -159,18 +158,18 @@ Read the battle message after each action.`,
       helperTexts: {
         mainFightSelected: 'Step 1: Check the monster rule first. Then choose Fight.',
         mainOtherSelected: 'Use Fight only in this lesson. Bag and Run are hidden.',
-        skillCorrect: 'Correct. {skill} matches this step. Press Enter on {skill}.',
-        skillWrong: 'Check the rule first. Use {skill} for this step.',
-        builder: 'Make the right math answer for {skill}. Helper moves only need correct math. Armor helps the monster block damage, so use Armor Break first. Heavy Strike also needs an even answer.',
+        skillCorrect: 'Good. {skill} is the right skill now. Press Enter.',
+        skillWrong: 'Use {skill} for this step.',
+        builder: 'Make the math answer for {skill}. Armor Break makes the monster weaker. Heavy Strike needs an even answer.',
         dialog: 'Read each battle message. It tells you what happened.',
-        fallback: 'Read the rule, pick the right move, then make the right answer.',
+        fallback: 'Read the rule. Pick the skill. Make the answer.',
         lockedBag: 'Bag is locked in this lesson. Choose Fight.',
         lockedRun: 'Run is locked in this lesson. Choose Fight.',
         lockedBack: 'Stay in this lesson battle.',
         lockedBuilderBack: 'Finish this practice step first.',
-        wrongSkill: 'Wrong move for this step. Read the rule and use {skill}.',
+        wrongSkill: 'Use {skill} for this step.',
         incompleteBuilder: 'Fill all 3 slots first. Then make sure your answer is even.',
-        wrongResult: 'Heavy Strike still needs an even answer to deal damage. Try again.',
+        wrongResult: 'Heavy Strike needs an even answer. Try again.',
       },
       turnNumberSets: {
         armor_check: [8, 4, 3, 2],

@@ -100,23 +100,23 @@ Then use that answer in Row 2.`,
         tutorialTitle: 'Challenge Stage 2',
         questionMode: 'multiple_choice',
         lessonPages: [
-          `Challenge has a fixed order.
+          `The signs must stay in this order.
 
-Row 1 must use \u00d7 or \u00f7.`,
-          `Row 2 must use + or \u2212.
+Row 1 uses \u00d7 or \u00f7.`,
+          `Row 2 uses + or \u2212.
 
-Do not switch the order.`,
-          `Valid pattern:
+Do not switch the signs.`,
+          `This order works:
 4 \u00d7 3 = 12
 12 \u2212 5 = 7`,
-          `Invalid pattern:
+          `This order does not work:
 4 + 3
 then \u00d7 2
 
 + or \u2212 cannot come first.`,
           `Practice:
-Find the right order.
-Spot the wrong one.`,
+Choose the order that works.
+Find the order that does not work.`,
           'Press Enter to start Stage 2.',
         ],
         passScore: 7,
@@ -182,21 +182,21 @@ Spot the wrong one.`,
         lessonPages: [
           `Stage 3 is real Challenge practice.
 
-This time you will use the real moves.`,
+This time you will use the real skills.`,
           `Only the last answer counts.
 Row 1 alone does not count.`,
           `Normal Attack:
 works when the last answer matches the rule.`,
           `Heavy Attack:
 also needs the last answer to be more than 10.`,
-          `Defend and Self Buff are helper moves.
-They do not use the math builder.`,
+          `Defend and Self Buff help right away.
+They do not use the math boxes.`,
           `In the practice battle:
-try a helper move,
-then use both rows for an attack move.`,
+try Defend or Self Buff first,
+then use both rows for an attack skill.`,
           'Press Enter to start the practice battle.',
         ],
-        clearMessage: 'You beat Stage 3. You used the real Challenge moves in battle.',
+        clearMessage: 'You beat Stage 3. You used the real Challenge skills in battle.',
         failMessage: 'Stage 3 not yet. Read the battle message and try again.',
         battle: {
           enemyDataKey: 'challenge_training_scout',
@@ -217,8 +217,8 @@ then use both rows for an attack move.`,
       helperTexts: {
         lockedBag: 'Bag is locked in this practice. Choose Fight.',
         lockedRun: 'Run is locked in this lesson battle.',
-        lockedBack: 'Stay in the lesson battle and try the Challenge moves.',
-        fallback: 'Use Fight. Attack moves use both rows. Helper moves work right away.',
+        lockedBack: 'Stay in the lesson battle and try the Challenge skills.',
+        fallback: 'Use Fight. Attack skills use both rows. Defend and Self Buff work right away.',
       },
     },
   },

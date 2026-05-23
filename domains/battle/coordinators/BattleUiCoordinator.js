@@ -3,15 +3,14 @@ import { battleMenuStates } from '../../../data/battleStates.js';
 import { battleResultPhases } from '../../../data/battlePhases.js';
 import {
   buildBattleRulePanelText,
-  formatBattleTemplate,
   getBattleText,
-  getBattleUIText,
   getBattleUIValue,
+  getBuilderHelperText,
+  getChainBuilderHelperText,
   getEnemyPrimaryRule,
   getEnemyRuleSummaryText,
   getEntityUIText,
   getSkillDisplayName,
-  getSkillPrimaryRule,
 } from '../../../utils/battleSchema.js';
 
 const ENEMY_NAME_MAX_WIDTH = 182;
@@ -37,7 +36,7 @@ function getGuidedIntermediateRuleText(scene) {
     return '';
   }
 
-  return `Rule: Your answer must be ${getEnemyRuleSummaryText(scene.enemy)}.\nArmor helps the monster block damage. Use Armor Break first.`;
+  return `Rule: Your answer must be ${getEnemyRuleSummaryText(scene.enemy)}.\nArmor blocks big damage. Use Armor Break first.`;
 }
 
 function getEnemyRulePanelText(scene) {
@@ -272,10 +271,10 @@ export class BattleUiCoordinator {
     if (useSharedItemMenuRows) {
       const itemLines = Array.isArray(options.itemLines) ? options.itemLines : [];
       const config = scene.itemMenuRowConfig || {
-        textX: 576,
-        cursorX: 556,
-        startY: 468,
-        rowSpacing: 24,
+        textX: 620,
+        cursorX: 596,
+        startY: 440,
+        rowSpacing: 22,
       };
 
       scene.commandText.setVisible(false);
@@ -333,11 +332,8 @@ export class BattleUiCoordinator {
 
     const isChallengeChainedBuilder = this.scene.difficultyKey === 'challenge' && this.scene.builderMode === 'chained';
     const goalText = isChallengeChainedBuilder
-      ? 'Chain: use the Row 1 answer in Row 2.\nOnly the last answer counts.'
-      : formatBattleTemplate(getBattleUIText('builder.goalTemplate', 'Goal: {goal}\nEnemy: {enemy}'), {
-        goal: this.scene.getRuleLabel?.(getSkillPrimaryRule(skill)),
-        enemy: this.scene.getRuleShortText?.(getEnemyPrimaryRule(enemy)),
-      });
+      ? getChainBuilderHelperText()
+      : getBuilderHelperText({ skill, enemy });
 
     this.renderTextGroup([
       { node: this.scene.builderTitleText, text: skill.name.toUpperCase() },
@@ -373,7 +369,7 @@ export class BattleUiCoordinator {
       : getBattleText('commands.mainMenu', 'FIGHT\nBAG\nRUN');
     const promptText = scene.pendingBonusChoice
       ? getBattleText('prompts.bonusMenu', 'Choose your attack style.')
-      : getBattleText('prompts.mainMenu', 'Choose your move');
+      : getBattleText('prompts.mainMenu', 'Choose Fight, Bag, or Run.');
     const phase = scene.pendingBonusChoice ? battleResultPhases.RESULT_BUFF : battleResultPhases.INFO;
 
     this.renderCommandMenu(commandText, {
@@ -474,8 +470,8 @@ export class BattleUiCoordinator {
     const enemyRatio = Phaser.Math.Clamp(scene.enemyCurrentHp / scene.enemy.hp, 0, 1);
     const playerRatio = Phaser.Math.Clamp(playerData.hp / playerData.maxHp, 0, 1);
 
-    scene.enemyHpBarFill.width = 180 * enemyRatio;
-    scene.playerHpBarFill.width = 178 * playerRatio;
+    scene.enemyHpBarFill.width = 220 * enemyRatio;
+    scene.playerHpBarFill.width = 220 * playerRatio;
   }
 
   refreshBattleUI() {

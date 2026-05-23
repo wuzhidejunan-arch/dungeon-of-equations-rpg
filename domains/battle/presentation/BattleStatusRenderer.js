@@ -45,11 +45,11 @@ export class BattleStatusRenderer {
     const playerRatio = viewState?.hp?.player?.ratio || 0;
 
     if (this.scene.enemyHpBarFill) {
-      this.scene.enemyHpBarFill.width = 180 * enemyRatio;
+      this.scene.enemyHpBarFill.width = 220 * enemyRatio;
     }
 
     if (this.scene.playerHpBarFill) {
-      this.scene.playerHpBarFill.width = 178 * playerRatio;
+      this.scene.playerHpBarFill.width = 220 * playerRatio;
     }
   }
 

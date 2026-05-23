@@ -88,7 +88,7 @@ export const BattleStatusMixin = {
   },
 
   getSkillFailureReason(result, propertiesText, usedSkill) {
-    const skillName = usedSkill?.name || 'This move';
+    const skillName = usedSkill?.name || 'This skill';
     return formatBattleTemplate(getBattleUIText('resultText.skillFailedBecause', '{result} is {properties}, so {skill} failed.'), {
       result,
       properties: propertiesText.toLowerCase(),

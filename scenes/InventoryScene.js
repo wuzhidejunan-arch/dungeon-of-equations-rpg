@@ -20,9 +20,27 @@ const MODES = {
   ITEM_TARGET_SKILL: "item_target_skill",
 };
 
+const BOOK_PANEL_KEY = "uiBookPanelFrame";
+const BOOK_PANEL_PATH = "assets/ui/ui_book_panel_frame.png";
+const BOOK_PANEL_LAYOUT = {
+  x: 400,
+  y: 300,
+  width: 900,
+  height: 610,
+};
+const BOOK_TEXT_COLORS = {
+  primary: "#2f1f12",
+  secondary: "#4b3522",
+  accent: "#7a4d00",
+};
+
 export class InventoryScene extends Phaser.Scene {
   constructor() {
     super("InventoryScene");
+  }
+
+  preload() {
+    this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
   }
 
   init(data) {
@@ -40,71 +58,97 @@ export class InventoryScene extends Phaser.Scene {
     ensurePlayerSkillState();
 
     const { width, height } = this.scale;
-    const inventoryMenuTextX = width / 2 - 250;
-    const inventoryMenuCursorX = inventoryMenuTextX - 28;
-    const inventoryMenuStartY = height / 2 - 65;
-    const inventoryMenuRowSpacing = 80;
-    const inventoryItemTextX = width / 2 - 250;
-    const inventoryItemCursorX = inventoryItemTextX - 28;
-    const inventoryItemStartY = height / 2 - 65;
-    const inventoryItemRowSpacing = 48;
+    const inventoryTitleY = 110;
+    const inventoryHelperY = 145;
+    const inventoryLeftX = 145;
+    const inventoryLeftHeaderX = 245;
+    const inventorySkillUsesX = 375;
+    const inventoryCursorX = 120;
+    const inventoryRightX = 470;
+    const inventoryRightHeaderX = 575;
+    const inventoryItemRightX = 445;
+    const inventoryHeaderY = 195;
+    const inventoryContentStartY = 245;
+    const inventorySkillStartY = 240;
+    const inventoryFooterY = 490;
+    const inventoryMenuTextX = inventoryLeftX;
+    const inventoryMenuCursorX = inventoryCursorX;
+    const inventoryMenuStartY = inventoryContentStartY;
+    const inventoryMenuRowSpacing = 65;
+    const inventoryItemTextX = inventoryLeftX;
+    const inventoryItemCursorX = inventoryCursorX;
+    const inventoryItemStartY = inventoryContentStartY;
+    const inventoryItemRowSpacing = 42;
     const inventoryVisibleItemRows = 4;
-    const inventorySkillTextX = width / 2 - 250;
-    const inventorySkillCursorX = inventorySkillTextX - 28;
-    const inventorySkillStartY = height / 2 - 65;
-    const inventorySkillRowSpacing = 56;
+    const inventorySkillTextX = inventoryLeftX;
+    const inventorySkillCursorX = inventoryCursorX;
+    const inventorySkillRowSpacing = 48;
     const inventoryVisibleSkillRows = 4;
+    this.inventoryCursorX = inventoryCursorX;
+    this.inventoryRightTextX = inventoryRightX;
+    this.inventoryItemRightTextX = inventoryItemRightX;
+    this.inventoryFooterY = inventoryFooterY;
+    this.inventoryItemDetailLineYs = [245, 285, 325, 365];
+    this.inventorySkillDetailLineYs = [245, 285, 325, 355, 395];
 
-    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.58);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.28);
     this.panel = this.add
-      .rectangle(width / 2, height / 2, 620, 440, 0x111827, 0.98)
-      .setStrokeStyle(2, 0x64748b);
+      .image(BOOK_PANEL_LAYOUT.x, BOOK_PANEL_LAYOUT.y, BOOK_PANEL_KEY)
+      .setDisplaySize(BOOK_PANEL_LAYOUT.width, BOOK_PANEL_LAYOUT.height);
 
     this.titleText = this.add
-      .text(width / 2, height / 2 - 180, "Bag", {
-        fontSize: "30px",
-        color: "#ffffff",
+      .text(width / 2, inventoryTitleY, "Bag", {
+        fontSize: "40px",
+        color: BOOK_TEXT_COLORS.primary,
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
     this.subText = this.add
-      .text(width / 2, height / 2 - 145, "", {
-        fontSize: "18px",
-        color: "#cbd5e1",
+      .text(width / 2, inventoryHelperY, "", {
+        fontSize: "19px",
+        color: BOOK_TEXT_COLORS.secondary,
       })
       .setOrigin(0.5);
 
-    this.leftTitleText = this.add.text(width / 2 - 250, height / 2 - 105, "", {
+    this.leftTitleText = this.add.text(inventoryLeftHeaderX, inventoryHeaderY, "", {
       fontSize: "22px",
-      color: "#f8fafc",
+      color: BOOK_TEXT_COLORS.primary,
       fontStyle: "bold",
-    });
+    }).setOrigin(0.5);
 
-    this.rightTitleText = this.add.text(width / 2 + 50, height / 2 - 105, "", {
+    this.rightTitleText = this.add.text(inventoryRightHeaderX, inventoryHeaderY, "", {
       fontSize: "22px",
-      color: "#f8fafc",
+      color: BOOK_TEXT_COLORS.primary,
       fontStyle: "bold",
-    });
+    }).setOrigin(0.5);
 
-    this.leftText = this.add.text(width / 2 - 250, height / 2 - 65, "", {
+    this.leftText = this.add.text(inventoryLeftX, inventoryContentStartY, "", {
       fontSize: "22px",
-      color: "#ffffff",
+      color: BOOK_TEXT_COLORS.primary,
       lineSpacing: 12,
-      wordWrap: { width: 220 },
-    });
-
-    this.rightText = this.add.text(width / 2 + 50, height / 2 - 65, "", {
-      fontSize: "18px",
-      color: "#cbd5e1",
-      lineSpacing: 10,
       wordWrap: { width: 200 },
     });
 
-    this.footerText = this.add
-      .text(width / 2, height / 2 + 175, "", {
+    this.rightText = this.add.text(inventoryRightX, inventoryContentStartY, "", {
+      fontSize: "18px",
+      color: BOOK_TEXT_COLORS.secondary,
+      lineSpacing: 10,
+      wordWrap: { width: 215 },
+    });
+    this.rightDetailLineTexts = this.inventorySkillDetailLineYs.map((lineY) => (
+      this.add.text(inventoryRightX, lineY, "", {
         fontSize: "18px",
-        color: "#facc15",
+        color: BOOK_TEXT_COLORS.secondary,
+        wordWrap: { width: 230 },
+      }).setVisible(false)
+    ));
+
+    this.footerText = this.add
+      .text(width / 2, inventoryFooterY, "", {
+        fontSize: "18px",
+        color: BOOK_TEXT_COLORS.accent,
+        fontStyle: "bold",
         align: "center",
       })
       .setOrigin(0.5);
@@ -117,7 +161,7 @@ export class InventoryScene extends Phaser.Scene {
     this.inventoryMenuOptionTexts = this.inventoryMenuRowPositions.map((row) => (
       this.add.text(row.textX, row.y, "", {
         fontSize: "22px",
-        color: "#ffffff",
+        color: BOOK_TEXT_COLORS.primary,
       }).setVisible(false)
     ));
 
@@ -129,26 +173,34 @@ export class InventoryScene extends Phaser.Scene {
     this.inventoryItemOptionTexts = this.inventoryItemRowPositions.map((row) => (
       this.add.text(row.textX, row.y, "", {
         fontSize: "22px",
-        color: "#ffffff",
+        color: BOOK_TEXT_COLORS.primary,
       }).setVisible(false)
     ));
 
     this.inventorySkillRowPositions = Array.from({ length: inventoryVisibleSkillRows }, (_, index) => ({
       textX: inventorySkillTextX,
+      usesX: inventorySkillUsesX,
       cursorX: inventorySkillCursorX,
       y: inventorySkillStartY + (index * inventorySkillRowSpacing),
     }));
     this.inventorySkillOptionTexts = this.inventorySkillRowPositions.map((row) => (
       this.add.text(row.textX, row.y, "", {
-        fontSize: "18px",
-        color: "#ffffff",
-        wordWrap: { width: 220 },
+        fontSize: "20px",
+        color: BOOK_TEXT_COLORS.primary,
+        wordWrap: { width: 165 },
       }).setVisible(false)
     ));
+    this.inventorySkillUseTexts = this.inventorySkillRowPositions.map((row) => (
+      this.add.text(inventorySkillUsesX, row.y, "", {
+        fontSize: "20px",
+        color: BOOK_TEXT_COLORS.primary,
+        align: "right",
+      }).setOrigin(1, 0).setVisible(false)
+    ));
 
-    this.cursorText = this.add.text(width / 2 - 280, height / 2 - 65, ">", {
+    this.cursorText = this.add.text(inventoryCursorX, inventoryContentStartY, "▶", {
       fontSize: "22px",
-      color: "#f8fafc",
+      color: BOOK_TEXT_COLORS.accent,
       fontStyle: "bold",
     });
 
@@ -384,6 +436,8 @@ export class InventoryScene extends Phaser.Scene {
     this.setInventoryMenuRowsVisible(false);
     this.setInventoryItemRowsVisible(false);
     this.setInventorySkillRowsVisible(false);
+    this.clearRightDetailLines();
+    this.rightText.setVisible(true);
 
     if (this.mode === MODES.MAIN) {
       this.renderMainMenu();
@@ -401,13 +455,13 @@ export class InventoryScene extends Phaser.Scene {
   }
 
   renderMainMenu() {
-    const options = ["Item", "Skill", "Back"];
+    const options = ["Items", "Skills", "Back"];
     this.leftTitleText.setText("Menu");
     this.rightTitleText.setText("Player");
     this.leftText.setText("");
     this.renderInventoryMenuRows(options);
     this.rightText.setText(
-      `Lv: ${playerData.level}\nEXP: ${playerData.exp}/${playerData.expToNext}\nGold: ${playerData.gold}\nHP: ${playerData.hp} / ${playerData.maxHp}\n\nEquipped: ${playerData.equippedSkillIds.length}/${MAX_EQUIPPED_SKILLS}`,
+      `Lv: ${playerData.level}\nEXP: ${playerData.exp}/${playerData.expToNext}\nGold: ${playerData.gold}\nHP: ${playerData.hp} / ${playerData.maxHp}\n\nChosen: ${playerData.equippedSkillIds.length}/${MAX_EQUIPPED_SKILLS}`,
     );
     this.subText.setText("Choose one");
     this.positionInventoryMenuCursor(this.mainIndex);
@@ -440,9 +494,14 @@ export class InventoryScene extends Phaser.Scene {
 
     const itemDef = itemDefinitions[selectedItem.name] || null;
     const desc = itemDef?.ui?.resultText || "";
-    const usageText = isFieldUsableItem(selectedItem.name) ? "Use: Field / Battle" : "Use: Battle only";
-    const targetText = itemDef?.chooseSkillTarget ? "Pick a skill" : "No target needed";
-    this.rightText.setText([selectedItem.name, desc, usageText, targetText].filter(Boolean).join("\n"));
+    const usageText = isFieldUsableItem(selectedItem.name) ? "Use: Here / Battle" : "Use: Battle only";
+    const targetText = itemDef?.chooseSkillTarget ? "Pick a skill" : "No pick needed";
+    this.setRightDetailLines([
+      selectedItem.name,
+      ...this.wrapDetailText(desc, 22).slice(0, 1),
+      usageText,
+      targetText,
+    ].filter(Boolean), this.inventoryItemDetailLineYs, this.inventoryItemRightTextX);
   }
 
   renderSkills() {
@@ -450,9 +509,9 @@ export class InventoryScene extends Phaser.Scene {
     const selectedSkill = skills[this.skillIndex] || null;
     const equippedCount = skills.filter((skill) => isSkillEquipped(skill.id)).length;
 
-    this.leftTitleText.setText(`Skill (${equippedCount}/${MAX_EQUIPPED_SKILLS})`);
+    this.leftTitleText.setText(`Skills (${equippedCount}/${MAX_EQUIPPED_SKILLS})`);
     this.rightTitleText.setText("Detail");
-    this.subText.setText("Choose 4 moves to bring");
+    this.subText.setText("Choose 4 skills to bring");
     this.leftText.setText("");
 
     if (!selectedSkill) {
@@ -467,14 +526,12 @@ export class InventoryScene extends Phaser.Scene {
     this.renderInventorySkillRows(visibleSkills);
     this.positionInventorySkillCursor(selectedVisibleIndex);
 
-      this.rightText.setText(
-        [
-          `Type: ${this.getSkillTypeLabel(selectedSkill)}`,
-          `What it does: ${selectedSkill.ui?.description || ""}`,
-          `Uses: ${selectedSkill.maxPp === null ? "INF" : `${selectedSkill.pp}/${selectedSkill.maxPp}`}`,
-          isSkillEquipped(selectedSkill.id) ? "Status: Equipped" : "Status: Not equipped",
-        ].join("\n"),
-      );
+    this.setRightDetailLines([
+      `Skill: ${this.getSkillTypeLabel(selectedSkill)}`,
+      "What it does:",
+      ...(this.wrapDetailText(selectedSkill.ui?.description || "", 20).slice(0, 2)),
+      `Uses: ${selectedSkill.maxPp === null ? "No limit" : `${selectedSkill.pp}/${selectedSkill.maxPp}`}`,
+    ].slice(0, 5), this.inventorySkillDetailLineYs);
   }
 
   renderItemTargetSkills() {
@@ -483,8 +540,8 @@ export class InventoryScene extends Phaser.Scene {
     const itemName = this.pendingItemName || "Item";
 
     this.leftTitleText.setText(itemName);
-    this.rightTitleText.setText("Target");
-    this.subText.setText("Choose a skill to restore.");
+    this.rightTitleText.setText("Pick Skill");
+    this.subText.setText("Pick a skill to refill.");
 
     if (!skills.length) {
       this.cursorText.setVisible(false);
@@ -500,11 +557,11 @@ export class InventoryScene extends Phaser.Scene {
     this.positionCursor(this.targetSkillIndex, 40);
 
     if (!selectedSkill) {
-      this.rightText.setText("No target.");
+      this.rightText.setText("No skill picked.");
       return;
     }
 
-    const statusText = selectedSkill.pp >= selectedSkill.maxPp ? "Status: Full" : "Status: Can restore";
+    const statusText = selectedSkill.pp >= selectedSkill.maxPp ? "Ready: Full" : "Ready: Can refill";
     this.rightText.setText(
       [
         selectedSkill.name,
@@ -515,6 +572,9 @@ export class InventoryScene extends Phaser.Scene {
   }
 
   setFooterByMode() {
+    this.footerText.setPosition(400, this.inventoryFooterY || 490);
+    this.footerText.setOrigin(0.5);
+
     if (this.mode === MODES.MAIN) {
       this.footerText.setText("Up / Down: Move   Enter: Choose   B: Close");
       return;
@@ -535,7 +595,53 @@ export class InventoryScene extends Phaser.Scene {
 
   positionCursor(index, lineHeight) {
     this.cursorText.setVisible(true);
-    this.cursorText.setPosition(this.leftText.x - 28, this.leftText.y + index * lineHeight);
+    this.cursorText.setPosition(
+      this.inventoryCursorX || this.leftText.x - 30,
+      this.leftText.y + index * lineHeight,
+    );
+  }
+
+  clearRightDetailLines() {
+    (this.rightDetailLineTexts || []).forEach((node) => {
+      node?.setText("");
+      node?.setVisible(false);
+    });
+  }
+
+  setRightDetailLines(lines = [], lineYs = this.inventorySkillDetailLineYs, textX = this.inventoryRightTextX) {
+    this.rightText.setText("");
+    this.rightText.setVisible(false);
+    (this.rightDetailLineTexts || []).forEach((node, index) => {
+      const text = lines[index] || "";
+      const y = lineYs?.[index] || node.y;
+      node?.setPosition(textX || 500, y);
+      node?.setText(text);
+      node?.setVisible(Boolean(text));
+    });
+  }
+
+  wrapDetailText(text, maxChars) {
+    if (!text || text.length <= maxChars) return text ? [text] : [];
+
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+
+    words.forEach((word) => {
+      const nextLine = currentLine ? `${currentLine} ${word}` : word;
+      if (nextLine.length > maxChars && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+        return;
+      }
+      currentLine = nextLine;
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines;
   }
 
   setInventoryMenuRowsVisible(visible) {
@@ -615,6 +721,7 @@ export class InventoryScene extends Phaser.Scene {
 
   setInventorySkillRowsVisible(visible) {
     (this.inventorySkillOptionTexts || []).forEach((node) => node?.setVisible(visible));
+    (this.inventorySkillUseTexts || []).forEach((node) => node?.setVisible(visible));
   }
 
   getInventoryVisibleSkillWindow(skills = []) {
@@ -630,29 +737,34 @@ export class InventoryScene extends Phaser.Scene {
 
   renderInventorySkillRows(skills = []) {
     (this.inventorySkillOptionTexts || []).forEach((node, index) => {
+      const usesNode = this.inventorySkillUseTexts?.[index] || null;
       const row = this.inventorySkillRowPositions[index];
       const skill = skills[index] || null;
 
       if (!row || !skill) {
         node?.setText("");
         node?.setVisible(false);
+        usesNode?.setText("");
+        usesNode?.setVisible(false);
         return;
       }
 
-      const usesText = skill.maxPp === null ? "INF" : `${skill.pp}/${skill.maxPp}`;
-      const equippedMarker = isSkillEquipped(skill.id) ? "[E]" : "[ ]";
+      const usesText = skill.maxPp === null ? "No limit" : `${skill.pp}/${skill.maxPp}`;
       node?.setPosition(row.textX, row.y);
-      node?.setText(`${equippedMarker} ${skill.name} ${usesText}`);
+      node?.setText(skill.name);
       node?.setVisible(true);
+      usesNode?.setPosition(row.usesX, row.y);
+      usesNode?.setText(usesText);
+      usesNode?.setVisible(true);
     });
   }
 
   getSkillTypeLabel(skill) {
     if (!skill) return "Attack";
     if (skill.id === "challengeDefend") return "Defend";
-    if (skill.category === "guard") return "Guard";
-    if (skill.category === "buff") return "Buff";
-    if (skill.category === "debuff") return "Debuff";
+    if (skill.category === "guard") return "Block";
+    if (skill.category === "buff") return "Power Up";
+    if (skill.category === "debuff") return "Weaken";
     return "Attack";
   }
 

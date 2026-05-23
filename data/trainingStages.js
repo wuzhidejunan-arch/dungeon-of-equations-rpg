@@ -6,7 +6,7 @@ export const trainingStageData = {
       `Zero means 0.\nOnly 0 is zero.`,
       `Even numbers make pairs.\n2, 4, 6, 8 are even.`,
       `Odd numbers have 1 left over.\n1, 3, 5, 7 are odd.`,
-      `Prime numbers divide only by 1\nand themselves.\n2, 3, 5, 7, 11 are prime.`,
+      `Prime numbers are special numbers.\nExamples: 2, 3, 5, 7, 11.\nChoose Prime for these.`,
       `In this game, check zero first.\nThen check prime.\nThen check odd or even.`,
       `Here, 2 counts as prime.\nThat is the game rule.`,
       `There are 20 questions.\nUse UP / DOWN.\nPress Enter.`,
@@ -45,7 +45,7 @@ export const trainingStageData = {
       'Then choose the number kind.',
       `Example:\n7 - 5 = 2.\nIn this game, 2 is prime.`,
       `There are 10 questions.\nEach question has 2 steps.`,
-      `Goal: get 15 right.\nEach correct step gives 1 right.`,
+      `Goal: get 15 points.\nPart 1: solve the math.\nPart 2: choose the number kind.`,
       `Start when you are ready.\nPress Enter.`,
     ],
     passScore: 15,
@@ -65,16 +65,16 @@ export const trainingStageData = {
   3: {
     id: 3,
     lessonPages: [
-      `Stage 3: First Battle
+      `Stage 3: Practice Battle
 
-This is your first battle.`,
-      `Learn one new thing here.
-Each monster has its own rule.`,
+Now use what you learned.`,
+      `Stage 1 taught number kinds.
+Stage 2 taught add and subtract.`,
       `Step 1: Choose Fight.`,
       `Step 2: Choose Even Attack.`,
       `Step 3: Make an even answer.\nThen press Enter.`,
-      `This monster gets hurt only by EVEN answers.
-Pick the right move and make an even answer.`,
+      `Make an even number to attack.
+Even Attack works with even answers.`,
       'In this lesson, only Fight and Even Attack are open.',
       `Watch the helper box.
 It shows the next step.

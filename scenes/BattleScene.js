@@ -36,6 +36,50 @@ export class BattleScene extends Phaser.Scene {
   preload() {
     preloadBgmAssets(this, audioKeys.bgm.battle);
 
+    if (!this.textures.exists('battleBgDungeon')) {
+      this.load.image('battleBgDungeon', 'assets/images/ui/battle/battle_bg_dungeon.png');
+    }
+
+    if (!this.textures.exists('battleBlueMagicCircle')) {
+      this.load.image('battleBlueMagicCircle', 'assets/images/ui/battle/blue_magic_circle.png');
+    }
+
+    if (!this.textures.exists('battleRedMagicCircle')) {
+      this.load.image('battleRedMagicCircle', 'assets/images/ui/battle/red_magic_circle.png');
+    }
+
+    if (!this.textures.exists('battleStatusPanel')) {
+      this.load.image('battleStatusPanel', 'assets/images/ui/battle/battle_status_panel.png');
+    }
+
+    if (!this.textures.exists('battleMessagePanel')) {
+      this.load.image('battleMessagePanel', 'assets/images/ui/battle/battle_message_panel.png');
+    }
+
+    if (!this.textures.exists('battleSquarePanel')) {
+      this.load.image('battleSquarePanel', 'assets/images/ui/battle/battle_square_panel.png');
+    }
+
+    if (!this.textures.exists('mathBuilderPanel')) {
+      this.load.image('mathBuilderPanel', 'assets/ui/math-builder/math_panel.png');
+    }
+
+    if (!this.textures.exists('mathBuilderSlotEmpty')) {
+      this.load.image('mathBuilderSlotEmpty', 'assets/ui/math-builder/slot_box_empty.png');
+    }
+
+    if (!this.textures.exists('mathBuilderTokenIdle')) {
+      this.load.image('mathBuilderTokenIdle', 'assets/ui/math-builder/token_box_idle.png');
+    }
+
+    if (!this.textures.exists('mathBuilderTokenSelected')) {
+      this.load.image('mathBuilderTokenSelected', 'assets/ui/math-builder/token_box_selected.png');
+    }
+
+    if (!this.textures.exists('mathBuilderButtonIdle')) {
+      this.load.image('mathBuilderButtonIdle', 'assets/ui/math-builder/button_idle.png');
+    }
+
     if (!this.textures.exists('playerBack')) {
       this.load.image('playerBack', 'assets/images/characters/player_back.png');
     }
@@ -213,10 +257,10 @@ export class BattleScene extends Phaser.Scene {
 
   showCombinedBox(useCombined) {
     if (useCombined) {
-      this.resultText.setPosition(78, 488);
-      this.resultText.setWordWrapWidth(620);
+      this.resultText.setPosition(82, 465);
+      this.resultText.setWordWrapWidth(635);
     } else {
-      this.resultText.setPosition(82, 456);
+      this.resultText.setPosition(95, 465);
       this.resultText.setWordWrapWidth(414);
       this.dialogContinueText.setVisible(false);
     }

@@ -62,23 +62,32 @@ export function completeTrainingStage(stageId, target = playerData) {
   }
 
   const rewardConfig = progressionConfig.trainingRewards.default;
-  target.maxHp += rewardConfig.maxHpGain;
-  target.hp = Math.min(target.maxHp, target.hp + rewardConfig.healAmount);
   target.gold += rewardConfig.goldGain;
 
   const rewardLines = [
     `Training Stage ${stageId} Clear!`,
-    `+${rewardConfig.maxHpGain} Max HP`,
-    `+${rewardConfig.goldGain} Gold`,
   ];
 
   const targetLevel = progressionConfig.trainingRewards.stageLevelTargets[stageId] || null;
   if (targetLevel && target.level < targetLevel) {
+    const levelsGained = targetLevel - target.level;
+    const hpGrowth = progressionConfig.leveling.hpGrowth;
+    const maxHpGain = Math.max(0, Number(hpGrowth.maxHpGain) || 0) * levelsGained;
+    const healOnGain = Math.max(0, Number(hpGrowth.healOnGain) || 0) * levelsGained;
+
+    if (maxHpGain > 0) {
+      target.maxHp += maxHpGain;
+      target.hp = Math.min(target.maxHp, target.hp + healOnGain);
+      rewardLines.push(`+${maxHpGain} Max HP`);
+    }
+
     target.level = targetLevel;
     target.exp = 0;
     target.expToNext = getRequiredExpForLevel(target.level);
     rewardLines.push(`Set Lv.${targetLevel}`);
   }
+
+  rewardLines.push(`+${rewardConfig.goldGain} Gold`);
 
   return { rewardLines };
 }

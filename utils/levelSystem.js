@@ -77,14 +77,13 @@ function applyLevelUpReward(target, levelUpMessages) {
   target.gold += goldPerLevel;
 
   const rewardLines = [`Level Up! Lv.${target.level}`, `+${goldPerLevel} Gold`];
+  const maxHpGain = Math.max(0, Number(hpGrowth.maxHpGain) || 0);
+  const healOnGain = Math.max(0, Number(hpGrowth.healOnGain) || 0);
 
-  const hpGrowthUnlocked = target.level > hpGrowth.startAfterLevel;
-  const rightLevelForHp = !hpGrowth.evenLevelsOnly || target.level % 2 === 0;
-
-  if (hpGrowthUnlocked && rightLevelForHp) {
-    target.maxHp += hpGrowth.maxHpGain;
-    target.hp = Math.min(target.maxHp, target.hp + hpGrowth.healOnGain);
-    rewardLines.push(`+${hpGrowth.maxHpGain} Max HP`);
+  if (maxHpGain > 0) {
+    target.maxHp += maxHpGain;
+    target.hp = Math.min(target.maxHp, target.hp + healOnGain);
+    rewardLines.push(`+${maxHpGain} Max HP`);
   }
 
   levelUpMessages.push(rewardLines);

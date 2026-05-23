@@ -48,7 +48,7 @@ export class BattleOutcomeSystem {
     this.scene.setTurn('enemy');
 
     const keepDialogPrompt = options.keepDialogPrompt !== false;
-    const returnPrompt = options.returnPrompt || getBattleUIText('prompts.mainMenu', 'Choose your move');
+    const returnPrompt = options.returnPrompt || getBattleUIText('prompts.mainMenu', 'Choose Fight, Bag, or Run.');
     const enemyOutcome = this.resolveEnemyTurnOutcome(activeBonus);
 
     const dialogLines = Array.isArray(playerLines) ? [...playerLines] : playerLines ? [playerLines] : [];

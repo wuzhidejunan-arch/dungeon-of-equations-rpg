@@ -85,6 +85,56 @@ export function getEnemyPrimaryRule(enemy) {
   return getEnemyAcceptedRules(enemy)[0] || null;
 }
 
+export function getBuilderAnswerInstruction(rule) {
+  switch (`${rule || ''}`.toLowerCase()) {
+    case 'even':
+      return 'Make an even answer.';
+    case 'odd':
+      return 'Make an odd answer.';
+    case 'prime':
+      return 'Make a prime answer.';
+    case 'zero':
+      return 'Make zero.';
+    default:
+      return 'Make any answer.';
+  }
+}
+
+export function getBuilderHelperText({ skill = null, enemy = null } = {}) {
+  const skillRule = getSkillPrimaryRule(skill);
+  if (skillRule) {
+    return getBattleText('builder.goalTemplate', '{instruction}\nUse the boxes below.', {
+      instruction: getBuilderAnswerInstruction(skillRule),
+    });
+  }
+
+  if (skill?.operationType === 'divide') {
+    return getBattleText('builder.goalTemplate', '{instruction}\nUse the boxes below.', {
+      instruction: 'Make a whole-number answer.',
+    });
+  }
+
+  if (skill?.operationType === 'multiply') {
+    return getBattleText('builder.goalTemplate', '{instruction}\nUse the boxes below.', {
+      instruction: 'Make an answer for this skill.',
+    });
+  }
+
+  const enemyRule = getEnemyPrimaryRule(enemy);
+  return getBattleText('builder.goalTemplate', '{instruction}\nUse the boxes below.', {
+    instruction: enemyRule
+      ? getBuilderAnswerInstruction(enemyRule)
+      : 'Make any answer.',
+  });
+}
+
+export function getChainBuilderHelperText() {
+  return getBattleText(
+    'builder.chainHelper',
+    'Use the first answer in the second line.\nThe second answer attacks.',
+  );
+}
+
 export function getEnemySkills(enemy) {
   return Array.isArray(enemy?.skills) ? enemy.skills : [];
 }
@@ -138,7 +188,7 @@ export function formatOperatorForDisplay(operator) {
     return '\u00d7';
   }
 
-  if (operator === '/' || operator === '繩' || operator === '\u00f7') {
+  if (operator === '/' || operator === '\u00f7') {
     return '\u00f7';
   }
 
@@ -155,15 +205,21 @@ export function formatOperatorForDisplay(operator) {
 
 export function getSkillOperationLabel(skill) {
   if (skill?.operationType === 'multiply') {
-    return getBattleUIValue('skillOperationMultiply', 'Multiplication');
+    return getBattleUIValue('skillOperationMultiply', '×');
   }
   if (skill?.operationType === 'divide') {
-    return getBattleUIValue('skillOperationDivide', 'Division');
+    return getBattleUIValue('skillOperationDivide', '÷');
+  }
+  if (getSkillPrimaryRule(skill)) {
+    return getBattleUIValue('skillOperationAddSubtract', '+ or -');
+  }
+  if (skill?.condition?.type === 'skill_category' && skill?.category === 'attack') {
+    return getBattleUIValue('skillOperationTwoRows', 'two rows');
   }
   if (skill?.operationType) {
     return getBattleUIValue('skillOperationOther', 'Other');
   }
-  return getBattleUIValue('skillOperationNone', 'None');
+  return getBattleUIValue('skillOperationNone', 'No math');
 }
 
 export function getSkillRoleLabel(skill) {
@@ -193,16 +249,16 @@ export function formatInfoRows(rows = [], padSize = 10) {
 }
 
 function getSkillEffectSummary(skill) {
+  const menuInfo = skill?.ui?.menuInfo;
+  if (menuInfo && typeof menuInfo.label === 'string') {
+    return { label: menuInfo.label, value: `${menuInfo.value ?? ''}` };
+  }
+
   if (skill?.category === 'guard') {
     return {
       label: getBattleUIValue('skillInfoLabelEffect', 'Effect'),
       value: getBattleUIValue('skillInfoValueBlock', 'Block next hit'),
     };
-  }
-
-  const menuInfo = skill?.ui?.menuInfo;
-  if (menuInfo && typeof menuInfo.label === 'string') {
-    return { label: menuInfo.label, value: `${menuInfo.value ?? ''}` };
   }
 
   const formula = skill?.damageFormula || null;
@@ -248,11 +304,11 @@ export function getSkillDetailRows(skill) {
 
   return [
     {
-      label: getBattleUIValue('skillInfoLabelRole', 'Role'),
+      label: getBattleUIValue('skillInfoLabelRole', 'Skill'),
       value: getSkillRoleLabel(skill),
     },
     {
-      label: getBattleUIValue('skillInfoLabelOperation', 'Operation'),
+      label: getBattleUIValue('skillInfoLabelOperation', 'Math'),
       value: getSkillOperationLabel(skill),
     },
     getSkillEffectSummary(skill),

@@ -59,7 +59,7 @@ export class BattleNavigationPresenter {
 
   finalizeTurnReturn(options = {}) {
     const scene = this.scene;
-    const returnPrompt = options.returnPrompt || getBattleUIText('prompts.mainMenu', 'Choose your move');
+    const returnPrompt = options.returnPrompt || getBattleUIText('prompts.mainMenu', 'Choose Fight, Bag, or Run.');
     const returnMenu = options.returnMenu || battleReturnMenus.MAIN;
 
     scene.setTurn('player');

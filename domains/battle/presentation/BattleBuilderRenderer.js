@@ -28,7 +28,7 @@ export class BattleBuilderRenderer {
     scene.renderBuilderHeader?.(viewState.selectedSkill, scene.enemy);
     scene.renderTipText?.('');
     scene.renderResultText?.(viewState.promptText, battleResultPhases.INFO, { skill: viewState.selectedSkill?.name });
-    scene.addBattleLog?.(getBattleText('logs.builderOpened', `Player opened ${viewState.actionType} builder.`, { action: viewState.actionType }));
+    scene.addBattleLog?.(getBattleText('logs.builderOpened', `Player opened ${viewState.actionType} math boxes.`, { action: viewState.actionType }));
   }
 
   close({ resetAction = true } = {}) {

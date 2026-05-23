@@ -4,10 +4,8 @@ export const progressionConfig = {
     expStepPerLevel: 10,
     goldPerLevel: 30,
     hpGrowth: {
-      startAfterLevel: 10,
-      evenLevelsOnly: true,
-      maxHpGain: 1,
-      healOnGain: 1,
+      maxHpGain: 2,
+      healOnGain: 2,
     },
   },
   trainingRewards: {
