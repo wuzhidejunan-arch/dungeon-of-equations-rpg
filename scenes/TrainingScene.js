@@ -12,6 +12,17 @@ import { createTrainingPresentationSuite } from '../domains/training/presentatio
 import { audioKeys } from '../config/audioKeys.js';
 import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
 
+const TRAINING_UI_ASSETS = {
+  woodButton: {
+    key: 'trainingWoodButton',
+    path: 'assets/ui/training/wood_button.png',
+  },
+  parchmentPanel: {
+    key: 'trainingParchmentPanel',
+    path: 'assets/ui/training/parchment_panel.png',
+  },
+};
+
 export class TrainingScene extends BaseScene {
   constructor() {
     super('TrainingScene');
@@ -32,69 +43,145 @@ export class TrainingScene extends BaseScene {
 
   preload() {
     preloadBgmAssets(this, audioKeys.bgm.normal);
+    this.load.image(TRAINING_UI_ASSETS.woodButton.key, TRAINING_UI_ASSETS.woodButton.path);
+    this.load.image(TRAINING_UI_ASSETS.parchmentPanel.key, TRAINING_UI_ASSETS.parchmentPanel.path);
   }
 
   create() {
     playBgm(this, audioKeys.bgm.normal);
 
     const { width, height } = this.scale;
-    this.add.rectangle(width / 2, height / 2, width, height, 0x08111f);
-    this.panel = this.add.rectangle(width / 2, height / 2, 720, 520, 0x111827, 0.98).setStrokeStyle(2, 0x64748b);
+    const boardWidth = Math.min(width - 20, 940);
+    const boardHeight = Math.min(height - 10, 630);
+    const boardX = width / 2;
+    const boardY = height / 2;
+    const boardLeft = boardX - boardWidth / 2;
+    const boardRight = boardX + boardWidth / 2;
+    const boardTop = boardY - boardHeight / 2;
+    const boardBottom = boardY + boardHeight / 2;
+    const safeLeft = boardLeft + 110;
+    const safeRight = boardRight - 110;
+    const safeTop = boardTop + 95;
+    const controlBarY = boardBottom - 90;
+    const controlBarHeight = 58;
+    const textBottom = controlBarY - (controlBarHeight / 2) - 18;
+    const leftColumnX = safeLeft + 18;
+    const rightColumnX = Math.min(boardX + 40, safeRight - 330);
+    const focusedContentX = safeLeft + 35;
 
-    this.titleText = this.add.text(width / 2, 58, 'Training', {
-      fontSize: '28px',
-      color: '#ffffff',
+    this.trainingLayout = {
+      board: {
+        x: boardX,
+        y: boardY,
+        width: boardWidth,
+        height: boardHeight,
+        left: boardLeft,
+        right: boardRight,
+        top: boardTop,
+        bottom: boardBottom,
+      },
+      safe: {
+        left: safeLeft,
+        right: safeRight,
+        top: safeTop,
+        bottom: textBottom,
+      },
+      menu: {
+        markerX: safeLeft,
+        listX: leftColumnX,
+        listY: safeTop + 100,
+        listWrapWidth: Math.min(285, Math.max(160, boardX - leftColumnX - 45)),
+        detailX: rightColumnX,
+        detailTitleY: safeTop + 100,
+        detailBodyY: safeTop + 145,
+        detailWrapWidth: Math.max(300, safeRight - rightColumnX),
+      },
+      focused: {
+        x: focusedContentX,
+        detailTitleY: safeTop + 75,
+        detailBodyY: safeTop + 108,
+        contentY: safeTop + 185,
+        wrapWidth: Math.max(520, safeRight - focusedContentX),
+      },
+      controls: {
+        x: boardX,
+        y: controlBarY,
+        textY: controlBarY - 3,
+        width: Math.min(700, boardWidth - 240),
+        height: controlBarHeight,
+      },
+    };
+
+    this.add.rectangle(width / 2, height / 2, width, height, 0x1b120b);
+    this.panel = this.add
+      .image(boardX, boardY, TRAINING_UI_ASSETS.parchmentPanel.key)
+      .setDisplaySize(boardWidth, boardHeight)
+      .setDepth(1);
+
+    this.titleText = this.add.text(boardX, safeTop, 'Training', {
+      fontSize: '34px',
+      color: '#2a1508',
       fontStyle: 'bold',
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(2);
 
-    this.subText = this.add.text(width / 2, 92, 'Choose a stage', {
-      fontSize: '17px',
-      color: '#cbd5e1',
-    }).setOrigin(0.5);
-
-    this.listPanel = this.add.rectangle(170, 322, 220, 330, 0x0f172a, 0.96).setStrokeStyle(2, 0x475569);
-    this.detailPanel = this.add.rectangle(488, 208, 360, 102, 0x0f172a, 0.96).setStrokeStyle(2, 0x475569);
-    this.contentPanel = this.add.rectangle(488, 373, 360, 228, 0x0f172a, 0.96).setStrokeStyle(2, 0x475569);
-    this.controlsPanel = this.add.rectangle(width / 2, 544, 610, 40, 0x0f172a, 0.96).setStrokeStyle(2, 0x475569);
-
-    this.stageListText = this.add.text(86, 176, '', {
-      fontSize: '16px',
-      color: '#ffffff',
-      lineSpacing: 10,
-      wordWrap: { width: 160 },
-    });
-
-    this.detailTitleText = this.add.text(324, 172, '', {
-      fontSize: '21px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-    });
-
-    this.detailText = this.add.text(324, 202, '', {
-      fontSize: '15px',
-      color: '#cbd5e1',
-      lineSpacing: 6,
-      wordWrap: { width: 332 },
-    });
-
-    this.contentText = this.add.text(324, 274, '', {
-      fontSize: '16px',
-      color: '#ffffff',
-      lineSpacing: 8,
-      wordWrap: { width: 332 },
-    });
-
-    this.controlsText = this.add.text(width / 2, 544, '', {
-      fontSize: '14px',
-      color: '#facc15',
-      align: 'center',
-    }).setOrigin(0.5);
-
-    this.cursorText = this.add.text(74, 176, '>', {
+    this.subText = this.add.text(boardX, safeTop + 33, 'Choose a stage', {
       fontSize: '18px',
-      color: '#ffffff',
+      color: '#3a2412',
       fontStyle: 'bold',
-    }).setVisible(false);
+    }).setOrigin(0.5).setDepth(2);
+
+    this.listPanel = this.add.zone(leftColumnX + 90, (safeTop + textBottom) / 2, 240, textBottom - safeTop);
+    this.detailPanel = this.add.zone(rightColumnX + 170, (safeTop + textBottom) / 2, 340, textBottom - safeTop);
+    this.contentPanel = this.add.zone(rightColumnX + 170, (safeTop + textBottom) / 2, 340, textBottom - safeTop);
+    this.controlsPanel = this.add
+      .image(boardX, controlBarY, TRAINING_UI_ASSETS.woodButton.key)
+      .setDisplaySize(this.trainingLayout.controls.width, controlBarHeight)
+      .setDepth(1);
+
+    this.stageListText = this.add.text(leftColumnX, this.trainingLayout.menu.listY, '', {
+      fontSize: '18px',
+      color: '#2f2418',
+      fontStyle: 'bold',
+      lineSpacing: 7,
+      wordWrap: { width: this.trainingLayout.menu.listWrapWidth },
+    }).setDepth(2);
+
+    this.detailTitleText = this.add.text(rightColumnX, this.trainingLayout.menu.detailTitleY, '', {
+      fontSize: '23px',
+      color: '#2a1508',
+      fontStyle: 'bold',
+    }).setDepth(2);
+
+    this.detailText = this.add.text(rightColumnX, this.trainingLayout.menu.detailBodyY, '', {
+      fontSize: '17px',
+      color: '#3a2412',
+      fontStyle: 'bold',
+      lineSpacing: 8,
+      wordWrap: { width: this.trainingLayout.menu.detailWrapWidth },
+    }).setDepth(2);
+
+    this.contentText = this.add.text(rightColumnX, this.trainingLayout.focused.contentY, '', {
+      fontSize: '17px',
+      color: '#3a2412',
+      fontStyle: 'bold',
+      lineSpacing: 9,
+      wordWrap: { width: this.trainingLayout.menu.detailWrapWidth },
+    }).setDepth(2);
+
+    this.controlsText = this.add.text(boardX, this.trainingLayout.controls.textY, '', {
+      fontSize: '16px',
+      color: '#ffe6a3',
+      fontStyle: 'bold',
+      stroke: '#3a2412',
+      strokeThickness: 3,
+      align: 'center',
+    }).setOrigin(0.5).setDepth(2);
+
+    this.cursorText = this.add.text(this.trainingLayout.menu.markerX, this.trainingLayout.menu.listY, '▶', {
+      fontSize: '18px',
+      color: '#8a5a14',
+      fontStyle: 'bold',
+    }).setDepth(3).setVisible(false);
 
     this.keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     this.keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);

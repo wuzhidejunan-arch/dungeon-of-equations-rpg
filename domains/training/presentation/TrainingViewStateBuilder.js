@@ -26,11 +26,11 @@ function getStageGoalText(stageId, stageRegistry) {
   const questions = stageRegistry.getStageQuestions(stageId) || [];
   const passScore = stageRegistry.getStagePassScore(stageId);
   if (stageId === 2 && questions.length && passScore) {
-    return `Goal: get ${passScore} points`;
+    return `Goal: Get ${passScore} points`;
   }
 
   if (questions.length && passScore) {
-    return `Goal: get ${passScore} right`;
+    return `Goal: Get ${passScore} right`;
   }
 
   return 'Goal: finish the lesson.';
@@ -76,7 +76,7 @@ function buildStageMenuDescription(stageId, stageRegistry) {
 }
 
 function buildOptionLines(options = [], selectedIndex = 0) {
-  return options.map((option, index) => `${selectedIndex === index ? '> ' : '  '}${option}`).join('\n');
+  return options.map((option, index) => `${selectedIndex === index ? '▶ ' : '  '}${option}`).join('\n');
 }
 
 function shouldAppendStage1PromptEquals(stageId) {
@@ -187,18 +187,18 @@ export class TrainingViewStateBuilder {
       list: { visible: false, text: '' },
       detail: {
         visible: true,
-        title: 'Goal',
+        title: '',
         text: `${getStageGoalText(stageId, stageRegistry)}\n${getRightCountText(scene.stage1CorrectCount, questions.length)}`,
       },
       content: {
         visible: true,
         text: question
           ? (isMultipleChoiceStage
-            ? `${question.expression}${shouldAppendPromptEquals ? ' = ?' : ''}\n\n${buildOptionLines(options, scene.stageOptionIndex)}`
-            : `Choose the number kind:\n\n${question.value}\n\n${buildOptionLines(options, scene.stageOptionIndex)}`)
+            ? `${question.expression}${shouldAppendPromptEquals ? ' = ?' : ''}\n${buildOptionLines(options, scene.stageOptionIndex)}`
+            : `Choose the number kind:\n${question.value}\n${buildOptionLines(options, scene.stageOptionIndex)}`)
           : 'No question found.',
       },
-      controls: 'UP / DOWN choose   ENTER answer   ESC stage list',
+      controls: 'UP / DOWN choose    ENTER answer    ESC stage list',
       cursor: { visible: false, x: 0, y: 0 },
     };
   }
@@ -215,16 +215,16 @@ export class TrainingViewStateBuilder {
       list: { visible: false, text: '' },
       detail: {
         visible: true,
-        title: 'Goal',
+        title: '',
         text: `${getStageGoalText(2, stageRegistry)}\n${getRightCountText(scene.stage2CorrectCount, BEGINNER_STAGE2_STEP_TOTAL)}`,
       },
       content: {
         visible: true,
         text: question
-          ? `${question.expression} = ?\n\n${buildOptionLines(question.options || [], scene.stageOptionIndex)}`
+          ? `${question.expression} = ?\n${buildOptionLines(question.options || [], scene.stageOptionIndex)}`
           : 'No question found.',
       },
-      controls: 'UP / DOWN choose   ENTER answer   ESC stage list',
+      controls: 'UP / DOWN choose    ENTER answer    ESC stage list',
       cursor: { visible: false, x: 0, y: 0 },
     };
   }
@@ -240,16 +240,16 @@ export class TrainingViewStateBuilder {
       list: { visible: false, text: '' },
       detail: {
         visible: true,
-        title: 'Goal',
+        title: '',
         text: `${getStageGoalText(2, stageRegistry)}\n${getRightCountText(scene.stage2CorrectCount, BEGINNER_STAGE2_STEP_TOTAL)}`,
       },
       content: {
         visible: true,
         text: question
-          ? `Now choose the number kind for ${question.answer}.\n\n${buildOptionLines(TYPE_LABELS, scene.stageOptionIndex)}`
+          ? `Now choose the number kind for ${question.answer}.\n${buildOptionLines(TYPE_LABELS, scene.stageOptionIndex)}`
           : 'No type question found.',
       },
-      controls: 'UP / DOWN choose   ENTER answer   ESC stage list',
+      controls: 'UP / DOWN choose    ENTER answer    ESC stage list',
       cursor: { visible: false, x: 0, y: 0 },
     };
   }

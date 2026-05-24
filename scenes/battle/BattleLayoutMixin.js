@@ -279,27 +279,27 @@ export const BattleLayoutMixin = {
       fontStyle: 'bold',
     }).setVisible(false);
 
-    this.resultText = this.add.text(95, 465, '', {
+    this.resultText = this.add.text(95, 456, '', {
       fontSize: '18px',
       color: colors.textPrimary,
       fontStyle: 'bold',
       wordWrap: { width: 414 },
-      lineSpacing: 3,
+      lineSpacing: 12,
     });
 
-    this.ruleText = this.add.text(95, 498, '', {
+    this.ruleText = this.add.text(95, 506, '', {
       fontSize: '13px',
       color: colors.textSecondary,
       fontStyle: 'bold',
       wordWrap: { width: 414 },
-      lineSpacing: 5,
+      lineSpacing: 7,
     });
 
-    this.tipText = this.add.text(95, 523, '', {
+    this.tipText = this.add.text(95, 534, '', {
       fontSize: '11px',
       color: colors.textMuted,
       wordWrap: { width: 414 },
-      lineSpacing: 3,
+      lineSpacing: 5,
     });
 
     this.skillMenuPositions = [

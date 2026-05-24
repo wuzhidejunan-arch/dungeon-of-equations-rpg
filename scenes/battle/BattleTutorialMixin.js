@@ -15,15 +15,15 @@ export const BattleTutorialMixin = {
 
   createTrainingGuideUI() {
     this.trainingGuideBox = this.add
-      .rectangle(400, 112, 520, 60, 0xfff7cc, 0.94)
-      .setStrokeStyle(3, 0x1a1a1a)
+      .rectangle(400, 112, 520, 64, 0x0f172a, 0.92)
+      .setStrokeStyle(3, 0xb9823b, 0.95)
       .setDepth(500)
       .setVisible(false);
 
     this.trainingGuideText = this.add
       .text(400, 112, '', {
         fontSize: '18px',
-        color: '#1a1a1a',
+        color: '#f8e6b0',
         fontStyle: 'bold',
         align: 'center',
         wordWrap: { width: 470 },

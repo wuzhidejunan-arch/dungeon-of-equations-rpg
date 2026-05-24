@@ -29,38 +29,55 @@ export class TrainingRenderer {
 
   applyLayout(scene, layoutMode = 'menu') {
     const focused = layoutMode === 'focused';
+    const layout = scene?.trainingLayout || {};
+    const menu = layout.menu || {};
+    const focusedLayout = layout.focused || {};
+    const controls = layout.controls || {};
 
     scene.listPanel?.setVisible?.(!focused);
     scene.stageListText?.setVisible?.(!focused);
+    scene.controlsPanel?.setPosition?.(controls.x || scene.controlsPanel?.x || 0, controls.y || scene.controlsPanel?.y || 0);
+    scene.controlsPanel?.setDisplaySize?.(controls.width || scene.controlsPanel?.displayWidth || 0, controls.height || scene.controlsPanel?.displayHeight || 0);
+    scene.controlsText?.setPosition?.(
+      controls.x || scene.controlsText?.x || 0,
+      controls.textY || controls.y || scene.controlsText?.y || 0,
+    );
 
     if (focused) {
-      scene.detailPanel?.setPosition?.(384, 176);
-      scene.detailPanel?.setSize?.(520, 96);
-      scene.contentPanel?.setPosition?.(384, 360);
-      scene.contentPanel?.setSize?.(520, 272);
-      scene.detailTitleText?.setPosition?.(140, 142);
-      scene.detailText?.setPosition?.(140, 172);
-      scene.contentText?.setPosition?.(140, 246);
-      scene.detailTitleText?.setWordWrapWidth?.(488);
-      scene.detailText?.setWordWrapWidth?.(488);
-      scene.contentText?.setWordWrapWidth?.(488);
-      scene.contentText?.setFontSize?.('17px');
+      this.setPanelBounds(scene.detailPanel, 480, 225, 620, 86);
+      this.setPanelBounds(scene.contentPanel, 480, 360, 620, 290);
+      scene.detailTitleText?.setPosition?.(focusedLayout.x || 210, focusedLayout.detailTitleY || 185);
+      scene.detailText?.setPosition?.(focusedLayout.x || 210, focusedLayout.detailBodyY || 218);
+      scene.contentText?.setPosition?.(focusedLayout.x || 210, focusedLayout.contentY || 300);
+      scene.detailTitleText?.setWordWrapWidth?.(focusedLayout.wrapWidth || 580);
+      scene.detailText?.setWordWrapWidth?.(focusedLayout.wrapWidth || 580);
+      scene.contentText?.setWordWrapWidth?.(focusedLayout.wrapWidth || 580);
+      scene.contentText?.setFontSize?.('18px');
       scene.contentText?.setLineSpacing?.(10);
     } else {
       // Keep the menu detail box anchored to the same top edge, but extend it
       // downward so the longest stage preview and locked note stay inside.
-      scene.detailPanel?.setPosition?.(513, 322);
-      scene.detailPanel?.setSize?.(440, 330);
-      scene.contentPanel?.setPosition?.(488, 352);
-      scene.contentPanel?.setSize?.(360, 250);
-      scene.detailTitleText?.setPosition?.(324, 172);
-      scene.detailText?.setPosition?.(324, 202);
-      scene.contentText?.setPosition?.(324, 242);
-      scene.detailTitleText?.setWordWrapWidth?.(392);
-      scene.detailText?.setWordWrapWidth?.(412);
-      scene.contentText?.setWordWrapWidth?.(332);
-      scene.contentText?.setFontSize?.('16px');
-      scene.contentText?.setLineSpacing?.(8);
+      this.setPanelBounds(scene.detailPanel, 600, 340, 380, 300);
+      this.setPanelBounds(scene.contentPanel, 600, 405, 380, 230);
+      scene.stageListText?.setPosition?.(menu.listX || 220, menu.listY || 205);
+      scene.stageListText?.setWordWrapWidth?.(menu.listWrapWidth || 220);
+      scene.detailTitleText?.setPosition?.(menu.detailX || 520, menu.detailTitleY || 205);
+      scene.detailText?.setPosition?.(menu.detailX || 520, menu.detailBodyY || 250);
+      scene.contentText?.setPosition?.(menu.detailX || 520, menu.detailBodyY || 250);
+      scene.detailTitleText?.setWordWrapWidth?.(menu.detailWrapWidth || 350);
+      scene.detailText?.setWordWrapWidth?.(menu.detailWrapWidth || 350);
+      scene.contentText?.setWordWrapWidth?.(menu.detailWrapWidth || 350);
+      scene.contentText?.setFontSize?.('17px');
+      scene.contentText?.setLineSpacing?.(9);
+    }
+  }
+
+  setPanelBounds(node, x, y, width, height) {
+    node?.setPosition?.(x, y);
+    if (typeof node?.setDisplaySize === 'function') {
+      node.setDisplaySize(width, height);
+    } else {
+      node?.setSize?.(width, height);
     }
   }
 
@@ -100,7 +117,10 @@ export class TrainingRenderer {
       const cursorY = viewState?.layoutMode === 'menu'
         ? this.getMenuCursorY(scene, viewState)
         : viewState.cursor.y;
-      scene.cursorText?.setPosition?.(viewState.cursor.x, cursorY);
+      const cursorX = viewState?.layoutMode === 'menu'
+        ? (scene?.trainingLayout?.menu?.markerX || viewState.cursor.x)
+        : viewState.cursor.x;
+      scene.cursorText?.setPosition?.(cursorX, cursorY);
     }
   }
 }
