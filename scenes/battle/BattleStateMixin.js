@@ -1,11 +1,15 @@
 import { chainConfig } from '../../data/battleData.js';
 import { battleMenuStates, battleStateConfig } from '../../data/battleStates.js';
 import { getBattleUsableItems } from '../../utils/inventory.js';
-import { getBattleUIValue } from '../../utils/battleSchema.js';
 import { buildBattleSkillLoadoutForContext } from '../../engine/tutorialFlowController.js';
 
-function formatEffectLabel(label, turns) {
-  return `${label} ${turns}`;
+function formatTurns(turns) {
+  const safeTurns = Math.max(1, Number(turns) || 1);
+  return `${safeTurns} ${safeTurns === 1 ? 'turn' : 'turns'}`;
+}
+
+function formatBattleStatusLabel(label, turns) {
+  return `${label}: ${formatTurns(turns)}`;
 }
 
 export const BattleStateMixin = {
@@ -104,31 +108,35 @@ export const BattleStateMixin = {
 
     if (this.timedBuffs?.attackBoost?.turns > 0) {
       const turns = this.timedBuffs.attackBoost.turns;
-      parts.push(getBattleUIValue('buffAttackShort', formatEffectLabel('ATK↑', turns), { turns }));
+      parts.push(formatBattleStatusLabel('Attack Up', turns));
     }
 
-    if (this.timedBuffs?.defenseBoost?.turns > 0) {
-      const turns = this.timedBuffs.defenseBoost.turns;
-      parts.push(getBattleUIValue('buffDefenseShort', formatEffectLabel('DEF↑', turns), { turns }));
+    const guardTurns = Math.max(
+      Number(this.timedBuffs?.defenseBoost?.turns) || 0,
+      Number(this.getStatusCharge?.('zeroGuard') || this.statusCharges?.zeroGuard || 0) > 0 ? 1 : 0,
+      this.nextAttackBonus === 'guard' ? 1 : 0,
+    );
+    if (guardTurns > 0) {
+      parts.push(formatBattleStatusLabel('Guard', guardTurns));
     }
 
-    return parts.join(' | ');
+    return parts.slice(0, 2).join('\n');
   },
 
   getEnemyEffectSummaryText() {
     const parts = [];
 
-    if (this.enemyTimedDebuffs?.defenseDown?.turns > 0) {
-      const turns = this.enemyTimedDebuffs.defenseDown.turns;
-      parts.push(getBattleUIValue('enemyDebuffDefenseShort', formatEffectLabel('DEF↓', turns), { turns }));
-    }
-
     if (this.enemyTimedDebuffs?.attackDown?.turns > 0) {
       const turns = this.enemyTimedDebuffs.attackDown.turns;
-      parts.push(getBattleUIValue('enemyDebuffAttackShort', formatEffectLabel('ATK↓', turns), { turns }));
+      parts.push(formatBattleStatusLabel('Attack Down', turns));
     }
 
-    return parts.join(' | ');
+    if (this.enemyTimedDebuffs?.defenseDown?.turns > 0) {
+      const turns = this.enemyTimedDebuffs.defenseDown.turns;
+      parts.push(formatBattleStatusLabel('Defense Down', turns));
+    }
+
+    return parts.slice(0, 2).join('\n');
   },
 
   getBuffSummaryText() {

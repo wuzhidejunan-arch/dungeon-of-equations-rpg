@@ -107,6 +107,7 @@ export class BattleDialogCoordinator {
 
   handleDialogInput() {
     const scene = this.scene;
+    if (scene.feedbackDelayActive) return;
     if (Phaser.Input.Keyboard.JustDown(scene.keyENTER)) {
       this.showNextDialogLine();
     }

@@ -11,6 +11,7 @@ import {
 import { createTrainingPresentationSuite } from '../domains/training/presentation/createTrainingPresentationSuite.js';
 import { audioKeys } from '../config/audioKeys.js';
 import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
+import { playSfx, preloadSfxAssets } from '../utils/sfxManager.js';
 
 const TRAINING_UI_ASSETS = {
   woodButton: {
@@ -43,6 +44,8 @@ export class TrainingScene extends BaseScene {
 
   preload() {
     preloadBgmAssets(this, audioKeys.bgm.normal);
+    preloadSfxAssets(this);
+    this.preloadResultModalAssets();
     this.load.image(TRAINING_UI_ASSETS.woodButton.key, TRAINING_UI_ASSETS.woodButton.path);
     this.load.image(TRAINING_UI_ASSETS.parchmentPanel.key, TRAINING_UI_ASSETS.parchmentPanel.path);
   }
@@ -232,6 +235,7 @@ export class TrainingScene extends BaseScene {
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyESC) || Phaser.Input.Keyboard.JustDown(this.keyB)) {
+      playSfx(this, audioKeys.sfx.uiBack);
       if (this.mode === TRAINING_MODES.MENU) {
         this.trainingController.closeTraining();
       } else if (this.mode === TRAINING_MODES.MESSAGE) {
@@ -270,17 +274,20 @@ export class TrainingScene extends BaseScene {
   handleMenuInput() {
     if (Phaser.Input.Keyboard.JustDown(this.keyUP)) {
       this.trainingController.moveMenuCursor(-1);
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyDOWN)) {
       this.trainingController.moveMenuCursor(1);
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (!this.justConfirmed()) return;
+    playSfx(this, audioKeys.sfx.uiConfirm);
     this.trainingController.confirmMenu();
     this.refreshUI();
   }
@@ -288,11 +295,13 @@ export class TrainingScene extends BaseScene {
   handleEnterContinue() {
     if (Phaser.Input.Keyboard.JustDown(this.keyLEFT)) {
       this.trainingController.goToPreviousLessonPage();
+      playSfx(this, audioKeys.sfx.uiBack);
       this.refreshUI();
       return;
     }
 
     if (!this.justConfirmed()) return;
+    playSfx(this, audioKeys.sfx.uiConfirm);
     this.trainingController.continueCurrentFlow();
     this.refreshUI();
   }
@@ -346,12 +355,14 @@ export class TrainingScene extends BaseScene {
   handleOptionCursor(optionCount) {
     if (Phaser.Input.Keyboard.JustDown(this.keyUP)) {
       this.trainingController.moveOptionCursor(-1, optionCount);
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return true;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyDOWN)) {
       this.trainingController.moveOptionCursor(1, optionCount);
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return true;
     }

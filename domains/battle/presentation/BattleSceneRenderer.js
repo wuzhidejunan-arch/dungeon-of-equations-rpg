@@ -151,6 +151,7 @@ export class BattleSceneRenderer {
     scene.renderResultText?.(viewState?.texts?.promptText || '', viewState?.resultPhase || battleResultPhases.INFO);
     this.setTextNode(scene.ruleText, viewState?.texts?.rulePanel || '');
     scene.renderTipText?.('');
+    scene.applyMediumChallengeCommandLowerPanelLayout?.();
     scene.updateCommandCursor?.();
   }
 

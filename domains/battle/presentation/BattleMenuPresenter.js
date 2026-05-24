@@ -62,7 +62,7 @@ export class BattleMenuPresenter {
     if (scene.skillCursorText && cursorPos) {
       scene.skillCursorText.setPosition(cursorPos.x, cursorPos.y);
     }
-    scene.resultText?.setPosition?.(95, 453);
+    scene.resultText?.setPosition?.(95, 445);
 
     const skill = scene.playerSkills?.[scene.selectedSkillIndex];
     const tutorialNotice = getTutorialSkillAvailabilityNotice(scene);

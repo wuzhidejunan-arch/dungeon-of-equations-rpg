@@ -12,6 +12,8 @@ import { consumeItem, getInventoryEntries, isFieldUsableItem } from "../utils/in
 import { saveGame } from "../utils/saveSystem.js";
 import { isTesterMode } from "../utils/debugState.js";
 import { getDifficultySkillIds } from "../config/difficultySettings.js";
+import { audioKeys } from "../config/audioKeys.js";
+import { playSfx, preloadSfxAssets } from "../utils/sfxManager.js";
 
 const MODES = {
   MAIN: "main",
@@ -41,6 +43,7 @@ export class InventoryScene extends Phaser.Scene {
 
   preload() {
     this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
+    preloadSfxAssets(this);
   }
 
   init(data) {
@@ -232,6 +235,7 @@ export class InventoryScene extends Phaser.Scene {
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyB) || Phaser.Input.Keyboard.JustDown(this.keyESC)) {
+      playSfx(this, audioKeys.sfx.uiBack);
       if (this.mode === MODES.MAIN) {
         this.closeInventory();
       } else if (this.mode === MODES.ITEM_TARGET_SKILL) {
@@ -282,17 +286,20 @@ export class InventoryScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.keyUP)) {
       this.mainIndex = (this.mainIndex - 1 + max) % max;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyDOWN)) {
       this.mainIndex = (this.mainIndex + 1) % max;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyENTER) || Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       if (this.mainIndex === 0) {
         this.mode = MODES.ITEM;
       } else if (this.mainIndex === 1) {
@@ -312,17 +319,20 @@ export class InventoryScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.keyUP)) {
       this.itemIndex = (this.itemIndex - 1 + items.length) % items.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyDOWN)) {
       this.itemIndex = (this.itemIndex + 1) % items.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyENTER) || Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       const selectedItem = items[this.itemIndex];
       if (!selectedItem) return;
 
@@ -352,17 +362,20 @@ export class InventoryScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.keyUP)) {
       this.skillIndex = (this.skillIndex - 1 + skills.length) % skills.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyDOWN)) {
       this.skillIndex = (this.skillIndex + 1) % skills.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyENTER) || Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       const skill = skills[this.skillIndex];
       const result = toggleEquippedSkill(skill.id);
       this.footerText.setText(result.message);
@@ -384,17 +397,20 @@ export class InventoryScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.keyUP)) {
       this.targetSkillIndex = (this.targetSkillIndex - 1 + skills.length) % skills.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyDOWN)) {
       this.targetSkillIndex = (this.targetSkillIndex + 1) % skills.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.refreshUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyENTER) || Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       const skill = skills[this.targetSkillIndex];
       if (!skill || !this.pendingItemName) return;
 

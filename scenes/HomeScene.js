@@ -34,6 +34,7 @@ export class HomeScene extends BaseScene {
   preload() {
     preloadHomeMapArt(this);
     preloadHudUiAssets(this);
+    this.preloadResultModalAssets();
   }
 
   create() {

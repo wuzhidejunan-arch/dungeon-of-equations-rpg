@@ -1,5 +1,6 @@
 import { playerData } from '../../../data/playerData.js';
 import { battleResultPhases } from '../../../data/battlePhases.js';
+import { battleMenuStates } from '../../../data/battleStates.js';
 import { saveGame } from '../../../utils/saveSystem.js';
 import { persistBattleSkillLoadout } from '../../../utils/playerSkills.js';
 import { getExpRewardForEnemy, grantBattleExp } from '../../../utils/levelSystem.js';
@@ -9,15 +10,89 @@ import { applyBattleVictoryProgress } from '../../../engine/battleProgress.js';
 import { resolvePlayerAttack } from '../../../engine/resolvePlayerAttack.js';
 import { resolveEnemyTurn } from '../../../engine/resolveEnemyTurn.js';
 import { restoreDevEnemyVisualTestSession } from '../../../utils/devEnemyVisualTestSession.js';
+import { audioKeys } from '../../../config/audioKeys.js';
+import { playSfx } from '../../../utils/sfxManager.js';
 
 const HOME_RESPAWN_POSITION = Object.freeze({ x: 400, y: 500 });
 const WORLD_HOME_EXIT_POSITION = Object.freeze({ x: 220, y: 290 });
+const PLAYER_ATTACK_IMPACT_DELAY_MS = 240;
+const ENEMY_TURN_START_DELAY_MS = 380;
+const ENEMY_HP_REFRESH_DELAY_MS = 220;
+const VICTORY_FOLLOWUP_DELAY_MS = 320;
 
 function markTrainingBattleOutcome(scene, didWin) {
   if (scene.returnScene !== 'TrainingScene') return;
 
   const state = ensureTrainingState(playerData);
   state.lastBattleWinKey = didWin ? scene.enemyKey || null : null;
+}
+
+function isBlockedPlayerAttackOutcome(resolved) {
+  if (!resolved) return false;
+  const resolutionState = resolved.resolutionState || resolved.resultType || resolved.outcome || '';
+  return resolutionState === 'partial_success' && Number(resolved.damage || 0) <= 0;
+}
+
+function isFailedPlayerActionOutcome(resolved) {
+  if (!resolved) return false;
+  const resolutionState = resolved.resolutionState || resolved.resultType || resolved.outcome || '';
+  return resolutionState === 'failure';
+}
+
+function isSuccessfulPlayerActionOutcome(resolved) {
+  if (!resolved) return false;
+  const resolutionState = resolved.resolutionState || resolved.resultType || resolved.outcome || '';
+  return resolutionState === 'full_success';
+}
+
+function getSkillEffects(skill) {
+  return Array.isArray(skill?.effects) ? skill.effects : [];
+}
+
+function skillHasEffect(skill, effectType) {
+  return getSkillEffects(skill).some((effect) => effect?.type === effectType);
+}
+
+function playResolvedPlayerActionSfx(scene, skill, resolved) {
+  if (!isSuccessfulPlayerActionOutcome(resolved)) return;
+
+  if (skillHasEffect(skill, 'addTimedEnemyDebuff')) {
+    playSfx(scene, audioKeys.sfx.debuff, { volume: 0.45, maxDurationMs: 1000 });
+    return;
+  }
+
+  if (skillHasEffect(skill, 'addTimedBuff')) {
+    playSfx(scene, audioKeys.sfx.buff, { volume: 0.5, maxDurationMs: 1200 });
+    return;
+  }
+
+  if (skillHasEffect(skill, 'damage_enemy') || skill?.category === 'attack' || skill?.role === 'attack') {
+    playSfx(scene, audioKeys.sfx.playerAttack);
+  }
+}
+
+function scheduleBattleFeedback(scene, delayMs, callback) {
+  if (!scene?.time?.delayedCall || delayMs <= 0) {
+    callback();
+    return;
+  }
+
+  scene.time.delayedCall(delayMs, () => {
+    const sceneKey = scene.sys?.settings?.key || scene.scene?.key || null;
+    if (sceneKey && scene.scene?.isActive && !scene.scene.isActive(sceneKey)) {
+      return;
+    }
+    callback();
+  });
+}
+
+function lockBattleFeedback(scene) {
+  scene.feedbackDelayActive = true;
+  scene.setBattleMenuState?.(battleMenuStates.DIALOG);
+}
+
+function unlockBattleFeedback(scene) {
+  scene.feedbackDelayActive = false;
 }
 
 export class BattleOutcomeSystem {
@@ -49,7 +124,18 @@ export class BattleOutcomeSystem {
 
     const keepDialogPrompt = options.keepDialogPrompt !== false;
     const returnPrompt = options.returnPrompt || getBattleUIText('prompts.mainMenu', 'Choose Fight, Bag, or Run.');
+    const playerHpBeforeEnemyTurn = playerData.hp;
     const enemyOutcome = this.resolveEnemyTurnOutcome(activeBonus);
+
+    if (enemyOutcome?.blocked) {
+      playSfx(this.scene, audioKeys.sfx.blocked);
+    } else if (playerData.hp < playerHpBeforeEnemyTurn) {
+      playSfx(this.scene, audioKeys.sfx.playerHit);
+    }
+
+    scheduleBattleFeedback(this.scene, ENEMY_HP_REFRESH_DELAY_MS, () => {
+      this.scene.refreshBattleUI();
+    });
 
     const dialogLines = Array.isArray(playerLines) ? [...playerLines] : playerLines ? [playerLines] : [];
     dialogLines.push(...(enemyOutcome.phases || [enemyOutcome.line]));
@@ -68,6 +154,7 @@ export class BattleOutcomeSystem {
 
   resolveAttack(result, expression, operator = null) {
     const usedSkill = this.scene.selectedSkill || this.scene.playerSkills[0];
+    const enemyHpBeforeAttack = this.scene.enemyCurrentHp;
     // Canonical path: resolve attacks through the controller-owned attack system. The direct
     // resolver remains as a compatibility fallback while older integrations still exist.
     const resolved = this.controller?.attackSystem?.resolve({
@@ -81,27 +168,69 @@ export class BattleOutcomeSystem {
       expression,
       operator,
     });
+    const enemyHpAfterAttack = this.scene.enemyCurrentHp;
+    const enemyHpDecreased = enemyHpAfterAttack < enemyHpBeforeAttack;
+    const enemyDefeated = enemyHpBeforeAttack > 0 && enemyHpAfterAttack <= 0;
+    const playImpactFeedback = () => {
+      if (isFailedPlayerActionOutcome(resolved)) {
+        playSfx(this.scene, audioKeys.sfx.actionFail);
+      } else if (enemyDefeated) {
+        playResolvedPlayerActionSfx(this.scene, usedSkill, resolved);
+        playSfx(this.scene, audioKeys.sfx.enemyDefeat);
+      } else if (enemyHpDecreased) {
+        playResolvedPlayerActionSfx(this.scene, usedSkill, resolved);
+        playSfx(this.scene, audioKeys.sfx.enemyHit);
+      } else if (isBlockedPlayerAttackOutcome(resolved)) {
+        playSfx(this.scene, audioKeys.sfx.blocked);
+      } else {
+        playResolvedPlayerActionSfx(this.scene, usedSkill, resolved);
+      }
+      this.scene.refreshBattleUI();
+    };
 
-    this.scene.refreshBattleUI();
+    lockBattleFeedback(this.scene);
     this.scene.selectedSkill = null;
     this.scene.selectedSkillIndex = 0;
 
     if (this.scene.enemyCurrentHp <= 0) {
-      this.scene.showDialogSequence(resolved.lines, () => this.winBattle());
+      scheduleBattleFeedback(this.scene, PLAYER_ATTACK_IMPACT_DELAY_MS, () => {
+        unlockBattleFeedback(this.scene);
+        playImpactFeedback();
+        this.scene.showDialogSequence(resolved.lines, () => {
+          lockBattleFeedback(this.scene);
+          scheduleBattleFeedback(this.scene, VICTORY_FOLLOWUP_DELAY_MS, () => this.winBattle());
+        });
+      });
       return;
     }
 
     if (playerData.hp <= 0) {
-      this.scene.showDialogSequence(resolved.lines, () => this.loseBattle());
+      scheduleBattleFeedback(this.scene, PLAYER_ATTACK_IMPACT_DELAY_MS, () => {
+        unlockBattleFeedback(this.scene);
+        playImpactFeedback();
+        this.scene.showDialogSequence(resolved.lines, () => this.loseBattle());
+      });
       return;
     }
 
     this.controller?.emitActionResolved({ result, expression, operator, resolved });
-    this.playEnemyTurnSequence(resolved.lines, resolved.activeBonus);
+    scheduleBattleFeedback(this.scene, PLAYER_ATTACK_IMPACT_DELAY_MS, () => {
+      unlockBattleFeedback(this.scene);
+      playImpactFeedback();
+      this.scene.showDialogSequence(resolved.lines, () => {
+        lockBattleFeedback(this.scene);
+        scheduleBattleFeedback(this.scene, ENEMY_TURN_START_DELAY_MS, () => {
+          unlockBattleFeedback(this.scene);
+          this.playEnemyTurnSequence([], resolved.activeBonus);
+        });
+      });
+    });
   }
 
   winBattle() {
     this.scene.battleEnded = true;
+    unlockBattleFeedback(this.scene);
+    playSfx(this.scene, audioKeys.sfx.victory);
 
     if (this.scene.devEnemyVisualTest) {
       this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);

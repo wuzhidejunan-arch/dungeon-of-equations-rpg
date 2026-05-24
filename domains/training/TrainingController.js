@@ -16,6 +16,8 @@ import {
 import { GUIDE_STEP_IDS } from '../../data/guideSteps.js';
 import { isTesterMode } from '../../utils/debugState.js';
 import { TRAINING_MODES } from './TrainingStateFactory.js';
+import { audioKeys } from '../../config/audioKeys.js';
+import { playSfx } from '../../utils/sfxManager.js';
 
 const TYPE_KEYS = ['zero', 'odd', 'even', 'prime'];
 const BEGINNER_STAGE2_STEP_TOTAL = 20;
@@ -224,6 +226,7 @@ export class TrainingController {
     const correct = isMultipleChoiceStage
       ? pickedValue === question.answer
       : validCategories.includes(selectedCategoryLabel);
+    playSfx(this.scene, correct ? audioKeys.sfx.answerCorrect : audioKeys.sfx.answerWrong);
     const challengeTrainingFeedback = isMultipleChoiceStage && isChallengeTrainingStage(stageId)
       ? buildChallengeTrainingFeedback(stageId, question.expression, question.answer, pickedValue, correct)
       : null;
@@ -265,6 +268,7 @@ Read the expression again and count carefully.`))
           advanceGuideStep(GUIDE_STEP_IDS.TRAINING_STAGE_1, playerData);
         }
         saveGame();
+        playSfx(this.scene, audioKeys.sfx.victory);
         this.setMessage(`${scoreLine}
 
 ${this.stageRegistry.getStageClearMessage(stageId)}`, TRAINING_MODES.MENU);
@@ -297,6 +301,7 @@ ${this.stageRegistry.getStageFailMessage(stageId, { passScore, total: questions.
 
     const pickedValue = question.options[optionIndex];
     const correct = pickedValue === question.answer;
+    playSfx(this.scene, correct ? audioKeys.sfx.answerCorrect : audioKeys.sfx.answerWrong);
     const operationText = question.expression.includes('-') ? 'subtraction' : 'addition';
 
     this.store.patch((state) => {
@@ -330,6 +335,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
     const selectedCategoryLabel = getCategoryLabel(selectedTypeKey);
     const validCategories = getValidNumberCategories(question.answer);
     const typeCorrect = validCategories.includes(selectedCategoryLabel);
+    playSfx(this.scene, typeCorrect ? audioKeys.sfx.answerCorrect : audioKeys.sfx.answerWrong);
 
     this.store.patch((state) => {
       state.message.text = typeCorrect
@@ -361,6 +367,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
           advanceGuideStep(GUIDE_STEP_IDS.TRAINING_STAGE_2, playerData);
         }
         saveGame();
+        playSfx(this.scene, audioKeys.sfx.victory);
         this.setMessage(`${scoreLine}\n\n${this.stageRegistry.getStageClearMessage(2)}`, TRAINING_MODES.MENU);
         this.eventBus?.emit('training:stageCompleted', { stageId: 2, source: 'quiz' });
         return;

@@ -1,5 +1,7 @@
 ﻿import { battleMenuStates } from '../data/battleStates.js';
 import { battleResultPhases } from '../data/battlePhases.js';
+import { audioKeys } from '../config/audioKeys.js';
+import { playSfx } from '../utils/sfxManager.js';
 import {
   formatBattleTemplate,
   getBattleText,
@@ -363,6 +365,42 @@ function isChallengeUtilitySkill(skill) {
   return skill.category === 'guard' || skill.category === 'buff';
 }
 
+function getSkillEffects(skill) {
+  return Array.isArray(skill?.effects) ? skill.effects : [];
+}
+
+function skillHasEffect(skill, effectType) {
+  return getSkillEffects(skill).some((effect) => effect?.type === effectType);
+}
+
+function getBuilderActionStartSfx(skill, selectedAction = 'attack') {
+  if (selectedAction !== 'attack' || !skill) return null;
+  if (skill.category === 'guard') return null;
+  if (skillHasEffect(skill, 'addTimedEnemyDebuff')) return audioKeys.sfx.debuff;
+  if (skillHasEffect(skill, 'addTimedBuff')) return audioKeys.sfx.buff;
+  if (skillHasEffect(skill, 'damage_enemy') || skill.category === 'attack' || skill.role === 'attack') {
+    return audioKeys.sfx.playerAttack;
+  }
+  return null;
+}
+
+function playBuilderActionStartSfx(scene, skill, selectedAction = 'attack') {
+  const sfxKey = getBuilderActionStartSfx(skill, selectedAction);
+  if (!sfxKey) return;
+
+  if (sfxKey === audioKeys.sfx.debuff) {
+    playSfx(scene, sfxKey, { volume: 0.45, maxDurationMs: 1000 });
+    return;
+  }
+
+  if (sfxKey === audioKeys.sfx.buff) {
+    playSfx(scene, sfxKey, { volume: 0.5, maxDurationMs: 1200 });
+    return;
+  }
+
+  playSfx(scene, sfxKey);
+}
+
 export function shouldChallengeSkillBypassBuilder(scene, skill) {
   return difficultyBypassesBuilderForUtilitySkills(scene?.difficultyKey) && isChallengeUtilitySkill(skill);
 }
@@ -425,6 +463,7 @@ function commitChallengeUtilitySkill(scene, skill) {
   }
 
   hideBuilderAfterConfirm(scene);
+  playBuilderActionStartSfx(scene, skill);
   scene.spendSkillUse?.(skill);
   const effectResult = scene.applySkillRuleEffects?.(skill, {
     result: null,
@@ -1080,6 +1119,7 @@ export function confirmBuilderAction(scene) {
     const step2RightCard = scene.builderSlots.step2Right.assignedCard;
 
     if (!step1LeftCard || !step1OpCard || !step1RightCard || !step2OpCard || !step2RightCard) {
+      playSfx(scene, audioKeys.sfx.answerWrong);
       scene.renderResultText('Fill both Challenge steps first.', battleResultPhases.INFO);
       return;
     }
@@ -1095,16 +1135,19 @@ export function confirmBuilderAction(scene) {
     });
 
     if (Number(outcome.values?.finalResult) < 0) {
+      playSfx(scene, audioKeys.sfx.answerWrong);
       showBuilderValidationFeedback(scene, 'Use a final answer of 0 or more.');
       return;
     }
     
     if (!outcome.success && outcome.outcome === 'chain_invalid') {
+      playSfx(scene, audioKeys.sfx.answerWrong);
       commitChallengeFailedSkill(scene, selectedSkill, outcome.message);
       return;
     }
 
     if (isChallengeHeavyAttackSkill(selectedSkill) && Number(outcome.values?.finalResult) <= 10) {
+      playSfx(scene, audioKeys.sfx.answerWrong);
       commitChallengeFailedSkill(scene, selectedSkill, 'Heavy Attack needs a final answer greater than 10.');
       return;
     }
@@ -1135,6 +1178,7 @@ export function confirmBuilderAction(scene) {
   const rightCard = scene.builderSlots.right.assignedCard;
 
   if (!leftCard || !opCard || !rightCard) {
+    playSfx(scene, audioKeys.sfx.answerWrong);
     scene.renderResultText(formatTutorialTemplate(scene, 'incompleteBuilder', { rule: scene.getTrainingRequiredRuleLabel?.() || 'even' }, 'Fill all 3 slots first.'), battleResultPhases.INFO);
     return;
   }
@@ -1142,11 +1186,13 @@ export function confirmBuilderAction(scene) {
   const result = scene.calculateExpression(leftCard.value, opCard.value, rightCard.value);
 
   if (result === null || Number.isNaN(result)) {
+    playSfx(scene, audioKeys.sfx.answerWrong);
     scene.renderResultText('This division does not make a whole number. Try again.', battleResultPhases.INFO);
     return;
   }
 
   if (scene.difficultyKey === 'beginner' && result < 0) {
+    playSfx(scene, audioKeys.sfx.answerWrong);
     showBuilderValidationFeedback(scene, 'Use an answer of 0 or more.');
     return;
   }
@@ -1164,6 +1210,7 @@ export function confirmBuilderAction(scene) {
     });
 
     if (!tutorialValidation.allowed) {
+      playSfx(scene, audioKeys.sfx.answerWrong);
       scene.renderResultText(tutorialValidation.message, battleResultPhases.INFO);
       return;
     }
@@ -1173,6 +1220,8 @@ export function confirmBuilderAction(scene) {
 
   if (actionType === 'attack') {
     scene.resolveAttack(result, displayExpression, opCard.value);
+    scene.selectedAction = null;
+    return;
   }
 
   scene.selectedAction = null;

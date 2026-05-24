@@ -28,6 +28,7 @@ import { isTrainingStageCompleted } from "../utils/trainingSystem.js";
 import { isTesterMode } from "../utils/debugState.js";
 import { audioKeys } from "../config/audioKeys.js";
 import { loadAndPlayBgmAfterRender } from "../utils/musicManager.js";
+import { playSfx, preloadSfxAssets } from "../utils/sfxManager.js";
 
 const DEBUG_WORLD_COLLISION = false;
 const DEBUG_WORLD_BODY_BOUNDS = false;
@@ -61,6 +62,8 @@ export class WorldScene extends BaseScene {
   preload() {
     preloadWorldMapArt(this);
     preloadHudUiAssets(this);
+    preloadSfxAssets(this);
+    this.preloadResultModalAssets();
     this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
   }
 
@@ -294,6 +297,9 @@ export class WorldScene extends BaseScene {
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyE) && !this.dialogueActive) {
+      if (this.interactTarget) {
+        playSfx(this, audioKeys.sfx.uiConfirm);
+      }
       this.handleWorldInteract();
     }
   }
@@ -828,22 +834,26 @@ export class WorldScene extends BaseScene {
   handleShopInput() {
     if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
       this.shopSelectionIndex = (this.shopSelectionIndex - 1 + shopItems.length) % shopItems.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.renderShopUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
       this.shopSelectionIndex = (this.shopSelectionIndex + 1) % shopItems.length;
+      playSfx(this, audioKeys.sfx.uiMove);
       this.renderShopUI();
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyENTER)) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       this.buyItem(shopItems[this.shopSelectionIndex]);
       return;
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyESC)) {
+      playSfx(this, audioKeys.sfx.uiBack);
       this.closeShop();
     }
   }

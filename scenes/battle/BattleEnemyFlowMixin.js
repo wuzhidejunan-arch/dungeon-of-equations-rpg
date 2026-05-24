@@ -2,6 +2,8 @@ import { battleReturnMenus } from '../../data/battleStates.js';
 import { getBattleText, getBattleUIText } from '../../utils/battleSchema.js';
 import { playerData } from '../../data/playerData.js';
 import { restoreDevEnemyVisualTestSession } from '../../utils/devEnemyVisualTestSession.js';
+import { audioKeys } from '../../config/audioKeys.js';
+import { playSfx } from '../../utils/sfxManager.js';
 
 export const BattleEnemyFlowMixin = {
   enemyTurn(playerLines = [], activeBonus = null, options = {}) {
@@ -13,6 +15,7 @@ export const BattleEnemyFlowMixin = {
   },
 
   runAway() {
+    playSfx(this, audioKeys.sfx.run, { volume: 0.45, cooldownMs: 300, allowOverlap: false });
     this.renderResultText(getBattleUIText('prompts.runAway', 'You ran away.'));
     this.addBattleLog(getBattleText('logs.playerRanAway', 'Player ran away.'));
     this.battleEnded = true;

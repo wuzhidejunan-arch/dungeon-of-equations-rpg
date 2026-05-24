@@ -8,6 +8,14 @@ import {
   isBattleTutorialActive,
 } from '../../engine/tutorialFlowController.js';
 
+const LOWER_PANEL_TEXT_X = 95;
+
+function setLowerPanelTextPositions(scene, { resultY, ruleY, tipY }) {
+  scene.resultText?.setPosition?.(LOWER_PANEL_TEXT_X, resultY);
+  scene.ruleText?.setPosition?.(LOWER_PANEL_TEXT_X, ruleY);
+  scene.tipText?.setPosition?.(LOWER_PANEL_TEXT_X, tipY);
+}
+
 export const BattleTutorialMixin = {
   isTrainingGuideBattle() {
     return isBattleTutorialActive(this);
@@ -69,7 +77,59 @@ export const BattleTutorialMixin = {
     return getTutorialRequiredRuleLabel(this);
   },
 
+  applyMediumChallengeCommandLowerPanelLayout() {
+    if (
+      (this.difficultyKey !== 'intermediate' && this.difficultyKey !== 'challenge') ||
+      this.pendingBonusChoice
+    ) {
+      return;
+    }
+
+    setLowerPanelTextPositions(this, { resultY: 445, ruleY: 499, tipY: 527 });
+  },
+
   showTrainingGuideReminder(message) {
+    const isGuidedBattle = this.isTrainingGuideBattle?.();
+
+    if (
+      message === 'Stay in this lesson battle.' &&
+      this.difficultyKey === 'intermediate' &&
+      isGuidedBattle
+    ) {
+      setLowerPanelTextPositions(this, { resultY: 448, ruleY: 489, tipY: 517 });
+    }
+
+    if (
+      this.difficultyKey === 'intermediate' &&
+      isGuidedBattle &&
+      (
+        message === 'Bag is locked in this lesson.\nChoose Fight.' ||
+        message === 'Run is locked in this lesson.\nChoose Fight.'
+      )
+    ) {
+      setLowerPanelTextPositions(this, { resultY: 445, ruleY: 499, tipY: 527 });
+    }
+
+    if (
+      this.difficultyKey === 'challenge' &&
+      isGuidedBattle &&
+      (
+        message === 'Bag is locked in this practice.\nChoose Fight.' ||
+        message === 'Run is locked in this practice.\nChoose Fight.'
+      )
+    ) {
+      setLowerPanelTextPositions(this, { resultY: 445, ruleY: 499, tipY: 527 });
+    }
+
+    if (
+      this.difficultyKey !== 'intermediate' &&
+      (
+        message === 'Bag is locked in this lesson.\nChoose Fight.' ||
+        message === 'Run is locked in this lesson.\nChoose Fight.'
+      )
+    ) {
+      this.resultText?.setPosition?.(95, 452);
+    }
     this.renderResultText(message);
   },
 };

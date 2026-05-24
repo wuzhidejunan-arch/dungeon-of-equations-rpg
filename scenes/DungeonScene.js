@@ -7,10 +7,13 @@ import { getDifficultyDungeonEnemy } from '../config/difficultySettings.js';
 import { dungeonConfig } from '../config/dungeonConfig.js';
 import { audioKeys } from '../config/audioKeys.js';
 import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
+import { playSfx, preloadSfxAssets } from '../utils/sfxManager.js';
 
 const DEBUG_DUNGEON_COLLISION = false;
 const DEBUG_DUNGEON_COORDS = false;
 const DEBUG_DUNGEON_MARKERS = false;
+const RESULT_MODAL_FRAME_KEY = 'result_modal_frame';
+const STAGE_CLEAR_TITLE_KEY = 'stage_clear_title';
 const DUNGEON_BOSS_TEXTURE_PATHS = {
   enemy_even_gatekeeper: 'assets/images/enemies/beginning/even_gatekeeper.png',
   enemy_odd_gatekeeper: 'assets/images/enemies/beginning/odd_gatekeeper.png',
@@ -39,8 +42,10 @@ export class DungeonScene extends BaseScene {
   preload() {
     preloadDungeonMapArt(this);
     preloadHudUiAssets(this);
+    this.preloadResultModalAssets();
     this.preloadCurrentBossVisual();
     preloadBgmAssets(this, audioKeys.bgm.dungeon);
+    preloadSfxAssets(this);
   }
 
   create() {
@@ -247,52 +252,46 @@ export class DungeonScene extends BaseScene {
   }
 
   setupFinalClearModal() {
+    const hasResultFrame = this.textures.exists(RESULT_MODAL_FRAME_KEY);
+    const hasStageClearTitle = this.textures.exists(STAGE_CLEAR_TITLE_KEY);
+
     this.finalClearOverlay = this.add.rectangle(400, 300, 800, 600, 0x05070d, 0.68)
       .setDepth(1200)
       .setScrollFactor(0)
       .setVisible(false);
-    this.finalClearPanel = this.add.rectangle(400, 300, 560, 300, 0x0f172a, 0.97)
-      .setStrokeStyle(4, 0xfacc15, 0.95)
+    this.finalClearPanel = (hasResultFrame
+      ? this.add.image(400, 300, RESULT_MODAL_FRAME_KEY).setDisplaySize(720, 480)
+      : this.add.rectangle(400, 300, 560, 300, 0x0f172a, 0.97).setStrokeStyle(4, 0xfacc15, 0.95))
       .setDepth(1201)
       .setScrollFactor(0)
       .setVisible(false);
-    this.finalClearPanelInner = this.add.rectangle(400, 300, 540, 280, 0x172033, 0.32)
-      .setStrokeStyle(1, 0xf8e08a, 0.22)
-      .setDepth(1201)
-      .setScrollFactor(0)
-      .setVisible(false);
-    this.finalClearTitleText = this.add.text(400, 214, 'Congratulations!', {
-      fontSize: '32px',
-      color: '#facc15',
-      fontStyle: 'bold',
-    }).setOrigin(0.5).setDepth(1202).setScrollFactor(0).setVisible(false);
-    this.finalClearBodyText = this.add.text(400, 268, 'You beat this level!', {
-      fontSize: '22px',
-      color: '#ffffff',
-      align: 'center',
-      lineSpacing: 10,
-    }).setOrigin(0.5).setDepth(1202).setScrollFactor(0).setVisible(false);
-    this.finalClearOptionHighlights = [
-      this.add.rectangle(400, 346, 376, 40, 0xfacc15, 0.16)
-        .setStrokeStyle(2, 0xfacc15, 0.55)
-        .setDepth(1201)
-        .setScrollFactor(0)
-        .setVisible(false),
-      this.add.rectangle(400, 392, 336, 40, 0xfacc15, 0.16)
-        .setStrokeStyle(2, 0xfacc15, 0.55)
-        .setDepth(1201)
-        .setScrollFactor(0)
-        .setVisible(false),
-    ];
-    this.finalClearOptionTexts = [
-      this.add.text(400, 346, 'Go to level choice', {
-        fontSize: '20px',
-        color: '#ffffff',
+    this.finalClearTitleText = (hasStageClearTitle
+      ? this.add.image(400, 188, STAGE_CLEAR_TITLE_KEY).setDisplaySize(720, 480)
+      : this.add.text(400, 160, 'Stage Clear!', {
+        fontSize: '32px',
+        color: '#facc15',
         fontStyle: 'bold',
-      }).setOrigin(0.5).setDepth(1202).setScrollFactor(0).setVisible(false),
-      this.add.text(400, 392, 'Go back to the world map', {
+      }).setOrigin(0.5))
+      .setDepth(1202)
+      .setScrollFactor(0)
+      .setVisible(false);
+    this.finalClearBodyText = this.add.text(400, 292, 'Level Complete!', {
+      fontSize: '27px',
+      color: '#fff0b8',
+      fontStyle: 'bold',
+      align: 'center',
+      lineSpacing: 16,
+      stroke: '#21150c',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(1202).setScrollFactor(0).setVisible(false);
+    this.finalClearOptionHighlights = [];
+    this.finalClearOptionTexts = [
+      this.add.text(400, 423, 'ENTER level select', {
         fontSize: '20px',
-        color: '#ffffff',
+        color: '#ffe6a3',
+        fontStyle: 'bold',
+        stroke: '#21150c',
+        strokeThickness: 4,
       }).setOrigin(0.5).setDepth(1202).setScrollFactor(0).setVisible(false),
     ];
   }
@@ -302,8 +301,7 @@ export class DungeonScene extends BaseScene {
     this.finalClearChoiceSelectionIndex = 0;
     this.player?.setVelocity?.(0, 0);
     hidePrompt(this.promptText);
-    this.clearText?.setAlpha?.(0.18);
-    this.roomText?.setAlpha?.(0.18);
+    playSfx(this, audioKeys.sfx.victory);
     [
       this.finalClearOverlay,
       this.finalClearPanel,
@@ -327,19 +325,13 @@ export class DungeonScene extends BaseScene {
       ...(this.finalClearOptionHighlights || []),
       ...(this.finalClearOptionTexts || []),
     ].forEach((node) => node?.setVisible(false));
-    this.clearText?.setAlpha?.(1);
-    this.roomText?.setAlpha?.(1);
   }
 
   updateFinalClearModalSelection() {
-    const selectedIndex = Phaser.Math.Clamp(this.finalClearChoiceSelectionIndex, 0, 1);
-    this.finalClearChoiceSelectionIndex = selectedIndex;
-    this.finalClearOptionHighlights?.forEach((node, index) => {
-      node?.setVisible(index === selectedIndex);
-    });
-    this.finalClearOptionTexts?.forEach((node, index) => {
-      node?.setColor(index === selectedIndex ? '#fde68a' : '#d1d5db');
-      node?.setFontStyle(index === selectedIndex ? 'bold' : 'normal');
+    this.finalClearChoiceSelectionIndex = 0;
+    this.finalClearOptionTexts?.forEach((node) => {
+      node?.setColor('#ffe6a3');
+      node?.setFontStyle('bold');
     });
   }
 
@@ -348,25 +340,8 @@ export class DungeonScene extends BaseScene {
       return false;
     }
 
-    if (
-      Phaser.Input.Keyboard.JustDown(this.cursors.up)
-      || Phaser.Input.Keyboard.JustDown(this.cursors.left)
-    ) {
-      this.finalClearChoiceSelectionIndex = 0;
-      this.updateFinalClearModalSelection();
-      return true;
-    }
-
-    if (
-      Phaser.Input.Keyboard.JustDown(this.cursors.down)
-      || Phaser.Input.Keyboard.JustDown(this.cursors.right)
-    ) {
-      this.finalClearChoiceSelectionIndex = 1;
-      this.updateFinalClearModalSelection();
-      return true;
-    }
-
     if (Phaser.Input.Keyboard.JustDown(this.keyENTER)) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       this.confirmFinalClearModalChoice();
       return true;
     }
@@ -375,16 +350,8 @@ export class DungeonScene extends BaseScene {
   }
 
   confirmFinalClearModalChoice() {
-    if (this.finalClearChoiceSelectionIndex === 0) {
-      saveGame();
-      this.scene.start('StartScene');
-      return;
-    }
-
-    playerData.position.world.x = dungeonConfig.navigation.leaveToWorld.x;
-    playerData.position.world.y = dungeonConfig.navigation.leaveToWorld.y;
     saveGame();
-    this.scene.start('WorldScene');
+    this.scene.start('StartScene');
   }
 
   setupCoordinateDebugOverlay() {
@@ -624,23 +591,7 @@ export class DungeonScene extends BaseScene {
         this.worldExitMarker.setStrokeStyle(2, marker.color, 0.45);
       }
       this.worldExitZone = this.createZone(zone.x, zone.y, zone.width, zone.height);
-
-      this.clearText = this.add
-        .text(400, 70, 'Dungeon Cleared!', {
-          fontSize: '28px',
-          color: '#ffd700',
-          fontStyle: 'bold',
-        })
-        .setOrigin(0.5);
     }
-
-    this.roomText = this.add
-      .text(400, 35, `Room ${this.roomNumber}`, {
-        fontSize: '22px',
-        color: '#ffffff',
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5);
   }
 
   isCurrentRoomBossDefeated() {

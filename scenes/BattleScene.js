@@ -27,6 +27,7 @@ import { BattleUiCoordinator } from '../domains/battle/coordinators/BattleUiCoor
 import { isTesterMode } from '../utils/debugState.js';
 import { audioKeys } from '../config/audioKeys.js';
 import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
+import { preloadSfxAssets } from '../utils/sfxManager.js';
 
 export class BattleScene extends Phaser.Scene {
   constructor() {
@@ -35,6 +36,7 @@ export class BattleScene extends Phaser.Scene {
 
   preload() {
     preloadBgmAssets(this, audioKeys.bgm.battle);
+    preloadSfxAssets(this);
 
     if (!this.textures.exists('battleBgDungeon')) {
       this.load.image('battleBgDungeon', 'assets/images/ui/battle/battle_bg_dungeon.png');
@@ -262,6 +264,8 @@ export class BattleScene extends Phaser.Scene {
     } else {
       this.resultText.setPosition(95, 465);
       this.resultText.setWordWrapWidth(414);
+      this.ruleText?.setPosition?.(95, 506);
+      this.tipText?.setPosition?.(95, 534);
       this.dialogContinueText.setVisible(false);
     }
   }

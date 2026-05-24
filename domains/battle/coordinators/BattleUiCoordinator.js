@@ -16,6 +16,8 @@ import {
 const ENEMY_NAME_MAX_WIDTH = 182;
 const ENEMY_NAME_BASE_FONT_SIZE = 22;
 const ENEMY_NAME_MIN_FONT_SIZE = 12;
+const CONTINUE_INDICATOR_INSET_X = 78;
+const CONTINUE_INDICATOR_INSET_Y = 50;
 
 function setFittedEnemyName(node, text = '') {
   if (!node) return;
@@ -221,6 +223,7 @@ export class BattleUiCoordinator {
     }
 
     this.setTextNode(this.scene.resultText, text);
+    this.setDialogContinueVisible(this.shouldShowDialogContinue());
   }
 
   renderDialogLine(text = '', phase = battleResultPhases.INFO, payload = {}) {
@@ -233,7 +236,40 @@ export class BattleUiCoordinator {
 
     const scene = this.scene;
     this.setTextNode(scene.resultText, text);
-    scene.dialogContinueText.setVisible((scene.dialogQueue?.length || 0) > 0);
+    this.setDialogContinueVisible(this.shouldShowDialogContinue((scene.dialogQueue?.length || 0) > 0));
+  }
+
+  getDialogContinuePanel() {
+    const scene = this.scene;
+    if (scene.combinedDialogBox?.visible) {
+      return scene.combinedDialogBox;
+    }
+
+    return null;
+  }
+
+  positionDialogContinueIndicator() {
+    const indicator = this.scene.dialogContinueText;
+    const panel = this.getDialogContinuePanel();
+    if (!indicator || !panel) return;
+
+    const panelWidth = panel.displayWidth || panel.width || 0;
+    const panelHeight = panel.displayHeight || panel.height || 0;
+    indicator.setPosition(
+      panel.x + (panelWidth / 2) - CONTINUE_INDICATOR_INSET_X,
+      panel.y + (panelHeight / 2) - CONTINUE_INDICATOR_INSET_Y,
+    );
+  }
+
+  shouldShowDialogContinue() {
+    return Boolean(this.getDialogContinuePanel());
+  }
+
+  setDialogContinueVisible(visible = false) {
+    if (visible) {
+      this.positionDialogContinueIndicator();
+    }
+    this.scene.dialogContinueText?.setVisible?.(visible);
   }
 
   renderTipText(text = '') {

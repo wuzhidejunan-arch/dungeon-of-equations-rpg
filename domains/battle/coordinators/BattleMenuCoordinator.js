@@ -2,10 +2,22 @@ import { isSkillUsable } from '../../../utils/playerSkills.js';
 import { battleResultPhases } from '../../../data/battlePhases.js';
 import { getBattleText } from '../../../utils/battleSchema.js';
 import { activateChallengeUtilitySkill, shouldChallengeSkillBypassBuilder } from '../../../engine/builderController.js';
+import { audioKeys } from '../../../config/audioKeys.js';
+import { playSfx } from '../../../utils/sfxManager.js';
 
 export class BattleMenuCoordinator {
   constructor({ scene }) {
     this.scene = scene;
+  }
+
+  playUiSfx(key) {
+    playSfx(this.scene, key);
+  }
+
+  playMoveIfChanged(before, after) {
+    if (before !== after) {
+      this.playUiSfx(audioKeys.sfx.uiMove);
+    }
   }
 
   handleMainMenuInput() {
@@ -19,11 +31,15 @@ export class BattleMenuCoordinator {
 
     if (scene.processDirectionInput({
       up: () => {
+        const before = scene.commandSelectionIndex;
         scene.commandSelectionIndex = scene.moveMenuIndex(scene.commandSelectionIndex, 3, -1);
+        this.playMoveIfChanged(before, scene.commandSelectionIndex);
         this.updateCommandCursor();
       },
       down: () => {
+        const before = scene.commandSelectionIndex;
         scene.commandSelectionIndex = scene.moveMenuIndex(scene.commandSelectionIndex, 3, 1);
+        this.playMoveIfChanged(before, scene.commandSelectionIndex);
         this.updateCommandCursor();
       },
     })) {
@@ -31,6 +47,7 @@ export class BattleMenuCoordinator {
     }
 
     if (scene.isConfirmPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiConfirm);
       if (scene.commandSelectionIndex === 0) {
         this.openSkillMenu();
       } else if (scene.commandSelectionIndex === 1) {
@@ -52,6 +69,7 @@ export class BattleMenuCoordinator {
     }
 
     if (scene.isBackPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiBack);
       const rule = scene.battleController?.getTutorialBackRestriction?.('main') || { allowed: true, message: '' };
       if (!rule.allowed) {
         scene.showTrainingGuideReminder?.(rule.message);
@@ -65,19 +83,27 @@ export class BattleMenuCoordinator {
     const scene = this.scene;
     if (scene.processDirectionInput({
       left: () => {
+        const before = scene.bonusSelectionIndex;
         scene.bonusSelectionIndex = 0;
+        this.playMoveIfChanged(before, scene.bonusSelectionIndex);
         this.updateCommandCursor();
       },
       up: () => {
+        const before = scene.bonusSelectionIndex;
         scene.bonusSelectionIndex = 0;
+        this.playMoveIfChanged(before, scene.bonusSelectionIndex);
         this.updateCommandCursor();
       },
       right: () => {
+        const before = scene.bonusSelectionIndex;
         scene.bonusSelectionIndex = 1;
+        this.playMoveIfChanged(before, scene.bonusSelectionIndex);
         this.updateCommandCursor();
       },
       down: () => {
+        const before = scene.bonusSelectionIndex;
         scene.bonusSelectionIndex = 1;
+        this.playMoveIfChanged(before, scene.bonusSelectionIndex);
         this.updateCommandCursor();
       },
     })) {
@@ -85,6 +111,7 @@ export class BattleMenuCoordinator {
     }
 
     if (scene.isConfirmPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiConfirm);
       if (scene.bonusSelectionIndex === 0) {
         scene.selectNextAttackBonus('guard');
       } else {
@@ -101,6 +128,7 @@ export class BattleMenuCoordinator {
 
     if (itemCount <= 0) {
       if (scene.isConfirmPressed() || scene.isBackPressed()) {
+        this.playUiSfx(scene.isBackPressed() ? audioKeys.sfx.uiBack : audioKeys.sfx.uiConfirm);
         this.openMainMenu();
       }
       return;
@@ -108,11 +136,15 @@ export class BattleMenuCoordinator {
 
     if (scene.processDirectionInput({
       up: () => {
+        const before = scene.itemSelectionIndex;
         scene.itemSelectionIndex = scene.moveMenuIndex(scene.itemSelectionIndex, itemCount, -1);
+        this.playMoveIfChanged(before, scene.itemSelectionIndex);
         this.updateCommandCursor();
       },
       down: () => {
+        const before = scene.itemSelectionIndex;
         scene.itemSelectionIndex = scene.moveMenuIndex(scene.itemSelectionIndex, itemCount, 1);
+        this.playMoveIfChanged(before, scene.itemSelectionIndex);
         this.updateCommandCursor();
       },
     })) {
@@ -120,11 +152,13 @@ export class BattleMenuCoordinator {
     }
 
     if (scene.isConfirmPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiConfirm);
       scene.useSelectedItem();
       return;
     }
 
     if (scene.isBackPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiBack);
       this.openMainMenu();
     }
   }
@@ -137,11 +171,15 @@ export class BattleMenuCoordinator {
 
     if (scene.processDirectionInput({
       up: () => {
+        const before = scene.itemTargetSkillIndex;
         scene.itemTargetSkillIndex = scene.moveMenuIndex(scene.itemTargetSkillIndex, skillCount, -1);
+        this.playMoveIfChanged(before, scene.itemTargetSkillIndex);
         this.updateCommandCursor();
       },
       down: () => {
+        const before = scene.itemTargetSkillIndex;
         scene.itemTargetSkillIndex = scene.moveMenuIndex(scene.itemTargetSkillIndex, skillCount, 1);
+        this.playMoveIfChanged(before, scene.itemTargetSkillIndex);
         this.updateCommandCursor();
       },
     })) {
@@ -149,6 +187,7 @@ export class BattleMenuCoordinator {
     }
 
     if (scene.isConfirmPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiConfirm);
       const skill = scene.playerSkills[scene.itemTargetSkillIndex];
       if (skill && scene.selectedItemEntry) {
         scene.useItemByEntry(scene.selectedItemEntry, skill.id);
@@ -157,6 +196,7 @@ export class BattleMenuCoordinator {
     }
 
     if (scene.isBackPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiBack);
       scene.selectedItemEntry = null;
       this.openItemMenu();
     }
@@ -184,11 +224,13 @@ export class BattleMenuCoordinator {
     }
 
     if (scene.isConfirmPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiConfirm);
       this.selectSkill(scene.selectedSkillIndex);
       return;
     }
 
     if (scene.isBackPressed()) {
+      this.playUiSfx(audioKeys.sfx.uiBack);
       this.hideSkillMenuUI();
       this.openMainMenu();
     }
@@ -203,6 +245,7 @@ export class BattleMenuCoordinator {
     }
 
     scene.selectedSkillIndex = nextIndex;
+    this.playUiSfx(audioKeys.sfx.uiMove);
     this.updateSkillMenuUI();
   }
 
@@ -212,6 +255,7 @@ export class BattleMenuCoordinator {
     if (!skill) return;
 
     if (!isSkillUsable(skill)) {
+      this.playUiSfx(audioKeys.sfx.answerWrong);
       scene.renderResultText(
         'No uses left. Use a potion to restore.',
         battleResultPhases.INFO,
@@ -222,6 +266,7 @@ export class BattleMenuCoordinator {
 
     const tutorialRule = scene.battleController?.getTutorialSkillRestriction?.(skill) || { allowed: true, message: '' };
     if (!tutorialRule.allowed) {
+      this.playUiSfx(audioKeys.sfx.answerWrong);
       scene.renderResultText(tutorialRule.message, battleResultPhases.INFO);
       this.updateSkillMenuUI();
       return;

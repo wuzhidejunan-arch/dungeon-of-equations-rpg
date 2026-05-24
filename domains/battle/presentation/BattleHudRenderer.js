@@ -1,3 +1,6 @@
+const CONTINUE_INDICATOR_INSET_X = 78;
+const CONTINUE_INDICATOR_INSET_Y = 50;
+
 export class BattleHudRenderer {
   constructor(scene) {
     this.scene = scene;
@@ -116,6 +119,7 @@ export class BattleHudRenderer {
 
   renderResultText(text = '') {
     this.setTextNode(this.scene.resultText, text);
+    this.setDialogContinueVisible(this.shouldShowDialogContinue());
   }
 
   renderTipText(text = '') {
@@ -154,10 +158,43 @@ export class BattleHudRenderer {
 
   renderDialogLine(text = '', hasNext = false) {
     this.renderResultText(text);
-    this.scene.dialogContinueText?.setVisible?.(hasNext);
+    this.setDialogContinueVisible(this.shouldShowDialogContinue(hasNext));
   }
 
   addBattleLog(messages = []) {
     this.setTextNode(this.scene.logText, messages.join('\n'));
+  }
+
+  getDialogContinuePanel() {
+    const scene = this.scene;
+    if (scene.combinedDialogBox?.visible) {
+      return scene.combinedDialogBox;
+    }
+
+    return null;
+  }
+
+  positionDialogContinueIndicator() {
+    const indicator = this.scene.dialogContinueText;
+    const panel = this.getDialogContinuePanel();
+    if (!indicator || !panel) return;
+
+    const panelWidth = panel.displayWidth || panel.width || 0;
+    const panelHeight = panel.displayHeight || panel.height || 0;
+    indicator.setPosition(
+      panel.x + (panelWidth / 2) - CONTINUE_INDICATOR_INSET_X,
+      panel.y + (panelHeight / 2) - CONTINUE_INDICATOR_INSET_Y,
+    );
+  }
+
+  shouldShowDialogContinue() {
+    return Boolean(this.getDialogContinuePanel());
+  }
+
+  setDialogContinueVisible(visible = false) {
+    if (visible) {
+      this.positionDialogContinueIndicator();
+    }
+    this.scene.dialogContinueText?.setVisible?.(visible);
   }
 }

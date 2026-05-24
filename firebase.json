@@ -7,7 +7,6 @@
       "**/node_modules/**",
       "docs/**",
       "tmp_map_inspect/**",
-      "_challenge_asset_extract/**",
       "*.md"
     ]
   }

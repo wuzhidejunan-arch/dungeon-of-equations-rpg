@@ -123,7 +123,7 @@ export const BattleLayoutMixin = {
         infoX: left + 258,
         infoY: top + 96,
         buffX: left + 56,
-        buffY: top + 116,
+        buffY: top + 100,
         wrapWidth: panelWidth - 112,
       };
     };
@@ -155,10 +155,10 @@ export const BattleLayoutMixin = {
     this.enemyHpBarFill = this.add.rectangle(enemyStatusLayout.hpBarX, enemyStatusLayout.hpBarY, hpBarWidth, 12, colors.hpFill).setOrigin(0, 0.5);
     this.enemyInfoText = this.add.text(enemyStatusLayout.infoX, enemyStatusLayout.infoY, '', { fontSize: '15px', color: colors.textSecondary, fontStyle: 'bold' });
     this.enemyBuffText = this.add.text(enemyStatusLayout.buffX, enemyStatusLayout.buffY, '', {
-      fontSize: '9px',
-      color: colors.textMuted,
+      fontSize: '12px',
+      color: '#fca5a5',
       fontStyle: 'bold',
-      lineSpacing: 0,
+      lineSpacing: 2,
       wordWrap: { width: enemyStatusLayout.wrapWidth },
     });
 
@@ -169,10 +169,10 @@ export const BattleLayoutMixin = {
     this.playerHpBarFill = this.add.rectangle(playerStatusLayout.hpBarX, playerStatusLayout.hpBarY, hpBarWidth, 12, colors.hpFill).setOrigin(0, 0.5);
     this.playerInfoText = this.add.text(playerStatusLayout.infoX, playerStatusLayout.infoY, '', { fontSize: '15px', color: colors.textSecondary, fontStyle: 'bold' });
     this.playerBuffText = this.add.text(playerStatusLayout.buffX, playerStatusLayout.buffY, '', {
-      fontSize: '9px',
-      color: colors.textMuted,
+      fontSize: '12px',
+      color: '#bbf7d0',
       fontStyle: 'bold',
-      lineSpacing: 0,
+      lineSpacing: 2,
       wordWrap: { width: playerStatusLayout.wrapWidth },
     });
 
@@ -273,13 +273,14 @@ export const BattleLayoutMixin = {
       }).setVisible(false)
     ));
 
-    this.dialogContinueText = this.add.text(718, 564, '>', {
-      fontSize: '18px',
-      color: '#facc15',
+    this.dialogContinueText = this.add.text(710, 530, '▼', {
+      fontSize: '23px',
+      color: '#ffd43b',
       fontStyle: 'bold',
-    }).setVisible(false);
+      strokeThickness: 0,
+    }).setOrigin(0.5).setVisible(false);
 
-    this.resultText = this.add.text(95, 456, '', {
+    this.resultText = this.add.text(95, 448, '', {
       fontSize: '18px',
       color: colors.textPrimary,
       fontStyle: 'bold',

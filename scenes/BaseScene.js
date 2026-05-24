@@ -6,6 +6,32 @@ import { ensureLevelState } from "../utils/levelSystem.js";
 import { markBagOpened } from "../utils/guideSystem.js";
 import { createFieldInventoryContext } from "../utils/fieldInventory.js";
 import { createDebugBadge, syncDebugBadge } from "../utils/debugBadge.js";
+import { audioKeys } from "../config/audioKeys.js";
+import { playSfx } from "../utils/sfxManager.js";
+import { itemDefinitions } from "../data/battleData.js";
+
+const RESULT_MODAL_ASSETS = {
+  frame: {
+    key: "result_modal_frame",
+    path: "assets/ui/result_modal_frame.png",
+  },
+  levelUpTitle: {
+    key: "level_up_title",
+    path: "assets/ui/level_up_title.png",
+  },
+  stageClearTitle: {
+    key: "stage_clear_title",
+    path: "assets/ui/stage_clear_title.png",
+  },
+};
+
+export function preloadResultModalAssets(scene) {
+  Object.values(RESULT_MODAL_ASSETS).forEach(({ key, path }) => {
+    if (!scene.textures.exists(key)) {
+      scene.load.image(key, path);
+    }
+  });
+}
 
 export class BaseScene extends Phaser.Scene {
   constructor(key) {
@@ -46,28 +72,50 @@ export class BaseScene extends Phaser.Scene {
     refreshStatusUI(this.statusUI, playerData);
   }
 
+  preloadResultModalAssets() {
+    preloadResultModalAssets(this);
+  }
+
   setupLevelUpUI() {
     const width = this.scale.width;
     const height = this.scale.height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const modalWidth = Math.min(720, width - 72);
+    const modalHeight = Math.round(modalWidth * (1024 / 1536));
+    const titleWidth = Math.min(680, modalWidth * 0.96);
+    const titleHeight = Math.round(titleWidth * (1024 / 1536));
+    const hasFrame = this.textures.exists(RESULT_MODAL_ASSETS.frame.key);
+    const hasTitle = this.textures.exists(RESULT_MODAL_ASSETS.levelUpTitle.key);
 
     this.levelUpOverlay = this.add.container(0, 0).setDepth(1000).setVisible(false);
 
-    const shade = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45);
-    const panel = this.add.rectangle(width / 2, height / 2, 460, 240, 0x111827, 0.98).setStrokeStyle(3, 0xfacc15);
-    const title = this.add.text(width / 2, height / 2 - 92, "Level Up!", {
-      fontSize: "28px",
-      color: "#facc15",
+    const shade = this.add.rectangle(centerX, centerY, width, height, 0x000000, 0.52);
+    const panel = hasFrame
+      ? this.add.image(centerX, centerY, RESULT_MODAL_ASSETS.frame.key).setDisplaySize(modalWidth, modalHeight)
+      : this.add.rectangle(centerX, centerY, 460, 240, 0x111827, 0.98).setStrokeStyle(3, 0xfacc15);
+    const title = hasTitle
+      ? this.add.image(centerX, centerY - 124, RESULT_MODAL_ASSETS.levelUpTitle.key).setDisplaySize(titleWidth, titleHeight)
+      : this.add.text(centerX, centerY - 140, "Level Up!", {
+        fontSize: "28px",
+        color: "#facc15",
+        fontStyle: "bold",
+      }).setOrigin(0.5);
+    const body = this.add.text(centerX, centerY - 12, "", {
+      fontSize: "27px",
+      color: "#fff0b8",
       fontStyle: "bold",
-    }).setOrigin(0.5);
-    const body = this.add.text(width / 2, height / 2 - 4, "", {
-      fontSize: "22px",
-      color: "#ffffff",
       align: "center",
-      lineSpacing: 12,
+      lineSpacing: 16,
+      stroke: "#21150c",
+      strokeThickness: 4,
     }).setOrigin(0.5);
-    const footer = this.add.text(width / 2, height / 2 + 84, "Press Enter", {
-      fontSize: "16px",
-      color: "#cbd5e1",
+    const footer = this.add.text(centerX, centerY + 123, "ENTER continue", {
+      fontSize: "20px",
+      color: "#ffe6a3",
+      fontStyle: "bold",
+      stroke: "#21150c",
+      strokeThickness: 4,
     }).setOrigin(0.5);
 
     this.levelUpOverlay.add([shade, panel, title, body, footer]);
@@ -86,6 +134,7 @@ export class BaseScene extends Phaser.Scene {
     this.levelUpNoticeActive = true;
     this.levelUpText.setText(Array.isArray(lines) ? lines.join("\n") : String(lines || ""));
     this.levelUpOverlay.setVisible(true);
+    playSfx(this, audioKeys.sfx.levelUp);
     this.updateStatusUI();
   }
 
@@ -130,7 +179,17 @@ export class BaseScene extends Phaser.Scene {
     this.updateStatusUI();
   }
 
-  onFieldItemUsed() {
+  onFieldItemUsed(_result, itemName) {
+    const itemDefinition = itemDefinitions[itemName] || null;
+    const effects = Array.isArray(itemDefinition?.effects) ? itemDefinition.effects : [];
+    if (/potion/i.test(String(itemName || "")) || effects.some((effect) => effect?.type === "healHp")) {
+      playSfx(this, audioKeys.sfx.potion, {
+        volume: 0.5,
+        cooldownMs: 200,
+        maxDurationMs: 1200,
+        allowOverlap: false,
+      });
+    }
     this.updateStatusUI();
   }
 
@@ -178,6 +237,10 @@ export class BaseScene extends Phaser.Scene {
     } else if (moveDown) {
       player.setVelocityY(speed);
     }
+
+    if (moveLeft || moveRight || moveUp || moveDown) {
+      playSfx(this, audioKeys.sfx.playerMove);
+    }
   }
 
   isInventoryHotkeyPressed() {
@@ -197,6 +260,7 @@ export class BaseScene extends Phaser.Scene {
 
     markBagOpened();
     this.inventoryOpen = true;
+    playSfx(this, audioKeys.sfx.uiConfirm);
 
     if (this.input?.keyboard) {
       this.input.keyboard.resetKeys();

@@ -2,6 +2,24 @@ import { battleReturnMenus } from '../../data/battleStates.js';
 import { battleResultPhases } from '../../data/battlePhases.js';
 import { consumeItem } from '../../utils/inventory.js';
 import { getBattleText, getBattleUIText } from '../../utils/battleSchema.js';
+import { audioKeys } from '../../config/audioKeys.js';
+import { playSfx } from '../../utils/sfxManager.js';
+
+function shouldPlayPotionSfx(entry) {
+  const itemName = String(entry?.name || '');
+  const effects = Array.isArray(entry?.definition?.effects) ? entry.definition.effects : [];
+  return /potion/i.test(itemName) || effects.some((effect) => effect?.type === 'healHp');
+}
+
+function playPotionSfx(scene, entry) {
+  if (!shouldPlayPotionSfx(entry)) return;
+  playSfx(scene, audioKeys.sfx.potion, {
+    volume: 0.5,
+    cooldownMs: 200,
+    maxDurationMs: 1200,
+    allowOverlap: false,
+  });
+}
 
 export const BattleItemFlowMixin = {
   useSelectedItem() {
@@ -55,6 +73,7 @@ export const BattleItemFlowMixin = {
 
     this.selectedItemEntry = null;
     this.itemTargetSkillIndex = 0;
+    playPotionSfx(this, entry);
     this.enemyTurn(
       result.endTurnLines || [
         { phase: battleResultPhases.RESULT_ITEM, text: result.message },

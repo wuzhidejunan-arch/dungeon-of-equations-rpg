@@ -1,4 +1,6 @@
 export class TrainingRenderer {
+  static MENU_CURSOR_Y_OFFSET = 3;
+
   getMenuCursorY(scene, viewState) {
     const cursor = viewState?.cursor || {};
     const items = Array.isArray(cursor.menuItems) ? cursor.menuItems : [];
@@ -11,7 +13,9 @@ export class TrainingRenderer {
       precedingLineCount += 1;
     }
 
-    return (scene?.stageListText?.y || cursor.y || 0) + (precedingLineCount * lineHeight);
+    return (scene?.stageListText?.y || cursor.y || 0)
+      + (precedingLineCount * lineHeight)
+      + TrainingRenderer.MENU_CURSOR_Y_OFFSET;
   }
 
   getTextLineHeight(textNode) {

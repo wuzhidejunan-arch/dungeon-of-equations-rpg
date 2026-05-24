@@ -10,6 +10,7 @@ import { getRuntimeDifficultyState, switchRuntimeDifficultySlot } from '../utils
 import { beginDevEnemyVisualTestSession, clearDevEnemyVisualTestSession } from '../utils/devEnemyVisualTestSession.js';
 import { audioKeys } from '../config/audioKeys.js';
 import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
+import { playSfx, preloadSfxAssets } from '../utils/sfxManager.js';
 
 const startSceneUiAssets = Object.freeze({
   levelSelectBg: {
@@ -65,6 +66,7 @@ export class StartScene extends Phaser.Scene {
     Object.values(startSceneUiAssets).forEach(({ key, path }) => {
       this.load.image(key, path);
     });
+    preloadSfxAssets(this);
     // Keep the first menu paint fast; BGM loads after StartScene is visible.
   }
 
@@ -564,12 +566,17 @@ export class StartScene extends Phaser.Scene {
   moveSelection(delta) {
     const max = this.modeViews.length;
     this.selectedModeIndex = (this.selectedModeIndex + delta + max) % max;
+    playSfx(this, audioKeys.sfx.uiMove);
     this.refreshModeSelection();
   }
 
   selectModeCard(index) {
     if (index < 0 || index >= this.modeViews.length) return;
+    const changed = this.selectedModeIndex !== index;
     this.selectedModeIndex = index;
+    if (changed) {
+      playSfx(this, audioKeys.sfx.uiMove);
+    }
     this.refreshModeSelection();
   }
 
@@ -585,6 +592,7 @@ export class StartScene extends Phaser.Scene {
     this.lastModeCardClick = { index, time: now };
 
     if (isDoubleClick) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       this.confirmSelectedMode();
     }
   }
@@ -740,31 +748,37 @@ export class StartScene extends Phaser.Scene {
 
     if (this.enemyVisualTestActive) {
       if (Phaser.Input.Keyboard.JustDown(this.keyESC)) {
+        playSfx(this, audioKeys.sfx.uiBack);
         this.closeEnemyVisualTest();
         return;
       }
 
       if (Phaser.Input.Keyboard.JustDown(this.keyLEFT)) {
+        playSfx(this, audioKeys.sfx.uiMove);
         this.moveEnemyVisualTestEnemy(-1);
         return;
       }
 
       if (Phaser.Input.Keyboard.JustDown(this.keyRIGHT)) {
+        playSfx(this, audioKeys.sfx.uiMove);
         this.moveEnemyVisualTestEnemy(1);
         return;
       }
 
       if (Phaser.Input.Keyboard.JustDown(this.keyUP)) {
+        playSfx(this, audioKeys.sfx.uiMove);
         this.moveEnemyVisualTestGroup(-1);
         return;
       }
 
       if (Phaser.Input.Keyboard.JustDown(this.keyDOWN)) {
+        playSfx(this, audioKeys.sfx.uiMove);
         this.moveEnemyVisualTestGroup(1);
         return;
       }
 
       if (Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+        playSfx(this, audioKeys.sfx.uiConfirm);
         this.startEnemyVisualTestBattle();
       }
       return;
@@ -781,6 +795,7 @@ export class StartScene extends Phaser.Scene {
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+      playSfx(this, audioKeys.sfx.uiConfirm);
       this.confirmSelectedMode();
     }
   }
