@@ -128,8 +128,10 @@ export class BattleOutcomeSystem {
     const enemyOutcome = this.resolveEnemyTurnOutcome(activeBonus);
 
     if (enemyOutcome?.blocked) {
+      this.scene.showDefenseShieldEffect?.('player');
       playSfx(this.scene, audioKeys.sfx.blocked);
     } else if (playerData.hp < playerHpBeforeEnemyTurn) {
+      this.scene.showAttackHitEffect?.('player');
       playSfx(this.scene, audioKeys.sfx.playerHit);
     }
 
@@ -176,9 +178,11 @@ export class BattleOutcomeSystem {
         playSfx(this.scene, audioKeys.sfx.actionFail);
       } else if (enemyDefeated) {
         playResolvedPlayerActionSfx(this.scene, usedSkill, resolved);
+        this.scene.showAttackHitEffect?.('enemy');
         playSfx(this.scene, audioKeys.sfx.enemyDefeat);
       } else if (enemyHpDecreased) {
         playResolvedPlayerActionSfx(this.scene, usedSkill, resolved);
+        this.scene.showAttackHitEffect?.('enemy');
         playSfx(this.scene, audioKeys.sfx.enemyHit);
       } else if (isBlockedPlayerAttackOutcome(resolved)) {
         playSfx(this.scene, audioKeys.sfx.blocked);

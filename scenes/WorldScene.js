@@ -34,6 +34,8 @@ const DEBUG_WORLD_COLLISION = false;
 const DEBUG_WORLD_BODY_BOUNDS = false;
 const BOOK_PANEL_KEY = "uiBookPanelFrame";
 const BOOK_PANEL_PATH = "assets/ui/ui_book_panel_frame.png";
+const DIALOGUE_PANEL_KEY = "dialoguePanel";
+const DIALOGUE_PANEL_PATH = "assets/ui/dialogue/dialogue_panel.png";
 const BOOK_PANEL_LAYOUT = {
   x: 400,
   y: 300,
@@ -65,6 +67,7 @@ export class WorldScene extends BaseScene {
     preloadSfxAssets(this);
     this.preloadResultModalAssets();
     this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
+    this.load.image(DIALOGUE_PANEL_KEY, DIALOGUE_PANEL_PATH);
   }
 
   create() {

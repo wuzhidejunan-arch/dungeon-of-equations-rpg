@@ -62,6 +62,14 @@ export class BattleScene extends Phaser.Scene {
       this.load.image('battleSquarePanel', 'assets/images/ui/battle/battle_square_panel.png');
     }
 
+    if (!this.textures.exists('attackHitSpark')) {
+      this.load.image('attackHitSpark', 'assets/effects/battle/attack_hit_spark.png');
+    }
+
+    if (!this.textures.exists('defenseShieldFlash')) {
+      this.load.image('defenseShieldFlash', 'assets/effects/battle/defense_shield_flash.png');
+    }
+
     if (!this.textures.exists('mathBuilderPanel')) {
       this.load.image('mathBuilderPanel', 'assets/ui/math-builder/math_panel.png');
     }

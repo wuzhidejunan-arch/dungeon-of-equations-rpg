@@ -377,4 +377,64 @@ export const BattleLayoutMixin = {
     this.keyC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
     this.keyK = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K);
   },
+
+  getBattleEffectTarget(side) {
+    if (side === 'enemy') {
+      return this.enemySpriteImage?.visible ? this.enemySpriteImage : this.enemySprite;
+    }
+
+    if (side === 'player') {
+      return this.playerSprite;
+    }
+
+    return null;
+  },
+
+  showBattleEffect(textureKey, side, options = {}) {
+    if (!this.textures.exists(textureKey)) return;
+
+    const target = this.getBattleEffectTarget(side);
+    if (!target) return;
+
+    const x = Number.isFinite(target.x) ? target.x : null;
+    const y = Number.isFinite(target.y) ? target.y : null;
+    if (x === null || y === null) return;
+
+    const startScale = options.startScale ?? 0.16;
+    const endScale = options.endScale ?? 0.22;
+    const duration = options.duration ?? 240;
+    const effect = this.add
+      .image(x, y, textureKey)
+      .setOrigin(0.5)
+      .setScale(startScale)
+      .setAlpha(options.alpha ?? 0.95)
+      .setDepth(options.depth ?? 28);
+
+    this.tweens.add({
+      targets: effect,
+      scale: endScale,
+      alpha: 0,
+      duration,
+      ease: 'Quad.easeOut',
+      onComplete: () => effect.destroy(),
+    });
+  },
+
+  showAttackHitEffect(targetSide) {
+    this.showBattleEffect('attackHitSpark', targetSide, {
+      startScale: 0.16,
+      endScale: 0.23,
+      duration: 220,
+      alpha: 1,
+    });
+  },
+
+  showDefenseShieldEffect(actorSide) {
+    this.showBattleEffect('defenseShieldFlash', actorSide, {
+      startScale: 0.14,
+      endScale: 0.2,
+      duration: 280,
+      alpha: 0.92,
+    });
+  },
 };

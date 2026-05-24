@@ -1,5 +1,10 @@
 export function createDialogueUI(scene) {
   const { width, height } = scene.scale;
+  const panelWidth = 860;
+  const panelHeight = 360;
+  const panelX = width / 2 - 5;
+  const panelY = height - 105;
+  const textLeft = panelX - panelWidth / 2 + 88;
 
   const container = scene.add
     .container(0, 0)
@@ -7,25 +12,33 @@ export function createDialogueUI(scene) {
     .setDepth(300)
     .setVisible(false);
 
-  const background = scene.add
-    .rectangle(width / 2, height - 110, width - 40, 140, 0x000000, 0.9)
-    .setStrokeStyle(2, 0xffffff);
+  const background = scene.textures.exists("dialoguePanel")
+    ? scene.add.image(panelX, panelY, "dialoguePanel").setDisplaySize(panelWidth, panelHeight)
+    : scene.add
+        .rectangle(panelX, panelY, panelWidth, panelHeight, 0x000000, 0.9)
+        .setStrokeStyle(2, 0xffffff);
 
-  const nameText = scene.add.text(35, height - 165, "", {
-    fontSize: "20px",
-    color: "#ffd700",
+  const nameText = scene.add.text(textLeft, panelY - 45, "", {
+    fontSize: "25px",
+    color: "#ffd43b",
     fontStyle: "bold",
+    stroke: "#2b1608",
+    strokeThickness: 3,
   });
 
-  const contentText = scene.add.text(35, height - 130, "", {
-    fontSize: "22px",
-    color: "#ffffff",
-    wordWrap: { width: width - 80 },
+  const contentText = scene.add.text(textLeft, panelY - 2, "", {
+    fontSize: "23px",
+    color: "#f8e7c0",
+    stroke: "#2b1608",
+    strokeThickness: 2,
+    wordWrap: { width: panelWidth - 120 },
   });
 
-  const tipText = scene.add.text(width - 240, height - 35, "Enter / Space: Next", {
-    fontSize: "16px",
-    color: "#cccccc",
+  const tipText = scene.add.text(panelX + panelWidth / 2 -320, panelY + panelHeight / 2 - 140, "Enter / Space: Next", {
+    fontSize: "20px",
+    color: "#f0d8a8",
+    stroke: "#2b1608",
+    strokeThickness: 2,
   });
 
   container.add([background, nameText, contentText, tipText]);
