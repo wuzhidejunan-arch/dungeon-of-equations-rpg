@@ -36,13 +36,13 @@ export const BattleLayoutMixin = {
     const playerStatusH = 148;
     const hpBarWidth = 220;
     const playerStandX = 225;
-    const playerStandY = 360;
-    const playerCircleW = 210;
-    const playerCircleH = 118;
-    const enemyStandX = 585;
-    const enemyStandY = 225;
-    const enemyCircleW = 190;
-    const enemyCircleH = 106;
+    const playerStandY = 350;
+    const playerCircleW = 300;
+    const playerCircleH = 130;
+    const enemyStandX = 550;
+    const enemyStandY = 220;
+    const enemyCircleW = 300;
+    const enemyCircleH = 140;
     const panelDepth = 20;
     const uiTextDepth = 30;
     const colors = {
@@ -216,7 +216,7 @@ export const BattleLayoutMixin = {
       .setVisible(!enemyHasImage);
 
     const playerVisualX = playerStandX;
-    const playerVisualY = playerStandY - 34;
+    const playerVisualY = playerStandY - 52;
 
     if (this.textures.exists('battleBlueMagicCircle')) {
       this.add
@@ -225,7 +225,7 @@ export const BattleLayoutMixin = {
         .setAlpha(0.84);
     }
     this.playerSpriteShadow = this.add.ellipse(playerStandX, playerStandY, playerCircleW, 48, colors.shadow, 0.34);
-    this.playerSprite = this.add.image(playerVisualX, playerVisualY, 'playerBack').setScale(0.12);
+    this.playerSprite = this.add.image(playerVisualX, playerVisualY, 'playerBack').setScale(0.16);
     this.playerSpriteText = null;
 
     this.commandMenuRowPositions = Array.from({ length: 3 }, (_, index) => ({
