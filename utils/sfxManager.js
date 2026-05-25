@@ -16,7 +16,7 @@ export const sfxDefaults = Object.freeze({
   [audioKeys.sfx.playerMove]: {
     volume: 0.25,
     cooldownMs: 150,
-    maxDurationMs: 300,
+    maxDurationMs: 180,
     allowOverlap: false,
   },
   [audioKeys.sfx.actionFail]: { volume: 0.45, cooldownMs: 150, allowOverlap: false },

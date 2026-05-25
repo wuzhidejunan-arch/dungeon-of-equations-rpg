@@ -34,7 +34,7 @@ export const battleUIText = {
     resultProperties: 'Your answer is {result}. It is {properties}.',
     skillFailedBecause: 'Your answer is {result}. It is {properties}, so {skill} failed.',
     attackBuffActive: 'Power Potion: x{multiplier} damage.',
-    nextAttackDouble: 'Bonus: double damage!',
+    nextAttackDouble: 'Bonus: Double damage!',
     enemyUsedSkill: '{enemy} used {skill} and dealt {amount} damage.',
     enemyAttackBlocked: 'Blocked! {enemy} used {skill}, but you took no damage.',
     win: 'You beat the monster!\nYou got {reward} gold.',
@@ -43,7 +43,7 @@ export const battleUIText = {
   ui: {
     rulePrefix: 'Rule: {rule}',
     chainCounter: '{label}: {count}/{max}',
-    bonusReady: 'Bonus ready: choose a boost',
+    bonusReady: 'Bonus ready: Choose a boost',
     nextBonusGuard: 'Next bonus: Attack + Block',
     nextBonusDouble: 'Next bonus: Double Damage',
     skillUsesInfinite: 'INF',

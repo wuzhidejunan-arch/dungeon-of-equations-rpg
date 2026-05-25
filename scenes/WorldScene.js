@@ -10,6 +10,7 @@ import {
   preloadHudUiAssets,
   showPanel,
   showPrompt,
+  UI_GOLD_COIN_ICON_KEY,
 } from "../utils/ui.js";
 import { startDialogue } from "../utils/dialogueSystem.js";
 import { saveGame } from "../utils/saveSystem.js";
@@ -703,8 +704,19 @@ export class WorldScene extends BaseScene {
       .setDepth(202)
       .setVisible(false);
 
+    const hasGoldIcon = this.textures.exists(UI_GOLD_COIN_ICON_KEY);
+    this.shopGoldIcon = hasGoldIcon
+      ? this.add
+        .image(125, 196, UI_GOLD_COIN_ICON_KEY)
+        .setOrigin(0, 0.5)
+        .setDisplaySize(50, 40)
+        .setScrollFactor(0)
+        .setDepth(202)
+        .setVisible(false)
+      : null;
+
     this.shopGoldText = this.add
-      .text(145, 185, "", {
+      .text(hasGoldIcon ? 174 : 145, 185, "", {
         fontSize: "18px",
         color: BOOK_TEXT_COLORS.accent,
         fontStyle: "bold",
@@ -775,6 +787,23 @@ export class WorldScene extends BaseScene {
         .setDepth(202)
         .setVisible(false)
     ));
+    this.shopPriceIcon = hasGoldIcon
+      ? this.add
+        .image(detailTextX + 67, detailLineYs[1] + 9, UI_GOLD_COIN_ICON_KEY)
+        .setOrigin(0, 0.5)
+        .setDisplaySize(45, 35)
+        .setScrollFactor(0)
+        .setDepth(202)
+        .setVisible(false)
+      : null;
+    this.shopPriceAmountText = this.add
+      .text(hasGoldIcon ? detailTextX + 110 : detailTextX, detailLineYs[1], "", {
+        fontSize: "18px",
+        color: BOOK_TEXT_COLORS.secondary,
+      })
+      .setScrollFactor(0)
+      .setDepth(202)
+      .setVisible(false);
 
     this.shopMessageText = this.add
       .text(400, shopMessageY, "", {
@@ -810,11 +839,14 @@ export class WorldScene extends BaseScene {
       this.shopDetailBox,
       this.shopTitleText,
       this.shopPromptText,
+      this.shopGoldIcon,
       this.shopGoldText,
       this.shopListTitleText,
       this.shopDetailTitleText,
       this.shopCursorText,
       this.shopDetailText,
+      this.shopPriceIcon,
+      this.shopPriceAmountText,
       this.shopMessageText,
       this.shopHelpText,
     ].forEach((node) => node?.setVisible(visible));
@@ -886,19 +918,23 @@ export class WorldScene extends BaseScene {
     const detailLines = selectedItem
       ? [
         selectedItem.name,
-        `Price: ${selectedItem.price} gold`,
+        this.shopPriceIcon ? "Price:" : `Price: ${selectedItem.price} gold`,
         playerData.gold >= selectedItem.price ? "You can buy this" : "You need more gold",
       ]
       : ["No item."];
 
     this.setShopUIVisible(true);
-    this.shopGoldText.setText(`Gold: ${playerData.gold}`);
+    this.shopGoldText.setText(this.shopGoldIcon ? `${playerData.gold}` : `Gold: ${playerData.gold}`);
     this.shopDetailText.setText("");
     (this.shopDetailLineTexts || []).forEach((node, index) => {
       const text = detailLines[index] || "";
       node?.setText(text);
       node?.setVisible(Boolean(text));
     });
+    this.shopPriceIcon?.setVisible(Boolean(selectedItem));
+    this.shopPriceAmountText
+      ?.setText(selectedItem && this.shopPriceIcon ? `${selectedItem.price}` : "")
+      .setVisible(Boolean(selectedItem && this.shopPriceIcon));
     this.shopMessageText.setPosition(400, this.shopMessageY || 450);
     this.shopMessageText.setOrigin(0.5);
     this.shopMessageText.setText(this.shopMessage || "Choose an item to buy.");

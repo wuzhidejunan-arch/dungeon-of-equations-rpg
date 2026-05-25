@@ -14,6 +14,7 @@ import { isTesterMode } from "../utils/debugState.js";
 import { getDifficultySkillIds } from "../config/difficultySettings.js";
 import { audioKeys } from "../config/audioKeys.js";
 import { playSfx, preloadSfxAssets } from "../utils/sfxManager.js";
+import { UI_GOLD_COIN_ICON_KEY } from "../utils/ui.js";
 
 const MODES = {
   MAIN: "main",
@@ -24,6 +25,7 @@ const MODES = {
 
 const BOOK_PANEL_KEY = "uiBookPanelFrame";
 const BOOK_PANEL_PATH = "assets/ui/ui_book_panel_frame.png";
+const GOLD_COIN_ICON_PATH = "assets/images/ui/icons/gold_coin.png";
 const BOOK_PANEL_LAYOUT = {
   x: 400,
   y: 300,
@@ -43,6 +45,9 @@ export class InventoryScene extends Phaser.Scene {
 
   preload() {
     this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
+    if (!this.textures.exists(UI_GOLD_COIN_ICON_KEY)) {
+      this.load.image(UI_GOLD_COIN_ICON_KEY, GOLD_COIN_ICON_PATH);
+    }
     preloadSfxAssets(this);
   }
 
@@ -139,6 +144,18 @@ export class InventoryScene extends Phaser.Scene {
       lineSpacing: 10,
       wordWrap: { width: 215 },
     });
+    const hasGoldIcon = this.textures.exists(UI_GOLD_COIN_ICON_KEY);
+    this.inventoryGoldIcon = hasGoldIcon
+      ? this.add
+        .image(inventoryRightX, inventoryContentStartY + 61, UI_GOLD_COIN_ICON_KEY)
+        .setOrigin(0, 0.5)
+        .setDisplaySize(40, 30)
+        .setVisible(false)
+      : null;
+    this.inventoryGoldText = this.add.text(hasGoldIcon ? inventoryRightX + 45 : inventoryRightX, inventoryContentStartY + 52, "", {
+      fontSize: "18px",
+      color: BOOK_TEXT_COLORS.secondary,
+    }).setVisible(false);
     this.rightDetailLineTexts = this.inventorySkillDetailLineYs.map((lineY) => (
       this.add.text(inventoryRightX, lineY, "", {
         fontSize: "18px",
@@ -454,6 +471,8 @@ export class InventoryScene extends Phaser.Scene {
     this.setInventorySkillRowsVisible(false);
     this.clearRightDetailLines();
     this.rightText.setVisible(true);
+    this.inventoryGoldIcon?.setVisible(false);
+    this.inventoryGoldText?.setVisible(false);
 
     if (this.mode === MODES.MAIN) {
       this.renderMainMenu();
@@ -477,8 +496,14 @@ export class InventoryScene extends Phaser.Scene {
     this.leftText.setText("");
     this.renderInventoryMenuRows(options);
     this.rightText.setText(
-      `Lv: ${playerData.level}\nEXP: ${playerData.exp}/${playerData.expToNext}\nGold: ${playerData.gold}\nHP: ${playerData.hp} / ${playerData.maxHp}\n\nChosen: ${playerData.equippedSkillIds.length}/${MAX_EQUIPPED_SKILLS}`,
+      this.inventoryGoldIcon
+        ? `Lv: ${playerData.level}\nEXP: ${playerData.exp}/${playerData.expToNext}\n\nHP: ${playerData.hp} / ${playerData.maxHp}\n\nChosen: ${playerData.equippedSkillIds.length}/${MAX_EQUIPPED_SKILLS}`
+        : `Lv: ${playerData.level}\nEXP: ${playerData.exp}/${playerData.expToNext}\nGold: ${playerData.gold}\nHP: ${playerData.hp} / ${playerData.maxHp}\n\nChosen: ${playerData.equippedSkillIds.length}/${MAX_EQUIPPED_SKILLS}`,
     );
+    this.inventoryGoldIcon?.setVisible(true);
+    this.inventoryGoldText
+      ?.setText(this.inventoryGoldIcon ? `${playerData.gold}` : "")
+      .setVisible(Boolean(this.inventoryGoldIcon));
     this.subText.setText("Choose one");
     this.positionInventoryMenuCursor(this.mainIndex);
   }

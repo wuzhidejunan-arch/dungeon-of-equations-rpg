@@ -1,4 +1,4 @@
-import { createPrompt } from "../utils/ui.js";
+import { createPrompt, UI_GOLD_COIN_ICON_KEY } from "../utils/ui.js";
 import { createStatusUI, refreshStatusUI } from "../utils/statusUI.js";
 import { createDialogueUI, nextDialogueLine } from "../utils/dialogueSystem.js";
 import { playerData } from "../data/playerData.js";
@@ -23,7 +23,39 @@ const RESULT_MODAL_ASSETS = {
     key: "stage_clear_title",
     path: "assets/ui/stage_clear_title.png",
   },
+  goldCoinIcon: {
+    key: UI_GOLD_COIN_ICON_KEY,
+    path: "assets/images/ui/icons/gold_coin.png",
+  },
 };
+const GOLD_REWARD_LINE_PATTERN = /^\+(\d+)\s+Gold$/;
+const LEVEL_UP_GOLD_REWARD_ICON_LAYOUT = {
+  iconOffsetX: -54,
+  iconOffsetY: 58,
+  iconWidth: 60,
+  iconHeight: 50,
+  amountOffsetX: 5,
+  amountOffsetY: 58,
+};
+const TRAINING_GOLD_REWARD_ICON_LAYOUT = {
+  iconOffsetX: -54,
+  iconOffsetY: 75,
+  iconWidth: 50,
+  iconHeight: 40,
+  amountOffsetX: -5,
+  amountOffsetY: 75,
+};
+
+function getRewardMessageSource(rewardLines) {
+  const firstLine = String(rewardLines?.[0] || "");
+  return firstLine.startsWith("Training Stage ") ? "training" : "levelUp";
+}
+
+function getGoldRewardIconLayout(source) {
+  return source === "training"
+    ? TRAINING_GOLD_REWARD_ICON_LAYOUT
+    : LEVEL_UP_GOLD_REWARD_ICON_LAYOUT;
+}
 
 export function preloadResultModalAssets(scene) {
   Object.values(RESULT_MODAL_ASSETS).forEach(({ key, path }) => {
@@ -87,6 +119,7 @@ export class BaseScene extends Phaser.Scene {
     const titleHeight = Math.round(titleWidth * (1024 / 1536));
     const hasFrame = this.textures.exists(RESULT_MODAL_ASSETS.frame.key);
     const hasTitle = this.textures.exists(RESULT_MODAL_ASSETS.levelUpTitle.key);
+    const hasGoldIcon = this.textures.exists(UI_GOLD_COIN_ICON_KEY);
 
     this.levelUpOverlay = this.add.container(0, 0).setDepth(1000).setVisible(false);
 
@@ -110,6 +143,34 @@ export class BaseScene extends Phaser.Scene {
       stroke: "#21150c",
       strokeThickness: 4,
     }).setOrigin(0.5);
+    const goldIcon = hasGoldIcon
+      ? this.add
+        .image(
+          centerX + LEVEL_UP_GOLD_REWARD_ICON_LAYOUT.iconOffsetX,
+          centerY + LEVEL_UP_GOLD_REWARD_ICON_LAYOUT.iconOffsetY,
+          UI_GOLD_COIN_ICON_KEY,
+        )
+        .setOrigin(0, 0.5)
+        .setDisplaySize(
+          LEVEL_UP_GOLD_REWARD_ICON_LAYOUT.iconWidth,
+          LEVEL_UP_GOLD_REWARD_ICON_LAYOUT.iconHeight,
+        )
+        .setVisible(false)
+      : null;
+    const goldAmountText = hasGoldIcon
+      ? this.add.text(
+        centerX + LEVEL_UP_GOLD_REWARD_ICON_LAYOUT.amountOffsetX,
+        centerY + LEVEL_UP_GOLD_REWARD_ICON_LAYOUT.amountOffsetY,
+        "",
+        {
+          fontSize: "27px",
+          color: "#fff0b8",
+          fontStyle: "bold",
+          stroke: "#21150c",
+          strokeThickness: 4,
+        },
+      ).setOrigin(0, 0.5).setVisible(false)
+      : null;
     const footer = this.add.text(centerX, centerY + 123, "ENTER continue", {
       fontSize: "20px",
       color: "#ffe6a3",
@@ -118,8 +179,10 @@ export class BaseScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setOrigin(0.5);
 
-    this.levelUpOverlay.add([shade, panel, title, body, footer]);
+    this.levelUpOverlay.add([shade, panel, title, body, goldIcon, goldAmountText, footer].filter(Boolean));
     this.levelUpText = body;
+    this.levelUpGoldIcon = goldIcon;
+    this.levelUpGoldAmountText = goldAmountText;
     this.keyENTER = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     this.keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   }
@@ -131,8 +194,32 @@ export class BaseScene extends Phaser.Scene {
     if (!playerData.pendingLevelUpMessages.length) return;
 
     const lines = playerData.pendingLevelUpMessages.shift();
+    const rewardLines = Array.isArray(lines) ? lines : [String(lines || "")];
+    const rewardSource = getRewardMessageSource(rewardLines);
+    const goldLayout = getGoldRewardIconLayout(rewardSource);
+    const goldLine = rewardLines.find((line) => GOLD_REWARD_LINE_PATTERN.test(String(line || ""))) || "";
+    const goldMatch = String(goldLine).match(GOLD_REWARD_LINE_PATTERN);
+    const canShowGoldIcon = Boolean(goldMatch && this.textures.exists(UI_GOLD_COIN_ICON_KEY));
+    const displayLines = canShowGoldIcon
+      ? rewardLines.filter((line) => String(line || "") !== goldLine)
+      : rewardLines;
+
     this.levelUpNoticeActive = true;
-    this.levelUpText.setText(Array.isArray(lines) ? lines.join("\n") : String(lines || ""));
+    this.levelUpText.setText(displayLines.join("\n"));
+    this.levelUpGoldIcon
+      ?.setPosition(
+        this.scale.width / 2 + goldLayout.iconOffsetX,
+        this.scale.height / 2 + goldLayout.iconOffsetY,
+      )
+      .setDisplaySize(goldLayout.iconWidth, goldLayout.iconHeight)
+      .setVisible(canShowGoldIcon);
+    this.levelUpGoldAmountText
+      ?.setPosition(
+        this.scale.width / 2 + goldLayout.amountOffsetX,
+        this.scale.height / 2 + goldLayout.amountOffsetY,
+      )
+      ?.setText(canShowGoldIcon ? `+${goldMatch[1]}` : "")
+      .setVisible(canShowGoldIcon);
     this.levelUpOverlay.setVisible(true);
     playSfx(this, audioKeys.sfx.levelUp);
     this.updateStatusUI();

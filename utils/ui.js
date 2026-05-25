@@ -1,8 +1,10 @@
 export const UI_HINT_WOOD_PLATE_KEY = "uiHintWoodPlate";
 export const UI_STATUS_WOOD_PANEL_KEY = "uiStatusWoodPanel";
+export const UI_GOLD_COIN_ICON_KEY = "goldCoinIcon";
 
 const UI_HINT_WOOD_PLATE_PATH = "assets/ui/ui_hint_wood_plate.png";
 const UI_STATUS_WOOD_PANEL_PATH = "assets/ui/ui_status_wood_panel.png";
+const UI_GOLD_COIN_ICON_PATH = "assets/images/ui/icons/gold_coin.png";
 const HINT_PLATE_WIDTH = 305;
 const HINT_PLATE_HEIGHT = 58;
 const HINT_PLATE_CENTER_X = 168.5;
@@ -11,6 +13,7 @@ const HINT_PLATE_CENTER_Y = 38;
 export function preloadHudUiAssets(scene) {
   scene.load.image(UI_HINT_WOOD_PLATE_KEY, UI_HINT_WOOD_PLATE_PATH);
   scene.load.image(UI_STATUS_WOOD_PANEL_KEY, UI_STATUS_WOOD_PANEL_PATH);
+  scene.load.image(UI_GOLD_COIN_ICON_KEY, UI_GOLD_COIN_ICON_PATH);
 }
 
 export function createPrompt(scene) {

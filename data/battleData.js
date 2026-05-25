@@ -344,15 +344,15 @@ export const attackBonusDefinitions = {
   guard: {
     id: 'guard',
     name: 'SAFE HIT',
-    resultText: 'Next turn bonus ready: attack and block.',
-    logText: 'Next bonus set: attack and block.',
+    resultText: 'Next turn bonus ready: Attack and block.',
+    logText: 'Next bonus set: Attack and block.',
     effects: [{ type: 'setNextAttackBonus', bonus: 'guard' }],
   },
   double: {
     id: 'double',
     name: 'POWER HIT',
-    resultText: 'Next turn bonus ready: double damage.',
-    logText: 'Next bonus set: double damage.',
+    resultText: 'Next turn bonus ready: Double damage.',
+    logText: 'Next bonus set: Double damage.',
     effects: [{ type: 'setNextAttackBonus', bonus: 'double' }],
   },
 };

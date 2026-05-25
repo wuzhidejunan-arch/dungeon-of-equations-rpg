@@ -1,4 +1,4 @@
-import { UI_STATUS_WOOD_PANEL_KEY } from "./ui.js";
+import { UI_GOLD_COIN_ICON_KEY, UI_STATUS_WOOD_PANEL_KEY } from "./ui.js";
 
 const STATUS_PANEL_WIDTH = 305;
 const STATUS_PANEL_HEIGHT = 122;
@@ -31,7 +31,15 @@ export function createStatusUI(scene) {
     fontStyle: "bold",
   });
 
-  const goldText = scene.add.text(145, 53, "", {
+  const hasGoldIcon = scene.textures.exists(UI_GOLD_COIN_ICON_KEY);
+  const goldIcon = hasGoldIcon
+    ? scene.add
+        .image(140, 62, UI_GOLD_COIN_ICON_KEY)
+        .setOrigin(0, 0.5)
+        .setDisplaySize(35, 25)
+    : null;
+
+  const goldText = scene.add.text(hasGoldIcon ? 173 : 145, 53, "", {
     fontSize: "18px",
     color: "#d6b85c",
     fontStyle: "bold",
@@ -43,12 +51,13 @@ export function createStatusUI(scene) {
     fontStyle: "bold",
   });
 
-  container.add([background, hpText, lvText, goldText, expText]);
+  container.add([background, hpText, lvText, goldIcon, goldText, expText].filter(Boolean));
 
   return {
     container,
     hpText,
     lvText,
+    goldIcon,
     goldText,
     expText,
   };
@@ -57,6 +66,6 @@ export function createStatusUI(scene) {
 export function refreshStatusUI(statusUI, playerData) {
   statusUI.hpText.setText(`HP: ${playerData.hp}/${playerData.maxHp}`);
   statusUI.lvText.setText(`Lv ${playerData.level}`);
-  statusUI.goldText.setText(`Gold: ${playerData.gold}`);
+  statusUI.goldText.setText(statusUI.goldIcon ? `${playerData.gold}` : `Gold: ${playerData.gold}`);
   statusUI.expText.setText(`EXP: ${playerData.exp}/${playerData.expToNext}`);
 }
