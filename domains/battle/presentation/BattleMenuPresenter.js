@@ -95,10 +95,12 @@ export class BattleMenuPresenter {
       : [];
     const layouts = {
       main: mainPositions,
-      bonus: [
-        { x: 590, y: 463 },
-        { x: 590, y: 505 },
-      ],
+      bonus: mainPositions.length >= 2
+        ? mainPositions.slice(0, 2)
+        : [
+            { x: 618, y: 450 },
+            { x: 618, y: 493 },
+          ],
     };
 
     const buildVerticalLayout = (count) => {
@@ -125,7 +127,10 @@ export class BattleMenuPresenter {
       }
       index = scene.itemSelectionIndex;
     } else if (scene.menuState === battleMenuStates.ITEM_TARGET) {
-      positions = buildVerticalLayout(Math.max(scene.playerSkills?.length || 0, 1));
+      positions = buildVerticalLayout(Math.max(scene.playerSkills?.length || 0, 1)).map((position) => ({
+        ...position,
+        x: 595,
+      }));
       index = scene.itemTargetSkillIndex;
     }
 

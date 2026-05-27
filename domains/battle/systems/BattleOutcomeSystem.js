@@ -19,6 +19,7 @@ const PLAYER_ATTACK_IMPACT_DELAY_MS = 240;
 const ENEMY_TURN_START_DELAY_MS = 380;
 const ENEMY_HP_REFRESH_DELAY_MS = 220;
 const VICTORY_FOLLOWUP_DELAY_MS = 320;
+const DUNGEON_BOSS_ENEMY_KEYS = new Set(['room1_boss', 'room2_boss', 'room3_boss', 'final_boss']);
 
 function markTrainingBattleOutcome(scene, didWin) {
   if (scene.returnScene !== 'TrainingScene') return;
@@ -43,6 +44,10 @@ function isSuccessfulPlayerActionOutcome(resolved) {
   if (!resolved) return false;
   const resolutionState = resolved.resolutionState || resolved.resultType || resolved.outcome || '';
   return resolutionState === 'full_success';
+}
+
+function isDungeonBossVictory(scene) {
+  return scene?.returnScene === 'DungeonScene' && DUNGEON_BOSS_ENEMY_KEYS.has(scene?.enemyKey);
 }
 
 function getSkillEffects(skill) {
@@ -185,6 +190,7 @@ export class BattleOutcomeSystem {
         this.scene.showAttackHitEffect?.('enemy');
         playSfx(this.scene, audioKeys.sfx.enemyHit);
       } else if (isBlockedPlayerAttackOutcome(resolved)) {
+        this.scene.showDefenseShieldEffect?.('enemy');
         playSfx(this.scene, audioKeys.sfx.blocked);
       } else {
         playResolvedPlayerActionSfx(this.scene, usedSkill, resolved);
@@ -256,6 +262,9 @@ export class BattleOutcomeSystem {
     const expResult = grantBattleExp(expReward);
 
     applyBattleVictoryProgress(playerData, this.scene.enemyKey);
+    if (isDungeonBossVictory(this.scene)) {
+      playerData.hp = playerData.maxHp;
+    }
 
     this.scene.renderResultText(
       formatBattleTemplate(getBattleUIText('resultText.win', 'You beat the monster!\nYou got {reward} gold.'), { reward, expReward }),

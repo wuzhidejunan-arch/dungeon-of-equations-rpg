@@ -1,6 +1,7 @@
 import { battleMenuStates } from '../../../data/battleStates.js';
 import { battleResultPhases } from '../../../data/battlePhases.js';
 import { getBattleTutorialConfig } from '../../../engine/tutorialFlowController.js';
+import { getSafeBattleSkillHint } from '../../../utils/battleSchema.js';
 
 export class BattleDialogCoordinator {
   constructor({ scene }) {
@@ -35,7 +36,7 @@ export class BattleDialogCoordinator {
           { phase: battleResultPhases.INFO, text: 'HP means health. If HP reaches 0, you lose.' },
           { phase: battleResultPhases.INFO, text: 'Mini-step 1: Read the monster rule first.' },
           { phase: battleResultPhases.INFO, text: 'This monster starts with armor, so use Armor Break first.' },
-          { phase: battleResultPhases.INFO, text: 'Next, make an even answer and read what happened.' },
+          { phase: battleResultPhases.INFO, text: 'Next, make an even number and read what happened.' },
           { phase: battleResultPhases.INFO, text: 'Now choose Fight.' },
         ]
       : [
@@ -43,6 +44,18 @@ export class BattleDialogCoordinator {
           { phase: battleResultPhases.INFO, text: 'Battle start!' },
           { phase: battleResultPhases.INFO, text: 'Choose Fight, Bag, or Run.' },
         ];
+
+    const safeHint = getSafeBattleSkillHint({
+      enemy: scene.enemy,
+      skills: scene.playerSkills,
+      difficultyKey: scene.difficultyKey,
+    });
+    if (safeHint) {
+      introLines.push(
+        { phase: battleResultPhases.INFO, text: safeHint.tipText },
+        { phase: battleResultPhases.INFO, text: safeHint.instructionText },
+      );
+    }
 
     this.showDialogSequence(introLines, () => {
       scene.showMainMenu();
@@ -109,6 +122,7 @@ export class BattleDialogCoordinator {
     const scene = this.scene;
     if (scene.feedbackDelayActive) return;
     if (Phaser.Input.Keyboard.JustDown(scene.keyENTER)) {
+      scene.acknowledgeTrainingGuideDialog?.();
       this.showNextDialogLine();
     }
   }

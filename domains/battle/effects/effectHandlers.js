@@ -25,16 +25,22 @@ function resolveDamagePlayerEffect(scene, effect, fullContext, options = {}) {
   const baseAmount = resolveDamageFromFormula(scene, effect.formula || {}, fullContext);
   let amount = baseAmount;
   let blocked = false;
+  let blockSource = null;
 
   if (!isPreview && fullContext.allowZeroGuard !== false && scene.getStatusCharge('zeroGuard') > 0) {
     scene.consumeStatusCharge('zeroGuard', 1);
     amount = 0;
     blocked = true;
+    blockSource = 'zeroGuard';
   }
 
   if (!blocked && fullContext.allowGuardBonus && (fullContext.activeBonus === 'guard' || scene.nextAttackBonus === 'guard')) {
     amount = 0;
     blocked = true;
+    blockSource = 'guardBonus';
+    if (!isPreview) {
+      scene.nextAttackBonus = null;
+    }
   }
 
   if (!blocked) {
@@ -42,6 +48,7 @@ function resolveDamagePlayerEffect(scene, effect, fullContext, options = {}) {
     if (defenseMultiplier <= 0) {
       amount = 0;
       blocked = true;
+      blockSource = 'defenseBoost';
     } else if (defenseMultiplier < 1) {
       amount = Math.max(0, Math.round(amount * defenseMultiplier));
     }
@@ -55,6 +62,7 @@ function resolveDamagePlayerEffect(scene, effect, fullContext, options = {}) {
     success: true,
     amount,
     blocked,
+    blockSource,
     message: blocked
       ? formatTemplate(effect.blockedMessage, { amount }) || 'Blocked the hit.'
       : formatTemplate(effect.message, { amount }) || getDefaultMessage(effect.type, amount),

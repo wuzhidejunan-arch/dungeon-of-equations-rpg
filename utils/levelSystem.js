@@ -78,11 +78,10 @@ function applyLevelUpReward(target, levelUpMessages) {
 
   const rewardLines = [`Level Up! Lv.${target.level}`, `+${goldPerLevel} Gold`];
   const maxHpGain = Math.max(0, Number(hpGrowth.maxHpGain) || 0);
-  const healOnGain = Math.max(0, Number(hpGrowth.healOnGain) || 0);
 
   if (maxHpGain > 0) {
     target.maxHp += maxHpGain;
-    target.hp = Math.min(target.maxHp, target.hp + healOnGain);
+    target.hp = target.maxHp;
     rewardLines.push(`+${maxHpGain} Max HP`);
   }
 

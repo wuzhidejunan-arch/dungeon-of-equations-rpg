@@ -18,6 +18,7 @@ import { isTesterMode } from '../../utils/debugState.js';
 import { TRAINING_MODES } from './TrainingStateFactory.js';
 import { audioKeys } from '../../config/audioKeys.js';
 import { playSfx } from '../../utils/sfxManager.js';
+import { isPrimeNumber } from '../../utils/battleMath.js';
 
 const TYPE_KEYS = ['zero', 'odd', 'even', 'prime'];
 const BEGINNER_STAGE2_STEP_TOTAL = 20;
@@ -502,7 +503,7 @@ function getValidNumberCategories(value) {
     return ['Zero'];
   }
 
-  if (isPrimeValue(value)) {
+  if (isPrimeNumber(value)) {
     return ['Prime'];
   }
 
@@ -511,16 +512,6 @@ function getValidNumberCategories(value) {
   }
 
   return ['Even'];
-}
-
-function isPrimeValue(value) {
-  if (!Number.isInteger(value) || value <= 1) return false;
-  for (let i = 2; i <= Math.sqrt(value); i += 1) {
-    if (value % i === 0) {
-      return false;
-    }
-  }
-  return true;
 }
 
 function formatCategoryList(categories = []) {

@@ -54,17 +54,20 @@ function resolveEnemyTurnLegacy(scene, { activeBonus = null } = {}) {
   }
 
   const enemySkill = chooseEnemySkill(scene);
+  const guardBonusActive = activeBonus === 'guard' || scene.nextAttackBonus === 'guard';
+  const effectiveActiveBonus = activeBonus || (scene.nextAttackBonus === 'guard' ? 'guard' : null);
   const { results } = applyEffectList(scene, enemySkill.effects || [], {
     enemy: scene.enemy,
     player: playerData,
     skill: enemySkill,
     allowZeroGuard: true,
-    allowGuardBonus: activeBonus === 'guard',
-    activeBonus,
+    allowGuardBonus: guardBonusActive,
+    activeBonus: effectiveActiveBonus,
   });
 
   const damageResult = results.find((entry) => entry?.type === 'damage_player' || typeof entry?.amount === 'number') || { amount: 0, blocked: false };
   const damage = Number(damageResult.amount) || 0;
+  const resolvedActiveBonus = damageResult.blockSource === 'guardBonus' ? 'guard' : activeBonus;
 
   let line = formatBattleTemplate(
     getEntityUIText(enemySkill, 'resultText', getBattleUIText('resultText.enemyUsedSkill', '{enemy} used {skill} and dealt {amount} damage.')),
@@ -76,7 +79,7 @@ function resolveEnemyTurnLegacy(scene, { activeBonus = null } = {}) {
       enemy: scene.enemy.name,
       skill: enemySkill.name,
     });
-    scene.addBattleLog(activeBonus === 'guard'
+    scene.addBattleLog(resolvedActiveBonus === 'guard'
       ? getBattleLogText('enemyAttackBlockedByGuard', 'Bonus guard blocked the enemy attack.')
       : getBattleLogText('enemyAttackBlockedByZeroGuard', 'Zero Guard blocked the enemy attack.'));
   }

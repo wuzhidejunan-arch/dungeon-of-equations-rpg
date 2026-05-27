@@ -73,11 +73,10 @@ export function completeTrainingStage(stageId, target = playerData) {
     const levelsGained = targetLevel - target.level;
     const hpGrowth = progressionConfig.leveling.hpGrowth;
     const maxHpGain = Math.max(0, Number(hpGrowth.maxHpGain) || 0) * levelsGained;
-    const healOnGain = Math.max(0, Number(hpGrowth.healOnGain) || 0) * levelsGained;
 
     if (maxHpGain > 0) {
       target.maxHp += maxHpGain;
-      target.hp = Math.min(target.maxHp, target.hp + healOnGain);
+      target.hp = target.maxHp;
       rewardLines.push(`+${maxHpGain} Max HP`);
     }
 

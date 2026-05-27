@@ -1,6 +1,11 @@
 import { battleMenuStates } from '../../../data/battleStates.js';
 import { battleResultPhases } from '../../../data/battlePhases.js';
-import { formatBattleTemplate, getBattleStateText, getBattleUIText } from '../../../utils/battleSchema.js';
+import {
+  formatBattleTemplate,
+  getBattleStateText,
+  getBattleUIText,
+  getSafeBattleSkillHint,
+} from '../../../utils/battleSchema.js';
 
 export class BattleDialogPresenter {
   constructor({ scene } = {}) {
@@ -9,11 +14,25 @@ export class BattleDialogPresenter {
 
   startBattleIntro() {
     const scene = this.scene;
-    this.showDialogSequence([
+    const safeHint = getSafeBattleSkillHint({
+      enemy: scene.enemy,
+      skills: scene.playerSkills,
+      difficultyKey: scene.difficultyKey,
+    });
+    const introLines = [
       { phase: battleResultPhases.INFO, text: formatBattleTemplate(getBattleUIText('intro.appear', 'A wild {enemy} appeared!'), { enemy: scene.enemy.name }) },
       { phase: battleResultPhases.INFO, text: getBattleUIText('prompts.battleStart', 'Battle start!') },
       { phase: battleResultPhases.INFO, text: getBattleUIText('prompts.mainMenu', 'Choose Fight, Bag, or Run.') },
-    ], () => {
+    ];
+
+    if (safeHint) {
+      introLines.push(
+        { phase: battleResultPhases.INFO, text: safeHint.tipText },
+        { phase: battleResultPhases.INFO, text: safeHint.instructionText },
+      );
+    }
+
+    this.showDialogSequence(introLines, () => {
       scene.showMainMenu?.();
       scene.renderResultText?.(getBattleStateText(battleMenuStates.MAIN, 'resultTextKey', 'Choose Fight, Bag, or Run.'), battleResultPhases.INFO);
     });

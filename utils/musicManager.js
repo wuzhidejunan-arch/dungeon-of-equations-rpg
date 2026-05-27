@@ -7,8 +7,9 @@ let unlockListenerAttached = false;
 
 const DEFAULT_BGM_CONFIG = {
   [audioKeys.bgm.normal]: { loop: true, volume: 0.2 },
-  [audioKeys.bgm.dungeon]: { loop: true, volume: 0.3 },
+  [audioKeys.bgm.dungeon]: { loop: true, volume: 0.8 },
   [audioKeys.bgm.battle]: { loop: true, volume: 0.2 },
+  [audioKeys.bgm.bossBattle]: { loop: true, volume: 0.225 },
 };
 
 export function preloadBgmAssets(scene, keys = []) {

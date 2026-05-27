@@ -120,6 +120,10 @@ export const BattleStateMixin = {
       parts.push(formatBattleStatusLabel('Guard', guardTurns));
     }
 
+    if (this.nextAttackBonus === 'double') {
+      parts.push('Power: 1 hit');
+    }
+
     return parts.slice(0, 2).join('\n');
   },
 

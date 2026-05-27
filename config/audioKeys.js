@@ -3,6 +3,7 @@ export const audioKeys = {
     normal: 'bgmNormal',
     dungeon: 'bgmDungeon',
     battle: 'bgmBattle',
+    bossBattle: 'bgmBossBattle',
   },
   sfx: {
     uiMove: 'sfxUiMove',
@@ -22,6 +23,7 @@ export const audioKeys = {
     debuff: 'sfxDebuff',
     run: 'sfxRun',
     potion: 'sfxPotion',
+    shopPurchase: 'sfxShopPurchase',
     actionFail: 'sfxActionFail',
   },
 };
@@ -31,6 +33,7 @@ export const audioPaths = {
     [audioKeys.bgm.normal]: 'assets/audio/bgm/bgm_normal.mp3',
     [audioKeys.bgm.dungeon]: 'assets/audio/bgm/bgm_dungeon.mp3',
     [audioKeys.bgm.battle]: 'assets/audio/bgm/bgm_battle.mp3',
+    [audioKeys.bgm.bossBattle]: 'assets/audio/bgm/bgm_boss_battle.mp3',
   },
   sfx: {
     [audioKeys.sfx.uiMove]: 'assets/audio/sfx/ui_move.mp3',
@@ -50,6 +53,7 @@ export const audioPaths = {
     [audioKeys.sfx.debuff]: 'assets/audio/sfx/debuff.mp3',
     [audioKeys.sfx.run]: 'assets/audio/sfx/run.mp3',
     [audioKeys.sfx.potion]: 'assets/audio/sfx/potion.mp3',
+    [audioKeys.sfx.shopPurchase]: 'assets/audio/sfx/sfx_shop_purchase.mp3',
     [audioKeys.sfx.actionFail]: 'assets/audio/sfx/action_fail.mp3',
   },
 };

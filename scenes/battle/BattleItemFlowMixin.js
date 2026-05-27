@@ -11,6 +11,12 @@ function shouldPlayPotionSfx(entry) {
   return /potion/i.test(itemName) || effects.some((effect) => effect?.type === 'healHp');
 }
 
+function isHealthPotionEntry(entry) {
+  const itemName = String(entry?.name || entry?.definition?.name || '');
+  const effects = Array.isArray(entry?.definition?.effects) ? entry.definition.effects : [];
+  return itemName === 'Potion' && effects.some((effect) => effect?.type === 'healHp');
+}
+
 function playPotionSfx(scene, entry) {
   if (!shouldPlayPotionSfx(entry)) return;
   playSfx(scene, audioKeys.sfx.potion, {
@@ -74,6 +80,15 @@ export const BattleItemFlowMixin = {
     this.selectedItemEntry = null;
     this.itemTargetSkillIndex = 0;
     playPotionSfx(this, entry);
+
+    if (isHealthPotionEntry(entry)) {
+      this.setTurn('player');
+      this.openMainMenu();
+      this.renderResultText(result.message, battleResultPhases.RESULT_ITEM);
+      this.refreshBattleUI();
+      return;
+    }
+
     this.enemyTurn(
       result.endTurnLines || [
         { phase: battleResultPhases.RESULT_ITEM, text: result.message },

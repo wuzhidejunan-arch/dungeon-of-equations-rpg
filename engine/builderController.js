@@ -15,6 +15,7 @@ import {
   difficultyBypassesBuilderForUtilitySkills,
   getDifficultyOperatorGlyphSet,
 } from '../config/difficultySettings.js';
+import { normalizeOperator } from '../utils/battleMath.js';
 
 function usesModernOperatorGlyphs(scene) {
   return getDifficultyOperatorGlyphSet(scene?.difficultyKey) === 'modern';
@@ -179,6 +180,34 @@ const CHAIN_BUILDER_OPERATOR_OFFSET_X = -30;
 const CHAIN_BUILDER_CONTENT_OFFSET_Y = -50;
 const CHAIN_BUILDER_BUTTON_OFFSET_Y = -32;
 const BUILDER_BUTTON_TEXT_VISUAL_ADJUST_Y = -3;
+const BUILDER_FEEDBACK_COLOR = '#1a1a1a';
+const BUILDER_REQUIREMENT_COLOR = '#ff4d4d';
+const BUILDER_FEEDBACK_FONT_SIZE = '16px';
+const BEGINNER_REQUIREMENT_FEEDBACK_STYLE = Object.freeze({ fontSize: '16px', yOffset: -8 });
+const MEDIUM_REQUIREMENT_FEEDBACK_STYLE = Object.freeze({ fontSize: '16px', yOffset: -7 });
+const CHALLENGE_REQUIREMENT_FEEDBACK_STYLE = Object.freeze({ fontSize: '18px', yOffset: 12 });
+
+function isBuilderRequirementFeedback(message = '') {
+  return /(?:0 or more\.|cannot be divided by)/i.test(String(message));
+}
+
+function getRequirementFeedbackStyle(scene) {
+  if (isChainedBuilder(scene)) return CHALLENGE_REQUIREMENT_FEEDBACK_STYLE;
+  if (scene?.difficultyKey === 'intermediate') return MEDIUM_REQUIREMENT_FEEDBACK_STYLE;
+  return BEGINNER_REQUIREMENT_FEEDBACK_STYLE;
+}
+
+function getBuilderFeedbackBaseY(scene) {
+  return isChainedBuilder(scene) ? chainedBuilderLayout.feedback.y : singleLineBuilderLayout.feedback.y;
+}
+
+function formatMediumDivisionInvalidFeedback(leftValue, rightValue) {
+  if (!Number.isFinite(Number(leftValue)) || !Number.isFinite(Number(rightValue))) {
+    return 'This division does not make a whole number. Try again.';
+  }
+  return `${leftValue} cannot be divided by ${rightValue}.`;
+}
+
 function centerTextByBounds(text, targetCenterX, targetCenterY) {
   if (!text) return;
   text?.setOrigin?.(0.5, 0.5);
@@ -424,11 +453,22 @@ function formatChallengeFeedback(lines = []) {
 
 function renderChallengeBuilderFeedback(scene, lines = []) {
   const message = formatChallengeFeedback(lines);
+  scene.builderFeedbackText?.setY?.(getBuilderFeedbackBaseY(scene));
+  scene.builderFeedbackText?.setFontSize?.(BUILDER_FEEDBACK_FONT_SIZE);
+  scene.builderFeedbackText?.setColor?.(BUILDER_FEEDBACK_COLOR);
   scene.builderFeedbackText?.setText?.(message);
   scene.builderFeedbackText?.setVisible?.(Boolean(message));
 }
 
 function showBuilderValidationFeedback(scene, message = '') {
+  const isRequirement = isBuilderRequirementFeedback(message);
+  const requirementStyle = getRequirementFeedbackStyle(scene);
+  const baseY = getBuilderFeedbackBaseY(scene);
+  scene.builderFeedbackText?.setY?.(baseY + (isRequirement ? requirementStyle.yOffset : 0));
+  scene.builderFeedbackText?.setFontSize?.(isRequirement ? requirementStyle.fontSize : BUILDER_FEEDBACK_FONT_SIZE);
+  scene.builderFeedbackText?.setColor?.(
+    isRequirement ? BUILDER_REQUIREMENT_COLOR : BUILDER_FEEDBACK_COLOR,
+  );
   scene.builderFeedbackText?.setText?.(message);
   scene.builderFeedbackText?.setVisible?.(Boolean(message));
 }
@@ -644,7 +684,7 @@ export function createBuilderUI(scene) {
 
   scene.builderFeedbackText = scene.add
     .text(singleLineBuilderLayout.feedback.x, singleLineBuilderLayout.feedback.y, '', {
-      fontSize: '14px',
+      fontSize: BUILDER_FEEDBACK_FONT_SIZE,
       color: '#1a1a1a',
       wordWrap: { width: singleLineBuilderLayout.feedback.width },
       lineSpacing: 4,
@@ -1187,7 +1227,11 @@ export function confirmBuilderAction(scene) {
 
   if (result === null || Number.isNaN(result)) {
     playSfx(scene, audioKeys.sfx.answerWrong);
-    scene.renderResultText('This division does not make a whole number. Try again.', battleResultPhases.INFO);
+    if (scene.difficultyKey === 'intermediate' && normalizeOperator(opCard.value) === 'divide') {
+      showBuilderValidationFeedback(scene, formatMediumDivisionInvalidFeedback(leftCard.value, rightCard.value));
+    } else {
+      scene.renderResultText('This division does not make a whole number. Try again.', battleResultPhases.INFO);
+    }
     return;
   }
 

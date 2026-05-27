@@ -80,18 +80,22 @@ export function selectEnemySkillRule(ctx) {
 export function applyEnemyEffectsRule(ctx) {
   if (ctx.stop) return ctx;
 
+  const guardBonusActive = ctx.activeBonus === 'guard' || ctx.scene.nextAttackBonus === 'guard';
   ctx.effectResult = applyEffectList(ctx.scene, ctx.enemySkill.effects || [], {
     enemy: ctx.scene.enemy,
     player: playerData,
     skill: ctx.enemySkill,
     allowZeroGuard: true,
-    allowGuardBonus: ctx.activeBonus === 'guard',
-    activeBonus: ctx.activeBonus,
+    allowGuardBonus: guardBonusActive,
+    activeBonus: ctx.activeBonus || (ctx.scene.nextAttackBonus === 'guard' ? 'guard' : null),
   });
 
   ctx.damageResult = ctx.effectResult.results.find((entry) => entry?.type === 'damage_player' || typeof entry?.amount === 'number') || { amount: 0, blocked: false };
   ctx.damage = Number(ctx.damageResult.amount) || 0;
   ctx.blocked = Boolean(ctx.damageResult.blocked);
+  if (ctx.damageResult.blockSource === 'guardBonus') {
+    ctx.activeBonus = 'guard';
+  }
   return ctx;
 }
 

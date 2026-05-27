@@ -1,6 +1,7 @@
 import { BaseScene } from "./BaseScene.js";
 import { playerData } from "../data/playerData.js";
 import { shopItems, npcMessages } from "../data/shopData.js";
+import { itemDefinitions } from "../data/battleData.js";
 import { npcDialogues } from "../data/dialogueData.js";
 import { backgroundPreloadDungeonMapArt, createBasicTextures, preloadWorldMapArt } from "../utils/textureFactory.js";
 import {
@@ -43,6 +44,14 @@ const BOOK_PANEL_LAYOUT = {
   width: 900,
   height: 610,
 };
+
+function getShopDisplayName(item) {
+  return item?.name === "Potion" ? "Health Potion" : item?.name || "";
+}
+
+function getShopItemDescription(item) {
+  return itemDefinitions[item?.name]?.ui?.resultText || "";
+}
 const BOOK_TEXT_COLORS = {
   primary: "#2f1f12",
   secondary: "#4b3522",
@@ -897,7 +906,7 @@ export class WorldScene extends BaseScene {
     if (!item) return;
 
     if (playerData.gold < item.price) {
-      this.shopMessage = `Need more gold for ${item.name}.`;
+      this.shopMessage = `Need more gold for ${getShopDisplayName(item)}.`;
       this.renderShopUI();
       return;
     }
@@ -907,8 +916,9 @@ export class WorldScene extends BaseScene {
     saveGame();
     this.updateStatusUI();
     this.showPendingLevelUpNotifications();
+    playSfx(this, audioKeys.sfx.shopPurchase);
 
-    this.shopMessage = `Bought 1 ${item.name}.`;
+    this.shopMessage = `You bought 1 ${getShopDisplayName(item)}`;
     this.renderShopUI();
   }
 
@@ -917,9 +927,10 @@ export class WorldScene extends BaseScene {
     const { visibleItems, selectedVisibleIndex } = this.getVisibleShopItemWindow();
     const detailLines = selectedItem
       ? [
-        selectedItem.name,
+        getShopDisplayName(selectedItem),
         this.shopPriceIcon ? "Price:" : `Price: ${selectedItem.price} gold`,
-        playerData.gold >= selectedItem.price ? "You can buy this" : "You need more gold",
+        getShopItemDescription(selectedItem),
+        playerData.gold >= selectedItem.price ? "Available to Purchase" : "You need more gold",
       ]
       : ["No item."];
 
@@ -952,7 +963,7 @@ export class WorldScene extends BaseScene {
       }
 
       node?.setPosition(row.nameX, row.y);
-      node?.setText(item.name);
+      node?.setText(getShopDisplayName(item));
       node?.setVisible(true);
     });
 

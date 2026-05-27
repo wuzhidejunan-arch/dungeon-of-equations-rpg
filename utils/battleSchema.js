@@ -85,10 +85,41 @@ export function getEnemyPrimaryRule(enemy) {
   return getEnemyAcceptedRules(enemy)[0] || null;
 }
 
+const SAFE_SKILL_HINT_RULES = new Set(['even', 'odd', 'prime']);
+
+function getNumberTypeArticle(rule) {
+  return rule === 'prime' ? 'a' : 'an';
+}
+
+export function getSafeBattleSkillHint({ enemy = null, skills = [], difficultyKey = '' } = {}) {
+  const enemyRule = getEnemyPrimaryRule(enemy);
+  if (!SAFE_SKILL_HINT_RULES.has(enemyRule)) return null;
+  if (difficultyKey !== 'beginner') return null;
+
+  const matchingSkills = (Array.isArray(skills) ? skills : [])
+    .filter((skill) => isDirectAttackSkill(skill))
+    .filter((skill) => getSkillPrimaryRule(skill) === enemyRule);
+
+  if (matchingSkills.length !== 1) return null;
+
+  const skillName = matchingSkills[0]?.name || '';
+  if (!skillName) return null;
+
+  const article = getNumberTypeArticle(enemyRule);
+  return {
+    rule: enemyRule,
+    skillName,
+    tipText: `Tip: Use ${skillName}.`,
+    instructionText: `Make ${article} ${enemyRule} number.`,
+    failureText: 'Wrong result type.',
+    retryText: `Use ${skillName}.`,
+  };
+}
+
 export function getBuilderAnswerInstruction(rule) {
   switch (`${rule || ''}`.toLowerCase()) {
     case 'even':
-      return 'Make an even answer.';
+      return 'Make an even number.';
     case 'odd':
       return 'Make an odd answer.';
     case 'prime':

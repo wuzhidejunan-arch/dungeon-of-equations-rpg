@@ -9,6 +9,7 @@ import {
   getEnemyPrimaryRule,
   getEnemyRuleSummaryText,
   getEntityUIText,
+  getSafeBattleSkillHint,
   getSkillPrimaryRule,
   isDirectAttackSkill,
   isUtilitySkill,
@@ -75,6 +76,28 @@ function buildEnemyRuleMismatchFeedback(ctx) {
 
 function buildWrongAttackTypeFeedback(ctx) {
   return buildEnemyRuleMismatchFeedback(ctx);
+}
+
+function appendSafeSkillHintPhases(ctx) {
+  const hint = getSafeBattleSkillHint({
+    enemy: ctx.scene.enemy,
+    skills: ctx.scene.playerSkills,
+    difficultyKey: getDifficultyKey(ctx.scene),
+  });
+  if (!hint) return;
+
+  ctx.phases.push(
+    buildBattlePhaseLine(
+      battleResultPhases.RESULT_SKILL_CHECK,
+      hint.failureText,
+      { outcome: ctx.outcome || 'failure', enemy: ctx.scene.enemy?.name || 'Enemy' },
+    ),
+    buildBattlePhaseLine(
+      battleResultPhases.RESULT_SKILL_CHECK,
+      hint.retryText,
+      { outcome: ctx.outcome || 'failure', skill: hint.skillName },
+    ),
+  );
 }
 
 function buildResult(ctx, overrides = {}) {
@@ -272,12 +295,14 @@ export function skillConditionRule(ctx) {
       buildWrongAttackTypeFeedback(ctx),
       { outcome: 'failure', skill: ctx.skill.name, result: ctx.result, enemy: ctx.scene.enemy.name },
     ));
+    appendSafeSkillHintPhases(ctx);
   } else if (isDirectAttack && enemyRuleId) {
     ctx.phases.push(buildBattlePhaseLine(
       battleResultPhases.RESULT_SKILL_CHECK,
       buildEnemyRuleMismatchFeedback(ctx),
       { outcome: 'failure', skill: ctx.skill.name, result: ctx.result, enemy: ctx.scene.enemy.name },
     ));
+    appendSafeSkillHintPhases(ctx);
   } else {
     const failureText = isBeginner
       ? `${ctx.skill.name} needs ${ctx.skillNeedText}. Your answer was ${ctx.result}. Try again.`
@@ -394,6 +419,7 @@ export function enemyGateRule(ctx) {
     buildEnemyRuleMismatchFeedback(ctx),
     { outcome: 'partial_success', enemy: ctx.scene.enemy.name, result: ctx.result },
   ));
+  appendSafeSkillHintPhases(ctx);
   ctx.phases.push(...utilityEffectResult.messages.map((message) => buildBattlePhaseLine(
     battleResultPhases.RESULT_BUFF,
     message,

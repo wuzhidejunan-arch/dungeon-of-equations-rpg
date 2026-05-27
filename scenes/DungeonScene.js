@@ -6,7 +6,7 @@ import { saveGame } from '../utils/saveSystem.js';
 import { getDifficultyDungeonEnemy } from '../config/difficultySettings.js';
 import { dungeonConfig } from '../config/dungeonConfig.js';
 import { audioKeys } from '../config/audioKeys.js';
-import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
+import { loadAndPlayBgmAfterRender, preloadBgmAssets } from '../utils/musicManager.js';
 import { playSfx, preloadSfxAssets } from '../utils/sfxManager.js';
 
 const DEBUG_DUNGEON_COLLISION = false;
@@ -49,7 +49,7 @@ export class DungeonScene extends BaseScene {
   }
 
   create() {
-    playBgm(this, audioKeys.bgm.dungeon);
+    loadAndPlayBgmAfterRender(this, audioKeys.bgm.dungeon);
 
     this.interactTarget = null;
     this.isEnteringBattle = false;
@@ -105,7 +105,7 @@ export class DungeonScene extends BaseScene {
         if (this.isEnteringBattle) return;
         if (this.handleDialogueInput()) return;
         if (this.levelUpNoticeActive) return;
-        if (this.isCurrentRoomBossDefeated()) return;
+        if (!this.isPlayerInBossTriggerZone()) return;
         this.startBossBattle();
       });
     }
@@ -599,6 +599,11 @@ export class DungeonScene extends BaseScene {
     return !!playerData.dungeonProgress[this.currentBossConfig.progressKey];
   }
 
+  isPlayerInBossTriggerZone() {
+    if (!this.bossZone || this.isCurrentRoomBossDefeated()) return false;
+    return this.physics.overlap(this.player, this.bossZone);
+  }
+
   startBossBattle() {
     const difficultyBoss = getDifficultyDungeonEnemy(this.roomNumber, 'boss');
     this.startBattle(difficultyBoss || this.currentBossConfig.enemy, this.currentBossConfig.enemyKey);
@@ -636,6 +641,11 @@ export class DungeonScene extends BaseScene {
 
   updateRandomEncounterProgress() {
     if (this.isEnteringBattle || this.dialogueActive || this.levelUpNoticeActive) return;
+    if (this.isCurrentRoomBossDefeated()) {
+      this.randomEncounterDistance = 0;
+      this.lastPlayerPos.set(this.player.x, this.player.y);
+      return;
+    }
     if (this.isPlayerInEncounterSafeZone()) {
       this.randomEncounterDistance = 0;
       this.lastPlayerPos.set(this.player.x, this.player.y);
@@ -699,6 +709,7 @@ export class DungeonScene extends BaseScene {
     const nearFinalLeaveDoor = this.worldExitZone ? this.physics.overlap(this.player, this.worldExitZone) : false;
     const nearEntryLeaveDoor = this.entryExitZone ? this.physics.overlap(this.player, this.entryExitZone) : false;
     const bossDefeated = this.isCurrentRoomBossDefeated();
+    const nearBossTrigger = this.isPlayerInBossTriggerZone();
 
     if (nearEntryLeaveDoor) {
       if (this.roomNumber > 1) {
@@ -717,7 +728,7 @@ export class DungeonScene extends BaseScene {
       } else if (bossDefeated && this.roomNumber === 4) {
       showPrompt(this.promptText, 'Go to the door behind the boss');
         this.interactTarget = null;
-      } else if (!bossDefeated) {
+      } else if (!bossDefeated && nearBossTrigger) {
       showPrompt(this.promptText, this.roomNumber < 4 ? 'Beat the big monster by the door' : 'Beat the last big monster');
         this.interactTarget = null;
     } else {

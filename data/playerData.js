@@ -6,7 +6,7 @@ export const playerData = {
   maxHp: 20,
   level: 1,
   exp: 0,
-  expToNext: 20,
+  expToNext: 16,
   pendingLevelUpMessages: [],
   gold: 100,
   inventory: [

@@ -90,7 +90,7 @@ export const enemyData = {
     imageDisplay: { width: 100, height: 100, offsetX: 0, offsetY: 4 },
     hp: 30,
     attack: 3,
-    goldReward: 10,
+    goldReward: 12,
     expReward: 8,
     rule: 'even',
     ui: { blockText: 'The slime jiggles away from the hit.' },
@@ -114,7 +114,7 @@ export const enemyData = {
     imageDisplay: { width: 120, height: 90, offsetX: 0, offsetY: -30 },
     hp: 24,
     attack: 3,
-    goldReward: 12,
+    goldReward: 14,
     expReward: 10,
     rule: 'odd',
     ui: { blockText: 'The bat dodged the wrong pattern.' },
@@ -213,7 +213,7 @@ export const enemyData = {
     imageDisplay: { width: 110, height: 110, offsetX: 0, offsetY: -5 },
     hp: 42,
     attack: 4,
-    goldReward: 16,
+    goldReward: 19,
     expReward: 14,
     rule: 'even',
     ui: {
@@ -235,7 +235,7 @@ export const enemyData = {
     imageDisplay: { width: 110, height: 110, offsetX: 0, offsetY: -5 },
     hp: 30,
     attack: 8,
-    goldReward: 18,
+    goldReward: 22,
     expReward: 16,
     rule: 'odd',
     ui: {
@@ -421,7 +421,7 @@ export const enemyData = {
     imageDisplay: { width: 130, height: 130, offsetX: 0, offsetY: -15 },
     hp: 34,
     attack: 4,
-    goldReward: 18,
+    goldReward: 22,
     expReward: 16,
     rule: 'even',
     ui: {
@@ -441,7 +441,7 @@ export const enemyData = {
     imageDisplay: { width: 160, height: 140, offsetX: 5, offsetY: -55 },
     hp: 28,
     attack: 5,
-    goldReward: 20,
+    goldReward: 24,
     expReward: 18,
     rule: 'odd',
     ui: {

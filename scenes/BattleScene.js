@@ -29,13 +29,16 @@ import { audioKeys } from '../config/audioKeys.js';
 import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
 import { preloadSfxAssets } from '../utils/sfxManager.js';
 
+const BOSS_BATTLE_ENEMY_KEYS = new Set(['room1_boss', 'room2_boss', 'room3_boss', 'final_boss']);
+const BOSS_BATTLE_ENEMY_IDS = new Set(['boss1', 'boss2', 'boss3', 'finalBoss']);
+
 export class BattleScene extends Phaser.Scene {
   constructor() {
     super('BattleScene');
   }
 
   preload() {
-    preloadBgmAssets(this, audioKeys.bgm.battle);
+    preloadBgmAssets(this, [audioKeys.bgm.battle, audioKeys.bgm.bossBattle]);
     preloadSfxAssets(this);
 
     if (!this.textures.exists('battleBgDungeon')) {
@@ -215,7 +218,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create() {
-    playBgm(this, audioKeys.bgm.battle);
+    playBgm(this, this.getBattleBgmKey());
 
     this.battleFeatures?.runHook?.('beforeCreate', this.battleFeatureContext, { scene: this });
 
@@ -241,6 +244,13 @@ export class BattleScene extends Phaser.Scene {
     this.events.once('shutdown', () => {
       this.battleFeatures?.runHook?.('onShutdown', this.battleFeatureContext, { scene: this });
     });
+  }
+
+  getBattleBgmKey() {
+    if (BOSS_BATTLE_ENEMY_KEYS.has(this.enemyKey) || BOSS_BATTLE_ENEMY_IDS.has(this.enemy?.id)) {
+      return audioKeys.bgm.bossBattle;
+    }
+    return audioKeys.bgm.battle;
   }
 
   update() {

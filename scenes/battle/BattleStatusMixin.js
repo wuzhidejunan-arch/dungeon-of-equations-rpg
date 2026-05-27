@@ -80,10 +80,6 @@ export const BattleStatusMixin = {
       return 'normal';
     }
 
-    if (ruleId === 'prime' && result === 1) {
-      return 'normal';
-    }
-
     return 'clear';
   },
 

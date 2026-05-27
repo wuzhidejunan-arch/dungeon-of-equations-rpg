@@ -13,7 +13,7 @@ export const battleRules = {
     label: 'Even',
     shortText: 'Your answer must be even',
     needText: 'an even answer',
-    goalText: 'Make an even answer.',
+    goalText: 'Make an even number.',
     condition: { type: 'result_rule', value: 'even' },
   },
   odd: {

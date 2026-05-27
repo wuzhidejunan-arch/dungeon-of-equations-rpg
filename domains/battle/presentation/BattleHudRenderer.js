@@ -150,7 +150,11 @@ export class BattleHudRenderer {
     this.setCommandOptionRowsVisible(false);
     this.setItemOptionRowsVisible(false);
     scene.itemMenuRowPositions = [];
+    const defaultPosition = scene.commandMenuTextPosition || { x: 642, y: 450 };
+    const textX = Number.isFinite(options.textX) ? options.textX : defaultPosition.x;
+    const textY = Number.isFinite(options.textY) ? options.textY : defaultPosition.y;
     scene.commandText?.setVisible?.(true);
+    scene.commandText?.setPosition?.(textX, textY);
     scene.commandText?.setFontSize?.(fontSize);
     scene.commandText?.setLineSpacing?.(lineSpacing);
     this.setTextNode(scene.commandText, text);

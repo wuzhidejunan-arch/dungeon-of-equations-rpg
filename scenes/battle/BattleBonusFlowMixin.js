@@ -34,6 +34,7 @@ export const BattleBonusFlowMixin = {
     (bonusDefinition.effects || []).forEach((effect) => {
       this.applyEffect(effect, { skills: this.playerSkills });
     });
+    this.refreshBattleUI();
 
     this.renderResultText(bonusDefinition.resultText, battleResultPhases.RESULT_BUFF, { bonusType });
     this.addBattleLog(bonusDefinition.logText);

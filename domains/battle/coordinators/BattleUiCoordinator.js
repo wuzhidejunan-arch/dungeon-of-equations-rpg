@@ -338,6 +338,10 @@ export class BattleUiCoordinator {
     }
 
     scene.commandText.setVisible(true);
+    const defaultPosition = scene.commandMenuTextPosition || { x: 642, y: 450 };
+    const textX = Number.isFinite(options.textX) ? options.textX : defaultPosition.x;
+    const textY = Number.isFinite(options.textY) ? options.textY : defaultPosition.y;
+    scene.commandText.setPosition(textX, textY);
     scene.commandText.setFontSize(fontSize);
     scene.commandText.setLineSpacing(lineSpacing);
     this.setTextNode(scene.commandText, text);
@@ -467,7 +471,12 @@ export class BattleUiCoordinator {
           return getBattleUIValue('skillTargetLine', `${skillName} ${ppText}`, { skill: skillName, uses: ppText });
         })
         .join('\n'),
-      { fontSize: '14px', lineSpacing: 6 },
+      {
+        fontSize: '14px',
+        lineSpacing: 6,
+        textX: scene.itemTargetMenuTextPosition?.x,
+        textY: scene.itemTargetMenuTextPosition?.y,
+      },
     );
     this.renderResultText(getBattleText('prompts.itemTargetMenu', 'Choose one skill. Esc to cancel.'), battleResultPhases.RESULT_ITEM);
     scene.updateCommandCursor?.();

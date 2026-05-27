@@ -29,13 +29,15 @@ const RESULT_MODAL_ASSETS = {
   },
 };
 const GOLD_REWARD_LINE_PATTERN = /^\+(\d+)\s+Gold$/;
+const LEVEL_UP_REWARD_TEXT_OFFSET_Y = -36;
+const TRAINING_REWARD_TEXT_OFFSET_Y = -12;
 const LEVEL_UP_GOLD_REWARD_ICON_LAYOUT = {
   iconOffsetX: -54,
-  iconOffsetY: 58,
+  iconOffsetY: 34,
   iconWidth: 60,
   iconHeight: 50,
   amountOffsetX: 5,
-  amountOffsetY: 58,
+  amountOffsetY: 34,
 };
 const TRAINING_GOLD_REWARD_ICON_LAYOUT = {
   iconOffsetX: -54,
@@ -55,6 +57,12 @@ function getGoldRewardIconLayout(source) {
   return source === "training"
     ? TRAINING_GOLD_REWARD_ICON_LAYOUT
     : LEVEL_UP_GOLD_REWARD_ICON_LAYOUT;
+}
+
+function getRewardTextOffsetY(source) {
+  return source === "training"
+    ? TRAINING_REWARD_TEXT_OFFSET_Y
+    : LEVEL_UP_REWARD_TEXT_OFFSET_Y;
 }
 
 export function preloadResultModalAssets(scene) {
@@ -134,7 +142,7 @@ export class BaseScene extends Phaser.Scene {
         color: "#facc15",
         fontStyle: "bold",
       }).setOrigin(0.5);
-    const body = this.add.text(centerX, centerY - 12, "", {
+    const body = this.add.text(centerX, centerY + LEVEL_UP_REWARD_TEXT_OFFSET_Y, "", {
       fontSize: "27px",
       color: "#fff0b8",
       fontStyle: "bold",
@@ -205,6 +213,7 @@ export class BaseScene extends Phaser.Scene {
       : rewardLines;
 
     this.levelUpNoticeActive = true;
+    this.levelUpText.setPosition(this.scale.width / 2, this.scale.height / 2 + getRewardTextOffsetY(rewardSource));
     this.levelUpText.setText(displayLines.join("\n"));
     this.levelUpGoldIcon
       ?.setPosition(

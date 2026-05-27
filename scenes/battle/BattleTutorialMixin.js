@@ -7,6 +7,7 @@ import {
   getTutorialRequiredSkillName,
   isBattleTutorialActive,
 } from '../../engine/tutorialFlowController.js';
+import { battleMenuStates } from '../../data/battleStates.js';
 
 const LOWER_PANEL_TEXT_X = 95;
 
@@ -50,11 +51,27 @@ export const BattleTutorialMixin = {
       return;
     }
 
+    if (this.menuState !== battleMenuStates.DIALOG) {
+      this.trainingGuideDialogAcknowledged = false;
+    }
+
+    if (this.menuState === battleMenuStates.DIALOG && this.trainingGuideDialogAcknowledged) {
+      this.trainingGuideBox.setVisible(false);
+      this.trainingGuideText.setVisible(false);
+      return;
+    }
+
     const helper = getTutorialHelperText(this);
 
     this.trainingGuideBox.setVisible(true);
     this.trainingGuideText.setText(helper);
     this.trainingGuideText.setVisible(true);
+  },
+
+  acknowledgeTrainingGuideDialog() {
+    if (this.isTrainingGuideBattle?.() && this.menuState === battleMenuStates.DIALOG) {
+      this.trainingGuideDialogAcknowledged = true;
+    }
   },
 
   getTrainingBattleConfig() {

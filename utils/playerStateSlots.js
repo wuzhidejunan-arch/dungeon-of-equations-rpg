@@ -12,7 +12,7 @@ const DEFAULT_STATS = Object.freeze({
   maxHp: 20,
   level: 1,
   exp: 0,
-  expToNext: 20,
+  expToNext: 16,
   gold: 100,
   pendingLevelUpMessages: [],
 });

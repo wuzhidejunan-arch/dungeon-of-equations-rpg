@@ -13,7 +13,7 @@ function getCompactStageLabel(stageId, stageRegistry) {
 
 function getStageStatusLabel(stageId) {
   if (isTrainingStageCompleted(stageId)) return 'Done';
-  if (isTesterMode() || isTrainingStageUnlocked(stageId)) return 'Open';
+  if (isTesterMode() || isTrainingStageUnlocked(stageId)) return 'Available';
   return 'Locked';
 }
 
@@ -30,7 +30,7 @@ function getStageGoalText(stageId, stageRegistry) {
   }
 
   if (questions.length && passScore) {
-    return `Goal: Get ${passScore} right`;
+    return `Goal: Get ${passScore} correct`;
   }
 
   return 'Goal: finish the lesson.';
@@ -60,7 +60,7 @@ function getStagePreviewText(stageId, stageRegistry) {
 function buildStageMenuDescription(stageId, stageRegistry) {
   if (!stageId) {
     return {
-      title: 'Leave Training',
+      title: 'Exit Training',
       text: 'Go back',
     };
   }
@@ -109,7 +109,7 @@ export class TrainingViewStateBuilder {
       const status = getStageStatusLabel(stageId);
       return `${getCompactStageLabel(stageId, stageRegistry)}\n[${status}]`;
     });
-    menuItems.push('Back\n[Leave]');
+    menuItems.push('Back\n[Exit]');
 
     const selectedStageId = scene.menuIndex < stageIds.length ? stageIds[scene.menuIndex] : null;
     const detail = buildStageMenuDescription(selectedStageId, stageRegistry);

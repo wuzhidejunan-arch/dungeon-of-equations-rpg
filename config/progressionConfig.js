@@ -1,7 +1,7 @@
 export const progressionConfig = {
   leveling: {
-    baseExpToNext: 20,
-    expStepPerLevel: 10,
+    baseExpToNext: 16,
+    expStepPerLevel: 8,
     goldPerLevel: 30,
     hpGrowth: {
       maxHpGain: 2,

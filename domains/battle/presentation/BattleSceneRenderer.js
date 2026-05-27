@@ -192,7 +192,12 @@ export class BattleSceneRenderer {
         skill: skill.name,
         uses: skill.uses,
       })).join('\n'),
-      { fontSize: '14px', lineSpacing: 6 },
+      {
+        fontSize: '14px',
+        lineSpacing: 6,
+        textX: scene.itemTargetMenuTextPosition?.x,
+        textY: scene.itemTargetMenuTextPosition?.y,
+      },
     );
     scene.renderResultText?.(getBattleText('prompts.itemTargetMenu', 'Choose one skill. Esc to cancel.'), battleResultPhases.RESULT_ITEM);
     scene.updateCommandCursor?.();

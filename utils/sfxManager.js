@@ -13,6 +13,7 @@ export const sfxDefaults = Object.freeze({
   [audioKeys.sfx.enemyDefeat]: { volume: 0.5, cooldownMs: 220 },
   [audioKeys.sfx.victory]: { volume: 0.52, cooldownMs: 500 },
   [audioKeys.sfx.levelUp]: { volume: 0.55, cooldownMs: 500 },
+  [audioKeys.sfx.shopPurchase]: { volume: 0.5, cooldownMs: 120, allowOverlap: false },
   [audioKeys.sfx.playerMove]: {
     volume: 0.25,
     cooldownMs: 150,

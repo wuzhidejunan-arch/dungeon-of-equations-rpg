@@ -5,6 +5,7 @@ export const BattleLayoutMixin = {
     const commandMenuCursorX = 618;
     const commandMenuStartY = 450;
     const commandMenuRowSpacing = 43;
+    const itemTargetMenuTextX = 610;
     const itemMenuTextX = 620;
     const itemMenuCursorX = 596;
     const itemMenuStartY = 440;
@@ -233,6 +234,8 @@ export const BattleLayoutMixin = {
       cursorX: commandMenuCursorX,
       y: commandMenuStartY + (index * commandMenuRowSpacing),
     }));
+    this.commandMenuTextPosition = { x: commandMenuTextX, y: commandMenuStartY };
+    this.itemTargetMenuTextPosition = { x: itemTargetMenuTextX, y: commandMenuStartY };
 
     this.commandText = this.add.text(commandMenuTextX, commandMenuStartY, '', {
       fontSize: '17px',

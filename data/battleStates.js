@@ -27,7 +27,7 @@ export const battleStateConfig = {
     resultTextKey: 'skillMenu',
   },
   [battleMenuStates.BUILDER]: {
-    visiblePanels: ['builderOverlay', 'builderPanel', 'builderTitleText', 'builderGoalText', 'equalsText', 'resultPreviewText'],
+    visiblePanels: ['builderOverlay', 'builderPanel', 'builderTitleText', 'builderGoalText', 'builderFeedbackText', 'equalsText', 'resultPreviewText'],
     cursor: 'none',
   },
   [battleMenuStates.ITEM]: {

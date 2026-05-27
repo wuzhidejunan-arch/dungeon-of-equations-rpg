@@ -2,15 +2,15 @@ export const trainingStageData = {
   1: {
     id: 1,
     lessonPages: [
-      `Stage 1: Number Kinds\n\nLearn 4 number kinds:\nZero, odd, even, prime.`,
+      `Stage 1: Types of Numbers\n\nLearn 4 types of numbers:\nZero, odd, even, prime.`,
       `Zero means none.\n0 is the only zero.\nExample: 0 apples.`,
       `Even numbers can be put in twos.\nNone is left.\nExamples: 2, 4, 6, 8.`,
       `Odd numbers can be put in twos.\nOne is left.\nExamples: 1, 3, 5, 7.`,
       `Prime numbers are bigger than 1.\nOnly 1 and the number itself can divide them evenly.\nExamples: 2, 3, 5, 7, 11.`,
       `In this game, check zero first.\nThen check prime.\nThen check odd or even.`,
-      `Here, 2 counts as prime.\nThat is the game rule.`,
+      `Remember:\n1 is odd, but not prime.\n2 is prime and even.`,
       `There are 20 questions.\nUse UP / DOWN.\nPress Enter.`,
-      `Goal: Get 15 right.\nIf you miss one,\nthe stage keeps going.`,
+      `Goal: Get 15 correct.\nIf you miss one,\nthe stage keeps going.`,
       `Now sort the numbers by yourself.\nPress Enter to start.`,
     ],
     passScore: 15,
@@ -68,11 +68,11 @@ export const trainingStageData = {
       `Stage 3: Practice Battle
 
 Now use what you learned.`,
-      `Stage 1 taught number kinds.
+      `Stage 1 taught types of numbers.
 Stage 2 taught add and subtract.`,
       `Step 1: Choose Fight.`,
       `Step 2: Choose Even Attack.`,
-      `Step 3: Make an even answer.\nThen press Enter.`,
+      `Step 3: Make an even number.\nThen press Enter.`,
       `Make an even number to attack.
 Even Attack works with even answers.`,
       'In this lesson, only Fight and Even Attack are open.',

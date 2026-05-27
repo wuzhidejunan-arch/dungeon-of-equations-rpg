@@ -16,6 +16,12 @@ import { loadAndPlayBgmAfterRender } from "../utils/musicManager.js";
 const WORLD_HOME_EXIT_POSITION = { x: 220, y: 290 };
 const HOME_INTERIOR_ENTRY_POSITION = { x: 400, y: 500 };
 const DEBUG_HOME_COLLISION = false;
+const GAME_OVER_PANEL_KEY = "gameOverPanel";
+const GAME_OVER_PANEL_PATH = "assets/images/ui/game_over_panel.png";
+const GAME_OVER_PANEL_X = 370;
+const GAME_OVER_PANEL_Y = 300;
+const GAME_OVER_PANEL_DISPLAY_WIDTH = 720;
+const GAME_OVER_PANEL_DISPLAY_HEIGHT = 480;
 
 export class HomeScene extends BaseScene {
   constructor() {
@@ -34,6 +40,7 @@ export class HomeScene extends BaseScene {
   preload() {
     preloadHomeMapArt(this);
     preloadHudUiAssets(this);
+    this.load.image(GAME_OVER_PANEL_KEY, GAME_OVER_PANEL_PATH);
     this.preloadResultModalAssets();
   }
 
@@ -152,25 +159,35 @@ export class HomeScene extends BaseScene {
     this.gameOverOverlay = this.add.container(0, 0).setDepth(1100).setVisible(false);
 
     const shade = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45);
-    const panel = this.add.rectangle(width / 2, height / 2, 460, 240, 0x111827, 0.98).setStrokeStyle(3, 0xfacc15);
-    const title = this.add.text(width / 2, height / 2 - 92, this.gameOverTitle, {
-      fontSize: "28px",
-      color: "#facc15",
-      fontStyle: "bold",
-    }).setOrigin(0.5);
-    const body = this.add.text(width / 2, height / 2 - 4, this.gameOverMessage, {
-      fontSize: "22px",
-      color: "#ffffff",
-      align: "center",
-      lineSpacing: 12,
-      wordWrap: { width: 380 },
-    }).setOrigin(0.5);
-    const footer = this.add.text(width / 2, height / 2 + 84, "Press Enter", {
-      fontSize: "16px",
-      color: "#cbd5e1",
-    }).setOrigin(0.5);
+    const overlayItems = [shade];
 
-    this.gameOverOverlay.add([shade, panel, title, body, footer]);
+    if (this.textures.exists(GAME_OVER_PANEL_KEY)) {
+      const panelImage = this.add
+        .image(GAME_OVER_PANEL_X, GAME_OVER_PANEL_Y, GAME_OVER_PANEL_KEY)
+        .setDisplaySize(GAME_OVER_PANEL_DISPLAY_WIDTH, GAME_OVER_PANEL_DISPLAY_HEIGHT);
+      overlayItems.push(panelImage);
+    } else {
+      const panel = this.add.rectangle(width / 2, height / 2, 460, 240, 0x111827, 0.98).setStrokeStyle(3, 0xfacc15);
+      const title = this.add.text(width / 2, height / 2 - 92, this.gameOverTitle, {
+        fontSize: "28px",
+        color: "#facc15",
+        fontStyle: "bold",
+      }).setOrigin(0.5);
+      const body = this.add.text(width / 2, height / 2 - 4, this.gameOverMessage, {
+        fontSize: "22px",
+        color: "#ffffff",
+        align: "center",
+        lineSpacing: 12,
+        wordWrap: { width: 380 },
+      }).setOrigin(0.5);
+      const footer = this.add.text(width / 2, height / 2 + 84, "Press Enter", {
+        fontSize: "16px",
+        color: "#cbd5e1",
+      }).setOrigin(0.5);
+      overlayItems.push(panel, title, body, footer);
+    }
+
+    this.gameOverOverlay.add(overlayItems);
   }
 
   showGameOverPopup() {

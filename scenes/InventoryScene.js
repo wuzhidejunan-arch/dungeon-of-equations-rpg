@@ -592,10 +592,10 @@ export class InventoryScene extends Phaser.Scene {
     }
 
     this.cursorText.setVisible(true);
-    this.leftText.setText(
-      skills.map((skill) => `${skill.name} ${skill.pp}/${skill.maxPp}`).join("\n\n"),
-    );
-    this.positionCursor(this.targetSkillIndex, 40);
+    this.leftText.setText("");
+    const { visibleSkills, selectedVisibleIndex } = this.getInventoryVisibleTargetSkillWindow(skills);
+    this.renderInventorySkillRows(visibleSkills);
+    this.positionInventorySkillCursor(selectedVisibleIndex);
 
     if (!selectedSkill) {
       this.rightText.setText("No skill picked.");
@@ -776,6 +776,17 @@ export class InventoryScene extends Phaser.Scene {
     return { startIndex, visibleSkills, selectedVisibleIndex };
   }
 
+  getInventoryVisibleTargetSkillWindow(skills = []) {
+    const rowCount = this.inventorySkillRowPositions.length || 1;
+    const maxStart = Math.max(0, skills.length - rowCount);
+    const selectedIndex = Phaser.Math.Clamp(this.targetSkillIndex, 0, Math.max(skills.length - 1, 0));
+    const startIndex = Phaser.Math.Clamp(selectedIndex - (rowCount - 1), 0, maxStart);
+    const visibleSkills = skills.slice(startIndex, startIndex + rowCount);
+    const selectedVisibleIndex = selectedIndex - startIndex;
+
+    return { startIndex, visibleSkills, selectedVisibleIndex };
+  }
+
   renderInventorySkillRows(skills = []) {
     (this.inventorySkillOptionTexts || []).forEach((node, index) => {
       const usesNode = this.inventorySkillUseTexts?.[index] || null;
@@ -820,5 +831,4 @@ export class InventoryScene extends Phaser.Scene {
     this.cursorText.setPosition(row.cursorX, row.y);
   }
 }
-
 
