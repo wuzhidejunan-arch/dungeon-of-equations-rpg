@@ -3,7 +3,13 @@ import { playerData } from "../data/playerData.js";
 import { shopItems, npcMessages } from "../data/shopData.js";
 import { itemDefinitions } from "../data/battleData.js";
 import { npcDialogues } from "../data/dialogueData.js";
-import { backgroundPreloadDungeonMapArt, createBasicTextures, preloadWorldMapArt } from "../utils/textureFactory.js";
+import {
+  backgroundPreloadDungeonMapArt,
+  createBasicTextures,
+  EXPLORATION_PLAYER_DISPLAY_SIZE,
+  PLAYER_WALK_SHEET_KEY,
+  preloadWorldMapArt,
+} from "../utils/textureFactory.js";
 import {
   createPanel,
   hidePanel,
@@ -123,9 +129,10 @@ export class WorldScene extends BaseScene {
     this.player = this.physics.add.sprite(
       playerData.position.world.x,
       playerData.position.world.y,
-      "playerFront",
+      PLAYER_WALK_SHEET_KEY,
+      1,
     );
-    this.player.setScale(0.07);
+    this.player.setDisplaySize(EXPLORATION_PLAYER_DISPLAY_SIZE, EXPLORATION_PLAYER_DISPLAY_SIZE);
     this.player.setDepth(-6);
     this.player.setCollideWorldBounds(true);
     const playerBodyWidth = Math.round(this.player.width * 0.4);

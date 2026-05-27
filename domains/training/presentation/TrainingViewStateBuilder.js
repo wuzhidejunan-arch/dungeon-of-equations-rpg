@@ -11,6 +11,14 @@ function getCompactStageLabel(stageId, stageRegistry) {
   return name.replace(/^Stage\s+\d+\s*-\s*/i, '');
 }
 
+function getPreviousStageShortLabel(stageId, stageRegistry) {
+  const stageIds = stageRegistry.getStageIds();
+  const index = stageIds.indexOf(stageId);
+  if (index <= 0) return 'the previous stage';
+  const name = stageRegistry.getStageName(stageIds[index - 1]) || 'the previous stage';
+  return name.match(/^Stage\s+\d+/i)?.[0] || name;
+}
+
 function getStageStatusLabel(stageId) {
   if (isTrainingStageCompleted(stageId)) return 'Done';
   if (isTesterMode() || isTrainingStageUnlocked(stageId)) return 'Available';
@@ -67,7 +75,7 @@ function buildStageMenuDescription(stageId, stageRegistry) {
 
   const status = getStageStatusLabel(stageId);
   const preview = getStagePreviewText(stageId, stageRegistry);
-  const lockedNote = status === 'Locked' ? '\nUnlock: clear the previous stage first.' : '';
+  const lockedNote = status === 'Locked' ? `\nClear ${getPreviousStageShortLabel(stageId, stageRegistry)} first.` : '';
 
   return {
     title: stageRegistry.getStageName(stageId),
@@ -81,6 +89,11 @@ function buildOptionLines(options = [], selectedIndex = 0) {
 
 function shouldAppendStage1PromptEquals(stageId) {
   return stageId < 200;
+}
+
+function getLessonVisual(stageRegistry, stageId, pageIndex) {
+  const visual = stageRegistry.getStageConfig(stageId)?.lessonVisuals?.[pageIndex];
+  return visual?.key ? visual : null;
 }
 
 export class TrainingViewStateBuilder {
@@ -161,6 +174,7 @@ export class TrainingViewStateBuilder {
       content: {
         visible: true,
         text: scene.currentLessonPages[scene.lessonPageIndex] || '',
+        visual: getLessonVisual(stageRegistry, stageId, scene.lessonPageIndex),
       },
       controls: 'LEFT go back   ENTER next   ESC stage list',
       cursor: { visible: false, x: 0, y: 0 },

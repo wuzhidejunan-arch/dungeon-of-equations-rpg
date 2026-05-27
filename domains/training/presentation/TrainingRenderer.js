@@ -56,7 +56,7 @@ export class TrainingRenderer {
       scene.detailTitleText?.setWordWrapWidth?.(focusedLayout.wrapWidth || 580);
       scene.detailText?.setWordWrapWidth?.(focusedLayout.wrapWidth || 580);
       scene.contentText?.setWordWrapWidth?.(focusedLayout.wrapWidth || 580);
-      scene.contentText?.setFontSize?.('18px');
+      scene.contentText?.setFontSize?.(focusedLayout.fontSize || '18px');
       scene.contentText?.setLineSpacing?.(10);
     } else {
       // Keep the menu detail box anchored to the same top edge, but extend it
@@ -93,6 +93,43 @@ export class TrainingRenderer {
     node?.setText?.(text || '');
   }
 
+  renderContentVisual(scene, viewState) {
+    const visual = viewState?.content?.visual || null;
+    const visualLayout = scene?.trainingLayout?.focused?.visual || {};
+    const defaultImageLayout = visualLayout.image || visualLayout;
+    const defaultTextLayout = visualLayout.text || {};
+    const imageLayout = visual?.image || visual || {};
+    const textLayout = visual?.text || {};
+    const hasVisual = Boolean(
+      viewState?.content?.visible
+        && visual?.key
+        && scene?.textures?.exists?.(visual.key),
+    );
+
+    if (!hasVisual) {
+      this.setNodeVisible(scene.lessonVisualImage, false);
+      return;
+    }
+
+    scene.lessonVisualImage
+      ?.setTexture?.(visual.key)
+      ?.setPosition?.(
+        imageLayout.x ?? defaultImageLayout.x,
+        imageLayout.y ?? defaultImageLayout.y,
+      )
+      ?.setDisplaySize?.(
+        imageLayout.width ?? defaultImageLayout.width,
+        imageLayout.height ?? defaultImageLayout.height,
+      )
+      ?.setVisible?.(true);
+    scene.contentText?.setPosition?.(
+      textLayout.x ?? defaultTextLayout.x,
+      textLayout.y ?? defaultTextLayout.y,
+    );
+    scene.contentText?.setFontSize?.(textLayout.fontSize ?? defaultTextLayout.fontSize);
+    scene.contentText?.setWordWrapWidth?.(textLayout.wordWrapWidth ?? defaultTextLayout.wordWrapWidth);
+  }
+
   render(scene, viewState) {
     this.applyLayout(scene, viewState?.layoutMode || 'menu');
     this.setText(scene.titleText, viewState?.header?.title || '');
@@ -111,6 +148,7 @@ export class TrainingRenderer {
     this.setNodeVisible(scene.contentPanel, Boolean(viewState?.content?.visible));
     this.setNodeVisible(scene.contentText, Boolean(viewState?.content?.visible));
     this.setText(scene.contentText, viewState?.content?.text || '');
+    this.renderContentVisual(scene, viewState);
 
     this.setNodeVisible(scene.controlsPanel, true);
     this.setNodeVisible(scene.controlsText, true);

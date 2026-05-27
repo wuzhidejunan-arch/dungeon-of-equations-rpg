@@ -32,6 +32,11 @@ export function createBasicTextures(scene) {
   }
 }
 
+export const PLAYER_WALK_SHEET_KEY = "playerWalkSheet";
+export const PLAYER_WALK_SHEET_PATH = "assets/images/characters/player_walk_sheet.png";
+export const PLAYER_WALK_FRAME_SIZE = 96;
+export const EXPLORATION_PLAYER_DISPLAY_SIZE = 72;
+
 function loadImageIfMissing(scene, key, path) {
   if (!scene.textures.exists(key)) {
     scene.load.image(key, path);
@@ -39,6 +44,15 @@ function loadImageIfMissing(scene, key, path) {
   }
 
   return false;
+}
+
+export function preloadPlayerWalkSheet(scene) {
+  if (!scene.textures.exists(PLAYER_WALK_SHEET_KEY)) {
+    scene.load.spritesheet(PLAYER_WALK_SHEET_KEY, PLAYER_WALK_SHEET_PATH, {
+      frameWidth: PLAYER_WALK_FRAME_SIZE,
+      frameHeight: PLAYER_WALK_FRAME_SIZE,
+    });
+  }
 }
 
 const DUNGEON_MAP_ART = [
@@ -49,11 +63,13 @@ const DUNGEON_MAP_ART = [
 ];
 
 export function preloadHomeMapArt(scene) {
+  preloadPlayerWalkSheet(scene);
   loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
   loadImageIfMissing(scene, "homeRoomMap", "assets/images/maps/home_room_map.png");
 }
 
 export function preloadWorldMapArt(scene) {
+  preloadPlayerWalkSheet(scene);
   loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
   loadImageIfMissing(scene, "worldGrassMap", "assets/images/maps/grass_map.png");
   loadImageIfMissing(scene, "mapHome", "assets/images/map_objects/home.png");
@@ -65,6 +81,7 @@ export function preloadWorldMapArt(scene) {
 }
 
 export function preloadDungeonMapArt(scene) {
+  preloadPlayerWalkSheet(scene);
   loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
   DUNGEON_MAP_ART.forEach(([key, path]) => loadImageIfMissing(scene, key, path));
 }

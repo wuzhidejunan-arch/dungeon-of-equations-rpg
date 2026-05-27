@@ -1,6 +1,11 @@
 import { BaseScene } from './BaseScene.js';
 import { playerData } from '../data/playerData.js';
-import { createBasicTextures, preloadDungeonMapArt } from '../utils/textureFactory.js';
+import {
+  createBasicTextures,
+  EXPLORATION_PLAYER_DISPLAY_SIZE,
+  PLAYER_WALK_SHEET_KEY,
+  preloadDungeonMapArt,
+} from '../utils/textureFactory.js';
 import { hidePrompt, preloadHudUiAssets, showPrompt } from '../utils/ui.js';
 import { saveGame } from '../utils/saveSystem.js';
 import { getDifficultyDungeonEnemy } from '../config/difficultySettings.js';
@@ -76,9 +81,10 @@ export class DungeonScene extends BaseScene {
     this.player = this.physics.add.sprite(
       dungeonSpawn.x,
       dungeonSpawn.y,
-      'playerFront',
+      PLAYER_WALK_SHEET_KEY,
+      1,
     );
-    this.player.setScale(0.07);
+    this.player.setDisplaySize(EXPLORATION_PLAYER_DISPLAY_SIZE, EXPLORATION_PLAYER_DISPLAY_SIZE);
     this.player.setDepth(-4);
     this.player.setCollideWorldBounds(true);
     const playerBodyWidth = Math.round(this.player.width * 0.4);

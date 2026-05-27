@@ -9,6 +9,27 @@ import { createDebugBadge, syncDebugBadge } from "../utils/debugBadge.js";
 import { audioKeys } from "../config/audioKeys.js";
 import { playSfx } from "../utils/sfxManager.js";
 import { itemDefinitions } from "../data/battleData.js";
+import { PLAYER_WALK_SHEET_KEY } from "../utils/textureFactory.js";
+
+const PLAYER_FACING_DIRECTIONS = {
+  DOWN: "down",
+  LEFT: "left",
+  RIGHT: "right",
+  UP: "up",
+};
+const PLAYER_WALK_ANIMATIONS = {
+  down: { key: "player-walk-down", frames: [0, 1, 2] },
+  left: { key: "player-walk-left", frames: [3, 4, 5, 4] },
+  right: { key: "player-walk-right", frames: [6, 7, 8, 7] },
+  up: { key: "player-walk-up", frames: [9, 10, 11] },
+};
+const PLAYER_IDLE_FRAMES = {
+  down: 1,
+  left: 4,
+  right: 7,
+  up: 10,
+};
+const PLAYER_WALK_FRAME_RATE = 8;
 
 const RESULT_MODAL_ASSETS = {
   frame: {
@@ -82,6 +103,7 @@ export class BaseScene extends Phaser.Scene {
     this.dialogueData = [];
     this.levelUpNoticeActive = false;
     this.inventoryOpen = false;
+    this.playerFacingDirection = PLAYER_FACING_DIRECTIONS.DOWN;
   }
 
   setupCommonKeys() {
@@ -313,30 +335,76 @@ export class BaseScene extends Phaser.Scene {
   }
 
   handlePlayerMovement(player, speed = 200, isLocked = false) {
+    if (!player) return;
+
     player.setVelocity(0);
 
-    if (isLocked || this.dialogueActive) return;
+    if (isLocked || this.dialogueActive) {
+      this.setExplorationPlayerIdleFrame(player);
+      return;
+    }
 
     const moveLeft = this.keyA?.isDown || this.cursors.left.isDown;
     const moveRight = this.keyD?.isDown || this.cursors.right.isDown;
     const moveUp = this.keyW?.isDown || this.cursors.up.isDown;
     const moveDown = this.keyS?.isDown || this.cursors.down.isDown;
+    let movementDirection = null;
 
     if (moveLeft) {
       player.setVelocityX(-speed);
+      movementDirection = PLAYER_FACING_DIRECTIONS.LEFT;
     } else if (moveRight) {
       player.setVelocityX(speed);
+      movementDirection = PLAYER_FACING_DIRECTIONS.RIGHT;
     }
 
     if (moveUp) {
       player.setVelocityY(-speed);
+      movementDirection = PLAYER_FACING_DIRECTIONS.UP;
     } else if (moveDown) {
       player.setVelocityY(speed);
+      movementDirection = PLAYER_FACING_DIRECTIONS.DOWN;
     }
 
-    if (moveLeft || moveRight || moveUp || moveDown) {
+    if (movementDirection) {
+      this.playExplorationPlayerWalkAnimation(player, movementDirection);
       playSfx(this, audioKeys.sfx.playerMove);
+    } else {
+      this.setExplorationPlayerIdleFrame(player);
     }
+  }
+
+  setupPlayerWalkAnimations() {
+    Object.values(PLAYER_WALK_ANIMATIONS).forEach(({ key, frames }) => {
+      if (this.anims.exists(key)) return;
+      this.anims.create({
+        key,
+        frames: this.anims.generateFrameNumbers(PLAYER_WALK_SHEET_KEY, { frames }),
+        frameRate: PLAYER_WALK_FRAME_RATE,
+        repeat: -1,
+      });
+    });
+  }
+
+  isExplorationPlayerSprite(player) {
+    return player?.texture?.key === PLAYER_WALK_SHEET_KEY;
+  }
+
+  playExplorationPlayerWalkAnimation(player, direction) {
+    if (!this.isExplorationPlayerSprite(player)) return;
+    this.setupPlayerWalkAnimations();
+    this.playerFacingDirection = direction;
+    const animation = PLAYER_WALK_ANIMATIONS[direction];
+    if (animation) {
+      player.anims.play(animation.key, true);
+    }
+  }
+
+  setExplorationPlayerIdleFrame(player) {
+    if (!this.isExplorationPlayerSprite(player)) return;
+    player.anims?.stop();
+    const idleFrame = PLAYER_IDLE_FRAMES[this.playerFacingDirection] ?? PLAYER_IDLE_FRAMES.down;
+    player.setFrame(idleFrame);
   }
 
   isInventoryHotkeyPressed() {

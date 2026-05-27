@@ -13,6 +13,28 @@ export const trainingStageData = {
       `Goal: Get 15 correct.\nIf you miss one,\nthe stage keeps going.`,
       `Now sort the numbers by yourself.\nPress Enter to start.`,
     ],
+    lessonVisuals: {
+      1: {
+        key: 'beginningStage1ZeroEmpty',
+        image: { x: 500, y: 320, width: 240, height: 150 },
+        text: { x: 155, y: 285, fontSize: '18px', wordWrapWidth: 350 },
+      },
+      2: {
+        key: 'beginningStage1EvenPairs',
+        image: { x: 270, y: 300, width: 240, height: 150 },
+        text: { x: 155, y: 360, fontSize: '18px', wordWrapWidth: 350 },
+      },
+      3: {
+        key: 'beginningStage1OddLeftover',
+        image: { x: 330, y: 300, width: 380, height: 200 },
+        text: { x: 155, y: 360, fontSize: '18px', wordWrapWidth: 350 },
+      },
+      4: {
+        key: 'beginningStage1PrimeGems',
+        image: { x: 320, y: 300, width: 380, height: 170 },
+        text: { x: 155, y: 360, fontSize: '18px', wordWrapWidth: 350 },
+      },
+    },
     passScore: 15,
     questions: [
       { value: 0, type: 'zero' },
@@ -40,14 +62,26 @@ export const trainingStageData = {
   2: {
     id: 2,
     lessonPages: [
-      `Stage 2: Add and Subtract\n\nNow solve + and -.`,
-      'First, solve the math.',
-      'Then choose the number kind.',
-      `Example:\n7 - 5 = 2.\nIn this game, 2 is prime.`,
+      `Addition means putting things together.\n\nUse + to add.`,
+      `Example:\n4 + 2 = 6.\n\nThen 6 is an even number.`,
+      `Subtraction means taking things away.\n\nUse - to subtract.`,
+      `Example:\n5 - 2 = 3.\n\nThen 3 is a prime number.`,
       `There are 10 questions.\nEach question has 2 steps.`,
       `Goal: Get 15 points.\nPart 1: Solve the math.\nPart 2: Choose the number kind.`,
       `Start when you are ready.\nPress Enter.`,
     ],
+    lessonVisuals: {
+      1: {
+        key: 'beginningStage2AddExample',
+        image: { x: 320, y: 280, width: 340, height: 220 },
+        text: { x: 155, y: 340, fontSize: '18px', wordWrapWidth: 350 },
+      },
+      3: {
+        key: 'beginningStage2SubtractExample',
+        image: { x: 320, y: 290, width: 340, height: 220 },
+        text: { x: 155, y: 350, fontSize: '18px', wordWrapWidth: 350 },
+      },
+    },
     passScore: 15,
     questions: [
       { expression: '7 + 5', options: [10, 11, 12, 13], answer: 12, type: 'even' },

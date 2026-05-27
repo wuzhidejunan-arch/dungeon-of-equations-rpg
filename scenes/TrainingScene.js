@@ -24,6 +24,33 @@ const TRAINING_UI_ASSETS = {
   },
 };
 
+const TRAINING_VISUAL_ASSETS = [
+  {
+    key: 'beginningStage1ZeroEmpty',
+    path: 'assets/images/training/beginning_stage1_zero_empty.png',
+  },
+  {
+    key: 'beginningStage1EvenPairs',
+    path: 'assets/images/training/beginning_stage1_even_pairs.png',
+  },
+  {
+    key: 'beginningStage1OddLeftover',
+    path: 'assets/images/training/beginning_stage1_odd_leftover.png',
+  },
+  {
+    key: 'beginningStage1PrimeGems',
+    path: 'assets/images/training/beginning_stage1_prime_gems.png',
+  },
+  {
+    key: 'beginningStage2AddExample',
+    path: 'assets/images/training/beginning_stage2_add_example.png',
+  },
+  {
+    key: 'beginningStage2SubtractExample',
+    path: 'assets/images/training/beginning_stage2_subtract_example.png',
+  },
+];
+
 export class TrainingScene extends BaseScene {
   constructor() {
     super('TrainingScene');
@@ -48,6 +75,11 @@ export class TrainingScene extends BaseScene {
     this.preloadResultModalAssets();
     this.load.image(TRAINING_UI_ASSETS.woodButton.key, TRAINING_UI_ASSETS.woodButton.path);
     this.load.image(TRAINING_UI_ASSETS.parchmentPanel.key, TRAINING_UI_ASSETS.parchmentPanel.path);
+    TRAINING_VISUAL_ASSETS.forEach((asset) => {
+      if (!this.textures.exists(asset.key)) {
+        this.load.image(asset.key, asset.path);
+      }
+    });
   }
 
   create() {
@@ -104,7 +136,22 @@ export class TrainingScene extends BaseScene {
         detailTitleY: safeTop + 75,
         detailBodyY: safeTop + 108,
         contentY: safeTop + 185,
+        fontSize: '18px',
         wrapWidth: Math.max(520, safeRight - focusedContentX),
+        visual: {
+          image: {
+            x: safeRight - 180,
+            y: safeTop + 268,
+            width: 240,
+            height: 150,
+          },
+          text: {
+            x: focusedContentX,
+            y: safeTop + 185,
+            fontSize: '18px',
+            wordWrapWidth: 350,
+          },
+        },
       },
       controls: {
         x: boardX,
@@ -170,6 +217,12 @@ export class TrainingScene extends BaseScene {
       lineSpacing: 9,
       wordWrap: { width: this.trainingLayout.menu.detailWrapWidth },
     }).setDepth(2);
+
+    this.lessonVisualImage = this.add.image(
+      this.trainingLayout.focused.visual.image.x,
+      this.trainingLayout.focused.visual.image.y,
+      TRAINING_VISUAL_ASSETS[0].key,
+    ).setDepth(2).setVisible(false);
 
     this.controlsText = this.add.text(boardX, this.trainingLayout.controls.textY, '', {
       fontSize: '16px',

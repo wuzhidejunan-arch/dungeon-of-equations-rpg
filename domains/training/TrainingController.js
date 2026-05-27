@@ -23,11 +23,12 @@ import { isPrimeNumber } from '../../utils/battleMath.js';
 const TYPE_KEYS = ['zero', 'odd', 'even', 'prime'];
 const BEGINNER_STAGE2_STEP_TOTAL = 20;
 
-function getPreviousStageName(stageRegistry, stageId) {
+function getPreviousStageShortLabel(stageRegistry, stageId) {
   const stageIds = stageRegistry.getStageIds();
   const index = stageIds.indexOf(stageId);
   if (index <= 0) return 'the previous stage';
-  return stageRegistry.getStageName(stageIds[index - 1]);
+  const name = stageRegistry.getStageName(stageIds[index - 1]) || 'the previous stage';
+  return name.match(/^Stage\s+\d+/i)?.[0] || name;
 }
 
 export class TrainingController {
@@ -124,7 +125,10 @@ export class TrainingController {
 
     const stageId = stageIds[menuIndex];
     if (!isTesterMode() && !isTrainingStageUnlocked(stageId)) {
-      this.setMessage(`${this.stageRegistry.getStageName(stageId)} is locked. Clear ${getPreviousStageName(this.stageRegistry, stageId)} first.`, TRAINING_MODES.MENU);
+      this.setMessage(
+        `${this.stageRegistry.getStageName(stageId)} is locked.\n\nClear ${getPreviousStageShortLabel(this.stageRegistry, stageId)} first.`,
+        TRAINING_MODES.MENU,
+      );
       return;
     }
 
