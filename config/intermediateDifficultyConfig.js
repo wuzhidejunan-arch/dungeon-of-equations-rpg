@@ -22,7 +22,7 @@ export const intermediateDifficultyConfig = {
         tutorialTitle: 'Medium Stage 1',
         questionMode: 'multiple_choice',
         lessonPages: [
-          'Stage 1: Multiply\n\nMultiplication means equal groups.',
+          'Multiplication means equal groups.',
           'Example:\n3 x 4 means 3 groups of 4.',
           '4 + 4 + 4 = 12.\nSo 3 x 4 = 12.',
           'The first number tells how many groups.\nThe second number tells how many are in each group.',
@@ -33,6 +33,18 @@ export const intermediateDifficultyConfig = {
           'Read each math problem carefully.',
           'Press Enter to start Stage 1.',
         ],
+        lessonVisuals: {
+          1: {
+            key: 'mediumStage1GroupsOf4',
+            image: { x: 320, y: 280, width: 380, height: 200 },
+            text: { x: 155, y: 340, fontSize: '18px', wordWrapWidth: 350 },
+          },
+          2: {
+            key: 'mediumStage1RepeatedAddition',
+            image: { x: 400, y: 300, width: 550, height: 350 },
+            text: { x: 155, y: 360, fontSize: '18px', wordWrapWidth: 350 },
+          },
+        },
         passScore: 15,
         clearMessage: 'You beat Stage 1. You know the basics of multiplication.',
         failMessage: 'Not yet. Look at multiplication again and try again.',
@@ -65,7 +77,7 @@ export const intermediateDifficultyConfig = {
         tutorialTitle: 'Medium Stage 2',
         questionMode: 'multiple_choice',
         lessonPages: [
-          'Stage 2: Divide\n\nDivision means sharing equally.',
+          'Division means sharing equally.',
           'Example:\n12 ÷ 3 means share 12 into 3 equal groups.',
           'Each group gets 4.\nSo 12 ÷ 3 = 4.',
           'Ask,\n"How many are in each group?"',
@@ -76,6 +88,18 @@ export const intermediateDifficultyConfig = {
           'Read the numbers carefully.',
           'Press Enter to start Stage 2.',
         ],
+        lessonVisuals: {
+          1: {
+            key: 'mediumStage2Share12Into3',
+            image: { x: 400, y: 310, width: 550, height: 350 },
+            text: { x: 155, y: 370, fontSize: '18px', wordWrapWidth: 350 },
+          },
+          2: {
+            key: 'mediumStage2EachGroupGets4',
+            image: { x: 320, y: 280, width: 380, height: 200 },
+            text: { x: 155, y: 340, fontSize: '18px', wordWrapWidth: 350 },
+          },
+        },
         passScore: 15,
         clearMessage: 'You beat Stage 2. You know the basics of division.',
         failMessage: 'Not yet. Look at division again and try again.',
@@ -107,9 +131,7 @@ export const intermediateDifficultyConfig = {
         name: 'Stage 3 - Battle Practice',
         tutorialTitle: 'Medium Stage 3',
         lessonPages: [
-          `Stage 3: Guided battle practice
-
-This is a real battle.
+          `This is a real battle.
 Read the rule.
 Pick the right skill.
 Make the right answer.`,
@@ -195,5 +217,3 @@ Read the battle message after each action.`,
     },
   },
 };
-
-

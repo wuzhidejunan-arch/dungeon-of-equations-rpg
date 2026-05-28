@@ -21,23 +21,50 @@ export const challengeDifficultyConfig = {
         tutorialTitle: 'Challenge Stage 1',
         questionMode: 'multiple_choice',
         lessonPages: [
-          `Challenge uses two rows.
+          `This stage has two rows.
+The top row is Row 1.
+The bottom row is Row 2.`,
+          `Solve Row 1 first.
 
-First, solve Row 1.
-Row 1 makes an answer.
-That answer moves into Row 2.`,
-          `Next, use the Row 1 answer in Row 2.
-Do not pick a new first number for Row 2.`,
+The Row 1 answer becomes
+the first number in Row 2.`,
           `Example:
-3 x 4 = 12
-12 + 5 = 17
 
-The 12 moves forward.`,
+Row 1:
+3 x 4 = 12
+
+Row 2:
+12 + 5 = 17`,
+          `Do not choose a new first number
+for Row 2.
+
+Use the Row 1 answer.`,
           `Practice:
-First solve Row 1.
-Then use that answer in Row 2.`,
-          'Press Enter to start Stage 1.',
+
+1. Solve Row 1.
+2. Use the answer in Row 2.
+3. Solve Row 2.`,
+          `Now try it yourself.
+
+Press Enter to start.`,
         ],
+        lessonVisuals: {
+          0: {
+            key: 'challengeStage1RowLabels',
+            image: { x: 320, y: 300, width: 380, height: 200 },
+            text: { x: 155, y: 380, fontSize: '18px', wordWrapWidth: 330 },
+          },
+          1: {
+            key: 'challengeStage1AnswerFlow',
+            image: { x: 240, y: 320, width: 380, height: 200 },
+            text: { x: 400, y: 260, fontSize: '18px', wordWrapWidth: 330 },
+          },
+        },
+        lessonLayouts: {
+          2: {
+            text: { x: 155, y: 250, fontSize: '18px', wordWrapWidth: 350 },
+          },
+        },
         passScore: 7,
         clearMessage: 'You beat Stage 1. You can carry the Row 1 answer into Row 2.',
         failMessage: 'Not yet. Use the Row 1 answer again in Row 2.',
@@ -100,25 +127,51 @@ Then use that answer in Row 2.`,
         tutorialTitle: 'Challenge Stage 2',
         questionMode: 'multiple_choice',
         lessonPages: [
-          `The signs must stay in this order.
+          `This stage still has two rows.
+Row 1 must use x or ÷.`,
+          `Row 2 must use + or -.
 
-Row 1 uses \u00d7 or \u00f7.`,
-          `Row 2 uses + or \u2212.
+Do not switch the order.`,
+          `Correct order:
 
-Do not switch the signs.`,
-          `This order works:
-4 \u00d7 3 = 12
-12 \u2212 5 = 7`,
-          `This order does not work:
-4 + 3
-then \u00d7 2
+Row 1:
+4 x 3 = 12
 
-+ or \u2212 cannot come first.`,
+Row 2:
+12 - 5 = 7`,
+          `Wrong order:
+
+Row 1:
+8 + 4
+
+Row 2:
+12 ÷ 3
+
++ or - cannot be used in Row 1.`,
           `Practice:
-Choose the order that works.
-Find the order that does not work.`,
-          'Press Enter to start Stage 2.',
+
+1. Use x or ÷ in Row 1.
+2. Use + or - in Row 2.
+3. Keep the signs in order.`,
+          `Now try it yourself.
+
+Press Enter to start.`,
         ],
+        lessonVisuals: {
+          0: {
+            key: 'challengeStage2SignOrderRule',
+            image: { x: 290, y: 310, width: 320, height: 180 },
+            text: { x: 155, y: 400, fontSize: '18px', wordWrapWidth: 330 },
+          },
+        },
+        lessonLayouts: {
+          2: {
+            text: { x: 155, y: 240, fontSize: '18px', wordWrapWidth: 350 },
+          },
+          3: {
+            text: { x: 155, y: 230, fontSize: '18px', wordWrapWidth: 350 },
+          },
+        },
         passScore: 7,
         clearMessage: 'You beat Stage 2. You know the row order.',
         failMessage: 'Not yet. Remember: Row 1 is \u00d7 or \u00f7. Row 2 is + or \u2212.',
@@ -243,6 +296,3 @@ then use both rows for an attack skill.`,
     },
   },
 };
-
-
-

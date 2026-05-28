@@ -49,6 +49,34 @@ const TRAINING_VISUAL_ASSETS = [
     key: 'beginningStage2SubtractExample',
     path: 'assets/images/training/beginning_stage2_subtract_example.png',
   },
+  {
+    key: 'mediumStage1GroupsOf4',
+    path: 'assets/images/training/medium_stage1_groups_of_4.png',
+  },
+  {
+    key: 'mediumStage1RepeatedAddition',
+    path: 'assets/images/training/medium_stage1_repeated_addition.png',
+  },
+  {
+    key: 'mediumStage2Share12Into3',
+    path: 'assets/images/training/medium_stage2_share_12_into_3.png',
+  },
+  {
+    key: 'mediumStage2EachGroupGets4',
+    path: 'assets/images/training/medium_stage2_each_group_gets_4.png',
+  },
+  {
+    key: 'challengeStage1RowLabels',
+    path: 'assets/images/training/challenge_stage1_row_labels.png',
+  },
+  {
+    key: 'challengeStage1AnswerFlow',
+    path: 'assets/images/training/challenge_stage1_answer_flow.png',
+  },
+  {
+    key: 'challengeStage2SignOrderRule',
+    path: 'assets/images/training/challenge_stage2_sign_order_rule.png',
+  },
 ];
 
 export class TrainingScene extends BaseScene {

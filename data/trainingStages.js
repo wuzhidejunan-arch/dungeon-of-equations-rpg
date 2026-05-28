@@ -2,7 +2,7 @@ export const trainingStageData = {
   1: {
     id: 1,
     lessonPages: [
-      `Stage 1: Types of Numbers\n\nLearn 4 types of numbers:\nZero, odd, even, prime.`,
+      `Learn 4 types of numbers:\nZero, odd, even, prime.`,
       `Zero means none.\n0 is the only zero.\nExample: 0 apples.`,
       `Even numbers can be put in twos.\nNone is left.\nExamples: 2, 4, 6, 8.`,
       `Odd numbers can be put in twos.\nOne is left.\nExamples: 1, 3, 5, 7.`,
@@ -99,9 +99,7 @@ export const trainingStageData = {
   3: {
     id: 3,
     lessonPages: [
-      `Stage 3: Practice Battle
-
-Now use what you learned.`,
+      `Now use what you learned.`,
       `Stage 1 taught types of numbers.
 Stage 2 taught add and subtract.`,
       `Step 1: Choose Fight.`,

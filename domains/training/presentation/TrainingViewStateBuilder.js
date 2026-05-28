@@ -96,6 +96,10 @@ function getLessonVisual(stageRegistry, stageId, pageIndex) {
   return visual?.key ? visual : null;
 }
 
+function getLessonLayout(stageRegistry, stageId, pageIndex) {
+  return stageRegistry.getStageConfig(stageId)?.lessonLayouts?.[pageIndex] || null;
+}
+
 export class TrainingViewStateBuilder {
   build({ scene, stageRegistry }) {
     const mode = scene.mode;
@@ -175,6 +179,7 @@ export class TrainingViewStateBuilder {
         visible: true,
         text: scene.currentLessonPages[scene.lessonPageIndex] || '',
         visual: getLessonVisual(stageRegistry, stageId, scene.lessonPageIndex),
+        layout: getLessonLayout(stageRegistry, stageId, scene.lessonPageIndex),
       },
       controls: 'LEFT go back   ENTER next   ESC stage list',
       cursor: { visible: false, x: 0, y: 0 },

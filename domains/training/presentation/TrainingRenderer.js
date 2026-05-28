@@ -93,13 +93,32 @@ export class TrainingRenderer {
     node?.setText?.(text || '');
   }
 
+  renderContentTextLayout(scene, viewState) {
+    const textLayout = viewState?.content?.layout?.text || viewState?.content?.visual?.text || null;
+    if (!viewState?.content?.visible || !textLayout) {
+      return;
+    }
+
+    const focusedLayout = scene?.trainingLayout?.focused || {};
+    const defaultTextLayout = focusedLayout?.visual?.text || {};
+
+    scene.contentText?.setPosition?.(
+      textLayout.x ?? defaultTextLayout.x ?? focusedLayout.x,
+      textLayout.y ?? defaultTextLayout.y ?? focusedLayout.contentY,
+    );
+    scene.contentText?.setFontSize?.(
+      textLayout.fontSize ?? defaultTextLayout.fontSize ?? focusedLayout.fontSize ?? '18px',
+    );
+    scene.contentText?.setWordWrapWidth?.(
+      textLayout.wordWrapWidth ?? defaultTextLayout.wordWrapWidth ?? focusedLayout.wrapWidth,
+    );
+  }
+
   renderContentVisual(scene, viewState) {
     const visual = viewState?.content?.visual || null;
     const visualLayout = scene?.trainingLayout?.focused?.visual || {};
     const defaultImageLayout = visualLayout.image || visualLayout;
-    const defaultTextLayout = visualLayout.text || {};
     const imageLayout = visual?.image || visual || {};
-    const textLayout = visual?.text || {};
     const hasVisual = Boolean(
       viewState?.content?.visible
         && visual?.key
@@ -122,12 +141,6 @@ export class TrainingRenderer {
         imageLayout.height ?? defaultImageLayout.height,
       )
       ?.setVisible?.(true);
-    scene.contentText?.setPosition?.(
-      textLayout.x ?? defaultTextLayout.x,
-      textLayout.y ?? defaultTextLayout.y,
-    );
-    scene.contentText?.setFontSize?.(textLayout.fontSize ?? defaultTextLayout.fontSize);
-    scene.contentText?.setWordWrapWidth?.(textLayout.wordWrapWidth ?? defaultTextLayout.wordWrapWidth);
   }
 
   render(scene, viewState) {
@@ -148,6 +161,7 @@ export class TrainingRenderer {
     this.setNodeVisible(scene.contentPanel, Boolean(viewState?.content?.visible));
     this.setNodeVisible(scene.contentText, Boolean(viewState?.content?.visible));
     this.setText(scene.contentText, viewState?.content?.text || '');
+    this.renderContentTextLayout(scene, viewState);
     this.renderContentVisual(scene, viewState);
 
     this.setNodeVisible(scene.controlsPanel, true);
