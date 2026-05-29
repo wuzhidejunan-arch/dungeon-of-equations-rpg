@@ -52,7 +52,7 @@ const BOOK_PANEL_LAYOUT = {
 };
 
 function getShopDisplayName(item) {
-  return item?.name === "Potion" ? "Health Potion" : item?.name || "";
+  return item?.name === "Potion" ? "Potion" : item?.name || "";
 }
 
 function getShopItemDescription(item) {
@@ -844,7 +844,7 @@ export class WorldScene extends BaseScene {
       .setVisible(false);
     this.shopHelpText.setPosition(400, shopHelpY);
     this.shopHelpText.setOrigin(0.5);
-    this.shopHelpText.setText("Up / Down: Move    Enter: Buy    ESC: Close");
+    this.shopHelpText.setText("Up / Down: Move   Enter: Buy   Esc: Close");
   }
 
   setShopUIVisible(visible) {

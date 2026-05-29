@@ -2,13 +2,13 @@
   {
     key: 'beginner',
     title: '1. Beginner',
-    lines: ['Use + and -', 'Start here', 'Learn simple rules'],
+    lines: ['Use + and −', 'Start here', 'Learn simple rules'],
     active: true,
   },
   {
     key: 'intermediate',
     title: '2. Medium',
-    lines: ['Use x and ÷', 'After Beginner', 'Use the right skills'],
+    lines: ['Use × and ÷', 'After Beginner', 'Use the right skills'],
     active: true,
   },
   {

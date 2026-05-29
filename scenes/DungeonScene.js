@@ -281,7 +281,7 @@ export class DungeonScene extends BaseScene {
       .setDepth(1202)
       .setScrollFactor(0)
       .setVisible(false);
-    this.finalClearBodyText = this.add.text(400, 292, 'Level Complete!', {
+    this.finalClearBodyText = this.add.text(400, 292, 'Dungeon Clear!', {
       fontSize: '27px',
       color: '#fff0b8',
       fontStyle: 'bold',

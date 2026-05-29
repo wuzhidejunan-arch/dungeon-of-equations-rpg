@@ -165,7 +165,7 @@ export class BattleSceneRenderer {
         fontSize: compact ? '14px' : '16px',
         lineSpacing: compact ? 6 : 10,
       });
-      scene.renderResultText?.(getBattleText('prompts.itemMenuEmpty', 'Bag is empty. Esc to go back.'), battleResultPhases.RESULT_ITEM);
+      scene.renderResultText?.(getBattleText('prompts.itemMenuEmpty', 'Bag is empty. Press Esc to go back.'), battleResultPhases.RESULT_ITEM);
       scene.updateCommandCursor?.();
       return;
     }
@@ -180,7 +180,7 @@ export class BattleSceneRenderer {
       useSharedItemMenuRows: true,
       itemLines,
     });
-    scene.renderResultText?.(getBattleText('prompts.itemMenu', 'Choose an item. Esc to go back.'), battleResultPhases.RESULT_ITEM);
+    scene.renderResultText?.(getBattleText('prompts.itemMenu', 'Choose an item. Press Esc to go back.'), battleResultPhases.RESULT_ITEM);
     scene.updateCommandCursor?.();
   }
 

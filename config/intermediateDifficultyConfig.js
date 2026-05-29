@@ -159,7 +159,7 @@ It tells you what to do next.
 Read the battle message after each action.`,
           'Press Enter to start the guided battle.',
         ],
-        clearMessage: 'Medium Level complete! You can use these battle steps now. Try Challenge next.',
+        clearMessage: 'Medium Dungeon Clear! You can use these battle steps now. Try Challenge next.',
         failMessage: 'Stage 3 not yet. Read the guide messages and try again.',
         battle: {
           enemyDataKey: 'intermediate_armorDummy',
@@ -190,7 +190,7 @@ Read the battle message after each action.`,
         lockedBack: 'Stay in this lesson battle.',
         lockedBuilderBack: 'Finish this practice step first.',
         wrongSkill: 'Use {skill} for this step.',
-        incompleteBuilder: 'Fill all 3 slots first. Then make sure your answer is even.',
+        incompleteBuilder: 'Fill all 3 boxes first. Then make sure your answer is even.',
         wrongResult: 'Heavy Strike needs an even answer. Try again.',
       },
       turnNumberSets: {

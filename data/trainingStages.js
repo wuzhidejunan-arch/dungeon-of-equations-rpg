@@ -64,8 +64,8 @@ export const trainingStageData = {
     lessonPages: [
       `Addition means putting things together.\n\nUse + to add.`,
       `Example:\n4 + 2 = 6.\n\nThen 6 is an even number.`,
-      `Subtraction means taking things away.\n\nUse - to subtract.`,
-      `Example:\n5 - 2 = 3.\n\nThen 3 is a prime number.`,
+      `Subtraction means taking things away.\n\nUse − to subtract.`,
+      `Example:\n5 − 2 = 3.\n\nThen 3 is a prime number.`,
       `There are 10 questions.\nEach question has 2 steps.`,
       `Goal: Get 15 points.\nPart 1: Solve the math.\nPart 2: Choose the number kind.`,
       `Start when you are ready.\nPress Enter.`,

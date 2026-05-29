@@ -89,7 +89,7 @@ export function finalizeTurnReturn(scene, options = {}) {
 
   if (returnMenu === battleReturnMenus.ITEM) {
     scene.openItemMenu();
-    scene.renderResultText(returnPrompt || getBattleUIText('prompts.itemMenu', 'Choose an item. Esc to go back.'), battleResultPhases.RESULT_ITEM);
+    scene.renderResultText(returnPrompt || getBattleUIText('prompts.itemMenu', 'Choose an item. Press Esc to go back.'), battleResultPhases.RESULT_ITEM);
     return;
   }
 

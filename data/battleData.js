@@ -234,17 +234,17 @@ export const intermediatePlayerSkillDefinitions = [
     operationType: 'divide',
     ui: {
       showInMenu: true,
-      description: 'Use division to lower enemy attack.',
+      description: "Use division to lower the monster's attack.",
       menuInfo: { label: 'Kind', value: 'Weaker Hit' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
-        ready: 'Enemy attack down.',
-        blocked: 'No damage, but enemy attack went down.',
+        ready: 'Monster attack down.',
+        blocked: "No damage, but the monster's attack went down.",
       },
     },
     condition: { type: 'operation_is', value: 'divide' },
-    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'attackDown', multiplier: 0.5, turns: 3, message: 'Enemy attack is down for {turns} turns.' }],
+    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'attackDown', multiplier: 0.5, turns: 3, message: 'Monster attack is down for {turns} turns.' }],
     damageFormula: null,
   }),
 ];
@@ -299,7 +299,7 @@ export const challengePlayerSkillDefinitions = [
     maxPp: 5,
     ui: {
       showInMenu: true,
-      description: 'Block the next enemy attack.',
+      description: 'Block the next monster attack.',
       menuInfo: { label: 'Kind', value: 'Defend' },
       textTemplates: {
         success: '{skill} works.',

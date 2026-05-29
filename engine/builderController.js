@@ -939,7 +939,7 @@ export function openBuilder(scene, actionType) {
   }
 
   const builderStartText = scene.difficultyKey === 'beginner'
-    ? 'Put numbers and + or - in the boxes. Press Enter.'
+    ? 'Put numbers and + or − in the boxes. Press Enter.'
     : formatBattleTemplate(getBattleUIText('prompts.builderStart', '{skill}! Make the right answer.'), { skill: chosenSkill.name });
 
   scene.renderResultText(
@@ -1219,7 +1219,7 @@ export function confirmBuilderAction(scene) {
 
   if (!leftCard || !opCard || !rightCard) {
     playSfx(scene, audioKeys.sfx.answerWrong);
-    scene.renderResultText(formatTutorialTemplate(scene, 'incompleteBuilder', { rule: scene.getTrainingRequiredRuleLabel?.() || 'even' }, 'Fill all 3 slots first.'), battleResultPhases.INFO);
+    scene.renderResultText(formatTutorialTemplate(scene, 'incompleteBuilder', { rule: scene.getTrainingRequiredRuleLabel?.() || 'even' }, 'Fill all 3 boxes first.'), battleResultPhases.INFO);
     return;
   }
 

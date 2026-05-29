@@ -95,7 +95,7 @@ Press Enter to start.`,
             answer: 4,
           },
           {
-            expression: 'Row 1: 2 × 4 = 8\nThen 8 - 3 = ?',
+            expression: 'Row 1: 2 × 4 = 8\nThen 8 − 3 = ?',
             options: [3, 4, 5, 6],
             answer: 5,
           },

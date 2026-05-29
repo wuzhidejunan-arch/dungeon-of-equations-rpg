@@ -150,7 +150,7 @@ export class TrainingViewStateBuilder {
         visible: false,
         text: '',
       },
-      controls: 'UP / DOWN move   ENTER choose   ESC go back',
+      controls: 'Up / Down: Move   Enter: Choose   Esc: Back',
       cursor: {
         visible: true,
         x: MENU_CURSOR.x,
@@ -181,7 +181,7 @@ export class TrainingViewStateBuilder {
         visual: getLessonVisual(stageRegistry, stageId, scene.lessonPageIndex),
         layout: getLessonLayout(stageRegistry, stageId, scene.lessonPageIndex),
       },
-      controls: 'LEFT go back   ENTER next   ESC stage list',
+      controls: 'Left: Back   Enter: Next   Esc: Stage List',
       cursor: { visible: false, x: 0, y: 0 },
     };
   }
@@ -291,7 +291,7 @@ export class TrainingViewStateBuilder {
         visible: true,
         text: scene.messageTextValue || '',
       },
-      controls: 'ENTER: Continue   ESC: Go back',
+      controls: 'Enter: Continue   Esc: Back',
       cursor: { visible: false, x: 0, y: 0 },
     };
   }

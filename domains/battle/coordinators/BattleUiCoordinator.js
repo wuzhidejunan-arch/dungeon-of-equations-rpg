@@ -437,7 +437,7 @@ export class BattleUiCoordinator {
         fontSize: compact ? '14px' : '16px',
         lineSpacing: compact ? 6 : 10,
       });
-      this.renderResultText(getBattleText('prompts.itemMenuEmpty', 'Bag is empty. Esc to go back.'), battleResultPhases.RESULT_ITEM);
+      this.renderResultText(getBattleText('prompts.itemMenuEmpty', 'Bag is empty. Press Esc to go back.'), battleResultPhases.RESULT_ITEM);
       scene.updateCommandCursor?.();
       return;
     }
@@ -452,7 +452,7 @@ export class BattleUiCoordinator {
       useSharedItemMenuRows: true,
       itemLines,
     });
-    this.renderResultText(getBattleText('prompts.itemMenu', 'Choose an item. Esc to go back.'), battleResultPhases.RESULT_ITEM);
+    this.renderResultText(getBattleText('prompts.itemMenu', 'Choose an item. Press Esc to go back.'), battleResultPhases.RESULT_ITEM);
     scene.updateCommandCursor?.();
   }
 
