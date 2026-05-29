@@ -38,7 +38,7 @@ function getGuidedIntermediateRuleText(scene) {
     return '';
   }
 
-  return `Rule: Your answer must be ${getEnemyRuleSummaryText(scene.enemy)}.\nArmor blocks big damage. Use Armor Break first.`;
+  return `Rule: Your answer must be ${getEnemyRuleSummaryText(scene.enemy)}.\nUse Armor Break to break armor.`;
 }
 
 function getEnemyRulePanelText(scene) {

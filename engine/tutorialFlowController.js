@@ -114,7 +114,7 @@ export function validateTutorialBuilderAction(scene, payload = {}) {
     message: [
       `You used ${skill?.name || 'this skill'}.`,
       `Your answer was ${result}.`,
-      `This monster needs an ${requiredRule} answer.`,
+      `This monster needs the correct answer type.`,
       formatTutorialTemplate(scene, 'wrongResult', { skill: skill?.name || 'Skill', rule: requiredRule }, 'Right skill, but the answer was wrong. Try again.'),
     ].join('\n'),
   };
@@ -160,7 +160,7 @@ export function getTutorialHelperText(scene) {
 
   if (config.guideMode === 'challenge_overview') {
     if (scene.menuState === 'dialog') {
-      return 'Read the answer text. It tells you if the skill worked.';
+      return 'Read the battle message. It tells you if the skill worked.';
     }
 
     if (scene.builderActive || scene.menuState === 'builder') {
@@ -170,7 +170,7 @@ export function getTutorialHelperText(scene) {
     if (scene.menuState === 'skill') {
       const skill = scene.playerSkills?.[scene.selectedSkillIndex];
       if (skill?.category === 'attack') {
-        return `${skill.name} uses both rows. Only Row 2 answer counts for the rule.`;
+        return `${skill.name} uses both rows. Only the final answer counts for the rule.`;
       }
 
       if (skill?.category === 'guard' || skill?.category === 'buff') {
@@ -198,7 +198,7 @@ export function getTutorialHelperText(scene) {
     }
 
     if (scene.builderActive || scene.menuState === 'builder') {
-      return formatTutorialTemplate(scene, 'builder', { skill: needSkill, rule: needRule }, `Step 3: Make a ${needRule} answer using + or -. Press Enter.`);
+      return formatTutorialTemplate(scene, 'builder', { skill: needSkill, rule: needRule }, `Step 3: Make a ${needRule} answer using + or −. Press Enter.`);
     }
 
     if (scene.menuState === 'skill') {
@@ -213,7 +213,7 @@ export function getTutorialHelperText(scene) {
       return formatTutorialTemplate(scene, 'mainFightSelected', { skill: needSkill, rule: needRule }, 'Step 1: Choose Fight.');
     }
 
-    return formatTutorialTemplate(scene, 'fallback', { skill: needSkill, rule: needRule }, `Choose Fight. Use ${needSkill}. Make a ${needRule} answer using + or -.`);
+    return formatTutorialTemplate(scene, 'fallback', { skill: needSkill, rule: needRule }, `Choose Fight. Use ${needSkill}. Make a ${needRule} answer using + or −.`);
   }
 
   if (scene.menuState === 'dialog') {

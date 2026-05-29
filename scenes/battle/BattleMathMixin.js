@@ -74,7 +74,7 @@ export const BattleMathMixin = {
       return {
         success: false,
         code: 'invalid_step2_operator',
-        message: 'Row 2 must use + or -.',
+        message: 'Row 2 must use + or −.',
       };
     }
 
@@ -324,7 +324,7 @@ export const BattleMathMixin = {
     const allowedOperators = Array.isArray(this.availableOperators) ? this.availableOperators : null;
     return Array.isArray(this.enemy?.rules) && this.enemy.rules.some((rule) => (
       rule?.type === 'accept_result_rule'
-        ? hasCombinationForRuleInPool(values, rule.value, { allowedOperators, target: rule.target })
+        ? hasCombinationForRuleInPool(values, rule.value, { allowedOperators, target: rule.target, divisor: rule.divisor })
         : false
     ));
   },

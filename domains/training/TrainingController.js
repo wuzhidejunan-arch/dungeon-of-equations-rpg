@@ -607,13 +607,13 @@ function buildChallengeStage2Feedback(expression, answer, pickedValue, correct) 
   const prompt = String(expression || '').trim();
   let explanation = `The answer is ${answer}.`;
 
-  if (prompt === 'Which sign can Row 1 use?') {
+  if (prompt === 'Which operator can Row 1 use?') {
     explanation = `Row 1 can use ${answer}.`;
-  } else if (prompt === 'Which sign can Row 2 use?') {
+  } else if (prompt === 'Which operator can Row 2 use?') {
     explanation = `Row 2 can use ${answer}.`;
-  } else if (prompt === 'Which sign cannot go in Row 1?') {
+  } else if (prompt === 'Which operator cannot go in Row 1?') {
     explanation = `${answer} cannot go in Row 1.`;
-  } else if (prompt === 'Which sign cannot go in Row 2?') {
+  } else if (prompt === 'Which operator cannot go in Row 2?') {
     explanation = `${answer} cannot go in Row 2.`;
   } else if (
     prompt === 'Which order is right?'

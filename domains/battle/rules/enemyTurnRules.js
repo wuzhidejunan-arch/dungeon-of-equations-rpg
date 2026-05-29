@@ -103,7 +103,7 @@ export function formatEnemyTurnRule(ctx) {
   if (ctx.stop) return ctx;
 
   ctx.line = formatBattleTemplate(
-    getEntityUIText(ctx.enemySkill, 'resultText', getBattleUIText('resultText.enemyUsedSkill', '{enemy} used {skill} and dealt {amount} damage.')),
+    getEntityUIText(ctx.enemySkill, 'resultText', getBattleUIText('resultText.enemyUsedSkill', '{enemy} used {skill}. You took {amount} damage.')),
     { enemy: ctx.scene.enemy.name, skill: ctx.enemySkill.name, amount: ctx.damage },
   );
 

@@ -11,15 +11,15 @@ export const battleRules = {
   even: {
     id: 'even',
     label: 'Even',
-    shortText: 'Your answer must be even',
+    shortText: 'Your answer must be even.',
     needText: 'an even answer',
-    goalText: 'Make an even number.',
+    goalText: 'Make an even answer.',
     condition: { type: 'result_rule', value: 'even' },
   },
   odd: {
     id: 'odd',
     label: 'Odd',
-    shortText: 'Your answer must be odd',
+    shortText: 'Your answer must be odd.',
     needText: 'an odd answer',
     goalText: 'Make an odd answer.',
     condition: { type: 'result_rule', value: 'odd' },
@@ -27,15 +27,15 @@ export const battleRules = {
   zero: {
     id: 'zero',
     label: 'Zero',
-    shortText: 'Make 0',
+    shortText: 'Your answer must be 0.',
     needText: 'an answer of 0',
-    goalText: 'Make 0 to block 1 hit.',
+    goalText: 'Make 0 to block one hit.',
     condition: { type: 'result_rule', value: 'zero' },
   },
   prime: {
     id: 'prime',
     label: 'Prime',
-    shortText: 'Your answer must be prime',
+    shortText: 'Your answer must be prime.',
     needText: 'a prime answer',
     goalText: 'Make a prime answer.',
     condition: { type: 'result_rule', value: 'prime' },
@@ -143,7 +143,7 @@ export const beginnerPlayerSkillDefinitions = [
     maxPp: 15,
     ui: {
       showInMenu: true,
-      description: 'Guard if the answer is zero.',
+      description: 'Guard if the answer is 0.',
       menuInfo: { label: 'Kind', value: 'Guard' },
       textTemplates: {
         success: '{skill} works.',
@@ -217,12 +217,12 @@ export const intermediatePlayerSkillDefinitions = [
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
-        ready: 'Monster weaker.',
-        blocked: 'No damage, but monster got weaker.',
+        ready: 'Monster defense down.',
+        blocked: 'No damage, but monster defense went down.',
       },
     },
     condition: { type: 'operation_is', value: 'divide' },
-    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'defenseDown', multiplier: 0.5, turns: 3, message: 'Monster is weaker for {turns} turns.' }],
+    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'defenseDown', multiplier: 0.5, turns: 3, message: 'Monster defense is down for {turns} turns.' }],
     damageFormula: null,
   }),
   createSkill({
@@ -234,17 +234,17 @@ export const intermediatePlayerSkillDefinitions = [
     operationType: 'divide',
     ui: {
       showInMenu: true,
-      description: 'Use division to make the monster hit weaker.',
+      description: 'Use division to lower enemy attack.',
       menuInfo: { label: 'Kind', value: 'Weaker Hit' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
-        ready: 'Monster hit weaker.',
-        blocked: 'No damage, but monster hit got weaker.',
+        ready: 'Enemy attack down.',
+        blocked: 'No damage, but enemy attack went down.',
       },
     },
     condition: { type: 'operation_is', value: 'divide' },
-    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'attackDown', multiplier: 0.5, turns: 3, message: 'Monster hit is weaker for {turns} turns.' }],
+    effects: [{ type: 'addTimedEnemyDebuff', debuff: 'attackDown', multiplier: 0.5, turns: 3, message: 'Enemy attack is down for {turns} turns.' }],
     damageFormula: null,
   }),
 ];
@@ -278,7 +278,7 @@ export const challengePlayerSkillDefinitions = [
     maxPp: 10,
     ui: {
       showInMenu: true,
-      description: 'Build a chain. Final answer must be more than 10.',
+      description: 'Build a chain. The final answer must be more than 10.',
       menuInfo: { label: 'Kind', value: 'Heavy' },
       textTemplates: {
         success: '{skill} works.',
@@ -309,7 +309,7 @@ export const challengePlayerSkillDefinitions = [
       },
     },
     condition: { type: 'skill_category', value: 'guard' },
-    effects: [{ type: 'addTimedBuff', buff: 'defenseBoost', multiplier: 0, turns: 1, message: 'Defense up! {reduction}% less damage for {turns} turn.' }],
+    effects: [{ type: 'addTimedBuff', buff: 'defenseBoost', multiplier: 0, turns: 1, message: 'Defense up! Take {reduction}% less damage for {turns} turn.' }],
   }),
   createSkill({
     id: 'challengeSelfBuff',
@@ -344,15 +344,15 @@ export const attackBonusDefinitions = {
   guard: {
     id: 'guard',
     name: 'SAFE HIT',
-    resultText: 'Next turn bonus ready: Attack and block.',
-    logText: 'Next bonus set: Attack and block.',
+    resultText: 'Next-turn bonus ready: Attack and block.',
+    logText: 'Next-turn bonus set: Attack and block.',
     effects: [{ type: 'setNextAttackBonus', bonus: 'guard' }],
   },
   double: {
     id: 'double',
     name: 'POWER HIT',
-    resultText: 'Next turn bonus ready: Double damage.',
-    logText: 'Next bonus set: Double damage.',
+    resultText: 'Next-turn bonus ready: Double damage.',
+    logText: 'Next-turn bonus set: Double damage.',
     effects: [{ type: 'setNextAttackBonus', bonus: 'double' }],
   },
 };
@@ -422,7 +422,7 @@ export const itemDefinitions = {
     canUse: () => true,
     failMessage: 'This item cannot be used now.',
     effects: [{ type: 'addChainCount', amount: 2, message: 'Chain +{amount}.' }],
-    ui: { resultText: 'Add 2 to Chain.' },
+    ui: { resultText: 'Add 2 Chain.' },
   }),
 };
 

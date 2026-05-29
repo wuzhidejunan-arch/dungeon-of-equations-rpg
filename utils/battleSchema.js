@@ -65,6 +65,9 @@ export function describeEnemyRule(rule) {
   if (rule.value === 'exact') {
     return `exactly ${rule.target}`;
   }
+  if (rule.value === 'multipleOf') {
+    return `multiple of ${rule.divisor}`;
+  }
   return `${rule.value}`;
 }
 
@@ -110,8 +113,8 @@ export function getSafeBattleSkillHint({ enemy = null, skills = [], difficultyKe
     rule: enemyRule,
     skillName,
     tipText: `Tip: Use ${skillName}.`,
-    instructionText: `Make ${article} ${enemyRule} number.`,
-    failureText: 'Wrong result type.',
+    instructionText: `Make ${article} ${enemyRule} answer.`,
+    failureText: 'Wrong answer type.',
     retryText: `Use ${skillName}.`,
   };
 }
@@ -119,13 +122,15 @@ export function getSafeBattleSkillHint({ enemy = null, skills = [], difficultyKe
 export function getBuilderAnswerInstruction(rule) {
   switch (`${rule || ''}`.toLowerCase()) {
     case 'even':
-      return 'Make an even number.';
+      return 'Make an even answer.';
     case 'odd':
       return 'Make an odd answer.';
     case 'prime':
       return 'Make a prime answer.';
     case 'zero':
-      return 'Make zero.';
+      return 'Make 0.';
+    case 'multipleof':
+      return 'Make a matching multiple.';
     default:
       return 'Make any answer.';
   }
@@ -242,7 +247,7 @@ export function getSkillOperationLabel(skill) {
     return getBattleUIValue('skillOperationDivide', '÷');
   }
   if (getSkillPrimaryRule(skill)) {
-    return getBattleUIValue('skillOperationAddSubtract', '+ or -');
+    return getBattleUIValue('skillOperationAddSubtract', '+ or −');
   }
   if (skill?.condition?.type === 'skill_category' && skill?.category === 'attack') {
     return getBattleUIValue('skillOperationTwoRows', 'two rows');
@@ -312,7 +317,7 @@ function getSkillEffectSummary(skill) {
     const chainScale = formula.chainScale ?? 0;
     return {
       label: getBattleUIValue('skillInfoLabelDamage', 'Damage'),
-      value: getBattleUIValue('skillInfoValueChain', `${base}+Chainx${chainScale}`, { base, chainScale }),
+      value: getBattleUIValue('skillInfoValueChain', `${base} + Chain × ${chainScale}`, { base, chainScale }),
     };
   }
 
@@ -320,7 +325,7 @@ function getSkillEffectSummary(skill) {
     const mult = formula.multiplier ?? 1;
     return {
       label: getBattleUIValue('skillInfoLabelPower', 'Power'),
-      value: getBattleUIValue('skillInfoValueResultBased', `Result x${mult}`, { multiplier: mult }),
+      value: getBattleUIValue('skillInfoValueResultBased', `Result × ${mult}`, { multiplier: mult }),
     };
   }
 

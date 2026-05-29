@@ -31,7 +31,7 @@ the first number in Row 2.`,
           `Example:
 
 Row 1:
-3 x 4 = 12
+3 × 4 = 12
 
 Row 2:
 12 + 5 = 17`,
@@ -70,12 +70,12 @@ Press Enter to start.`,
         failMessage: 'Not yet. Use the Row 1 answer again in Row 2.',
         questions: [
           {
-            expression: 'Row 1: 3 x 2 = 6\nWhat number goes first in Row 2?',
+            expression: 'Row 1: 3 × 2 = 6\nWhat number goes first in Row 2?',
             options: [6, 2, 3, 5],
             answer: 6,
           },
           {
-            expression: 'Row 1: 4 x 2 = 8\nThen 8 + 3 = ?',
+            expression: 'Row 1: 4 × 2 = 8\nThen 8 + 3 = ?',
             options: [9, 10, 11, 12],
             answer: 11,
           },
@@ -85,7 +85,7 @@ Press Enter to start.`,
             answer: '2',
           },
           {
-            expression: 'Row 1: 5 x 2 = 10\nCan Row 2 start with 7?',
+            expression: 'Row 1: 5 × 2 = 10\nCan Row 2 start with 7?',
             options: ['Yes', 'No', 'Only if the rule changes', 'Only on Heavy Attack'],
             answer: 'No',
           },
@@ -95,12 +95,12 @@ Press Enter to start.`,
             answer: 4,
           },
           {
-            expression: 'Row 1: 2 x 4 = 8\nThen 8 - 3 = ?',
+            expression: 'Row 1: 2 × 4 = 8\nThen 8 - 3 = ?',
             options: [3, 4, 5, 6],
             answer: 5,
           },
           {
-            expression: 'Row 1: 7 x 1 = 7\nWhat number goes first in Row 2?',
+            expression: 'Row 1: 7 × 1 = 7\nWhat number goes first in Row 2?',
             options: ['1', '7', '8', 'Any number'],
             answer: '7',
           },
@@ -110,7 +110,7 @@ Press Enter to start.`,
             answer: 'No',
           },
           {
-            expression: 'Row 1: 3 x 3 = 9\nThen 9 + 2 = ?',
+            expression: 'Row 1: 3 × 3 = 9\nThen 9 + 2 = ?',
             options: [10, 11, 12, 13],
             answer: 11,
           },
@@ -123,22 +123,22 @@ Press Enter to start.`,
       },
       202: {
         id: 202,
-        name: 'Stage 2 - Sign Order',
+        name: 'Stage 2 - Operator Order',
         tutorialTitle: 'Challenge Stage 2',
         questionMode: 'multiple_choice',
         lessonPages: [
           `This stage still has two rows.
-Row 1 must use x or ÷.`,
-          `Row 2 must use + or -.
+Row 1 must use × or ÷.`,
+          `Row 2 must use + or −.
 
-Do not switch the order.`,
+Keep the operators in order.`,
           `Correct order:
 
 Row 1:
-4 x 3 = 12
+4 × 3 = 12
 
 Row 2:
-12 - 5 = 7`,
+12 − 5 = 7`,
           `Wrong order:
 
 Row 1:
@@ -147,12 +147,12 @@ Row 1:
 Row 2:
 12 ÷ 3
 
-+ or - cannot be used in Row 1.`,
++ or − cannot be used in Row 1.`,
           `Practice:
 
-1. Use x or ÷ in Row 1.
-2. Use + or - in Row 2.
-3. Keep the signs in order.`,
+1. Use × or ÷ in Row 1.
+2. Use + or − in Row 2.
+3. Keep the operators in order.`,
           `Now try it yourself.
 
 Press Enter to start.`,
@@ -177,12 +177,12 @@ Press Enter to start.`,
         failMessage: 'Not yet. Remember: Row 1 is \u00d7 or \u00f7. Row 2 is + or \u2212.',
         questions: [
           {
-            expression: 'Which sign can Row 1 use?',
+            expression: 'Which operator can Row 1 use?',
             options: ['+', '\u2212', '\u00d7', 'Both + and \u2212'],
             answer: '\u00d7',
           },
           {
-            expression: 'Which sign can Row 2 use?',
+            expression: 'Which operator can Row 2 use?',
             options: ['\u00d7', '\u00f7', '+', 'Both \u00d7 and \u00f7'],
             answer: '+',
           },
@@ -197,12 +197,12 @@ Press Enter to start.`,
             answer: '+ then \u00d7',
           },
           {
-            expression: 'Which sign cannot go in Row 1?',
+            expression: 'Which operator cannot go in Row 1?',
             options: ['\u00d7', '\u00f7', '+', 'Both \u00d7 and \u00f7'],
             answer: '+',
           },
           {
-            expression: 'Which sign cannot go in Row 2?',
+            expression: 'Which operator cannot go in Row 2?',
             options: ['+', '\u2212', '\u00f7', 'Both + and \u2212'],
             answer: '\u00f7',
           },
@@ -236,12 +236,12 @@ Press Enter to start.`,
           `Stage 3 is real Challenge practice.
 
 This time you will use the real skills.`,
-          `Only the last answer counts.
+          `Only the final answer counts.
 Row 1 alone does not count.`,
           `Normal Attack:
-works when the last answer matches the rule.`,
+works when the final answer matches the rule.`,
           `Heavy Attack:
-also needs the last answer to be more than 10.`,
+also needs the final answer to be more than 10.`,
           `Defend and Self Buff help right away.
 They do not use the math boxes.`,
           `In the practice battle:

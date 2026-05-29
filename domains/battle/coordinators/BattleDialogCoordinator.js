@@ -121,7 +121,12 @@ export class BattleDialogCoordinator {
   handleDialogInput() {
     const scene = this.scene;
     if (scene.feedbackDelayActive) return;
-    if (Phaser.Input.Keyboard.JustDown(scene.keyENTER)) {
+    const enterPressed = Phaser.Input.Keyboard.JustDown(scene.keyENTER);
+    const guidedSpacePressed = scene.isTrainingGuideBattle?.()
+      && scene.keySPACE
+      && Phaser.Input.Keyboard.JustDown(scene.keySPACE);
+
+    if (enterPressed || guidedSpacePressed) {
       scene.acknowledgeTrainingGuideDialog?.();
       this.showNextDialogLine();
     }

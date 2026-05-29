@@ -6,7 +6,7 @@ export const battleFeedbackSpec = {
     },
     failure: {
       label: 'Fail',
-      detail: 'Skill rule not met. No damage.',
+      detail: 'The skill or answer was not correct. No damage.',
     },
     ineffective: {
       label: 'Blocked',
@@ -16,11 +16,11 @@ export const battleFeedbackSpec = {
   intermediate: {
     success: {
       label: 'Success',
-      detail: 'Right skill. Full answer applied.',
+      detail: 'Right skill. Full effect applied.',
     },
     failure: {
       label: 'Fail',
-      detail: 'Wrong skill for this step. No damage.',
+      detail: 'The skill or answer was not correct. No damage.',
     },
     ineffective: {
       label: 'Blocked',

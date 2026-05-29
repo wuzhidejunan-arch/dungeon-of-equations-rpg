@@ -58,7 +58,7 @@ export function resolveDamageFromFormula(scene, formula = {}, context = {}) {
 
 export function getDefaultMessage(type, amount) {
   if (type === 'damage_enemy') return getBattleSystemText('damageEnemy', `Hit! ${amount} damage.`, { amount });
-  if (type === 'damage_player') return getBattleSystemText('damagePlayer', `${amount} damage to player.`, { amount });
+  if (type === 'damage_player') return getBattleSystemText('damagePlayer', `$You took {amount} damage.`, { amount });
   return '';
 }
 

@@ -102,6 +102,9 @@ export function hasCombinationForRule(values, targetRule, context = {}) {
   if (targetRule === 'exact') {
     return hasCombinationForCondition(values, { type: 'result_rule', value: 'exact', target: context.target }, context);
   }
+  if (targetRule === 'multipleOf') {
+    return hasCombinationForCondition(values, { type: 'result_rule', value: 'multipleOf', divisor: context.divisor }, context);
+  }
 
   const rule = getRuleConfig(targetRule);
   return Boolean(rule?.condition) && hasCombinationForCondition(values, rule.condition, context);

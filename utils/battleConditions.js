@@ -56,6 +56,10 @@ export function checkBattleCondition(context, condition) {
       if (condition.value === 'odd') return Math.abs(result % 2) === 1;
       if (condition.value === 'prime') return isPrimeNumber(result);
       if (condition.value === 'exact') return normalizeNumber(result, NaN) === normalizeNumber(condition.target, NaN);
+      if (condition.value === 'multipleOf') {
+        const divisor = normalizeNumber(condition.divisor, NaN);
+        return Number.isInteger(result) && result !== 0 && Number.isFinite(divisor) && divisor !== 0 && result % divisor === 0;
+      }
       return false;
 
     case 'result_at_least':

@@ -70,7 +70,7 @@ function resolveEnemyTurnLegacy(scene, { activeBonus = null } = {}) {
   const resolvedActiveBonus = damageResult.blockSource === 'guardBonus' ? 'guard' : activeBonus;
 
   let line = formatBattleTemplate(
-    getEntityUIText(enemySkill, 'resultText', getBattleUIText('resultText.enemyUsedSkill', '{enemy} used {skill} and dealt {amount} damage.')),
+    getEntityUIText(enemySkill, 'resultText', getBattleUIText('resultText.enemyUsedSkill', '{enemy} used {skill}. You took {amount} damage.')),
     { enemy: scene.enemy.name, skill: enemySkill.name, amount: damage },
   );
 
