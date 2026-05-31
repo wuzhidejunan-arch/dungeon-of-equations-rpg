@@ -50,6 +50,14 @@ function isDungeonBossVictory(scene) {
   return scene?.returnScene === 'DungeonScene' && DUNGEON_BOSS_ENEMY_KEYS.has(scene?.enemyKey);
 }
 
+function isDemoTrainingBattle(scene) {
+  return scene?.returnScene === 'TrainingScene' && scene?.returnSceneData?.demoMode === true;
+}
+
+function isDemoBattle(scene) {
+  return scene?.returnSceneData?.demoBattle === true || scene?.returnSceneData?.demoMode === true;
+}
+
 function getSkillEffects(skill) {
   return Array.isArray(skill?.effects) ? skill.effects : [];
 }
@@ -256,6 +264,22 @@ export class BattleOutcomeSystem {
       return;
     }
 
+    if (isDemoBattle(this.scene)) {
+      this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);
+      this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
+      this.scene.refreshBattleUI();
+
+      this.controller?.emitBattleEnded({ outcome: 'win' });
+
+      this.scene.time.delayedCall(800, () => {
+        if (isDemoTrainingBattle(this.scene)) {
+          markTrainingBattleOutcome(this.scene, true);
+        }
+        this.scene.scene.start(this.scene.returnScene || 'DemoMenuScene', this.scene.returnSceneData || undefined);
+      });
+      return;
+    }
+
     const reward = this.scene.enemy.goldReward || 10;
     const expReward = getExpRewardForEnemy(this.scene.enemy);
     playerData.gold += reward;
@@ -305,13 +329,21 @@ export class BattleOutcomeSystem {
         return;
       }
 
+      if (isDemoBattle(this.scene)) {
+        if (isDemoTrainingBattle(this.scene)) {
+          markTrainingBattleOutcome(this.scene, false);
+        }
+        this.scene.scene.start(this.scene.returnScene || 'DemoMenuScene', this.scene.returnSceneData || undefined);
+        return;
+      }
+
       persistBattleSkillLoadout(this.scene.playerSkills || []);
       playerData.hp = playerData.maxHp;
       markTrainingBattleOutcome(this.scene, false);
 
       if (this.scene.returnScene === 'TrainingScene') {
         saveGame();
-        this.scene.scene.start(this.scene.returnScene);
+        this.scene.scene.start(this.scene.returnScene, this.scene.returnSceneData || undefined);
         return;
       }
 

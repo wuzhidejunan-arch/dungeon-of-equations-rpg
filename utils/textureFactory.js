@@ -72,6 +72,7 @@ export function preloadWorldMapArt(scene) {
   preloadPlayerWalkSheet(scene);
   loadImageIfMissing(scene, "playerFront", "assets/images/characters/player_front.png");
   loadImageIfMissing(scene, "worldGrassMap", "assets/images/maps/grass_map.png");
+  loadImageIfMissing(scene, "worldVillageMap", "assets/images/maps/world_map.png");
   loadImageIfMissing(scene, "mapHome", "assets/images/map_objects/home.png");
   loadImageIfMissing(scene, "mapDungeon", "assets/images/map_objects/dungeon.png");
   loadImageIfMissing(scene, "mapShop", "assets/images/map_objects/shop.png");

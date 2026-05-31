@@ -5,6 +5,7 @@ import { InventoryScene } from './InventoryScene.js';
 import { BattleScene } from './BattleScene.js';
 import { DungeonScene } from './DungeonScene.js';
 import { TrainingScene } from './TrainingScene.js';
+import { DemoMenuScene } from './DemoMenuScene.js';
 
 export const gameScenes = [
   StartScene,
@@ -14,4 +15,5 @@ export const gameScenes = [
   BattleScene,
   DungeonScene,
   TrainingScene,
+  DemoMenuScene,
 ];

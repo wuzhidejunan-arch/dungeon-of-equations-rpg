@@ -9,6 +9,9 @@ export const TRAINING_MODES = {
 
 export const DEFAULT_TRAINING_ACCESSORS = {
   returnScene: ['navigation', 'returnScene'],
+  returnSceneData: ['navigation', 'returnSceneData'],
+  demoMode: ['navigation', 'demoMode'],
+  demoDifficultyKey: ['navigation', 'demoDifficultyKey'],
   mode: ['ui', 'mode'],
   menuIndex: ['ui', 'menuIndex'],
   lessonPageIndex: ['lesson', 'pageIndex'],
@@ -31,6 +34,9 @@ export function createTrainingState(data = {}) {
   return {
     navigation: {
       returnScene: data.returnScene || 'WorldScene',
+      returnSceneData: data.returnSceneData || null,
+      demoMode: data.demoMode === true,
+      demoDifficultyKey: data.demoDifficultyKey || null,
     },
     ui: {
       mode: TRAINING_MODES.MENU,

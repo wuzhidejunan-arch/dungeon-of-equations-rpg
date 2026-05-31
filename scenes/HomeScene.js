@@ -18,7 +18,7 @@ import { GUIDE_STEP_IDS } from "../data/guideSteps.js";
 import { audioKeys } from "../config/audioKeys.js";
 import { loadAndPlayBgmAfterRender } from "../utils/musicManager.js";
 
-const WORLD_HOME_EXIT_POSITION = { x: 220, y: 290 };
+const WORLD_HOME_EXIT_POSITION = { x: 200, y: 190 };
 const HOME_INTERIOR_ENTRY_POSITION = { x: 400, y: 500 };
 const DEBUG_HOME_COLLISION = false;
 const GAME_OVER_PANEL_KEY = "gameOverPanel";

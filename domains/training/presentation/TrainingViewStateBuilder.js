@@ -19,7 +19,8 @@ function getPreviousStageShortLabel(stageId, stageRegistry) {
   return name.match(/^Stage\s+\d+/i)?.[0] || name;
 }
 
-function getStageStatusLabel(stageId) {
+function getStageStatusLabel(stageId, scene = null) {
+  if (scene?.demoMode === true) return 'Available';
   if (isTrainingStageCompleted(stageId)) return 'Done';
   if (isTesterMode() || isTrainingStageUnlocked(stageId)) return 'Available';
   return 'Locked';
@@ -65,7 +66,7 @@ function getStagePreviewText(stageId, stageRegistry) {
     : summary;
 }
 
-function buildStageMenuDescription(stageId, stageRegistry) {
+function buildStageMenuDescription(stageId, stageRegistry, scene = null) {
   if (!stageId) {
     return {
       title: 'Exit Training',
@@ -73,7 +74,7 @@ function buildStageMenuDescription(stageId, stageRegistry) {
     };
   }
 
-  const status = getStageStatusLabel(stageId);
+  const status = getStageStatusLabel(stageId, scene);
   const preview = getStagePreviewText(stageId, stageRegistry);
   const lockedNote = status === 'Locked' ? `\nClear ${getPreviousStageShortLabel(stageId, stageRegistry)} first.` : '';
 
@@ -123,13 +124,13 @@ export class TrainingViewStateBuilder {
   buildMenuState({ scene, stageRegistry }) {
     const stageIds = stageRegistry.getStageIds();
     const menuItems = stageIds.map((stageId) => {
-      const status = getStageStatusLabel(stageId);
+      const status = getStageStatusLabel(stageId, scene);
       return `${getCompactStageLabel(stageId, stageRegistry)}\n[${status}]`;
     });
     menuItems.push('Back\n[Exit]');
 
     const selectedStageId = scene.menuIndex < stageIds.length ? stageIds[scene.menuIndex] : null;
-    const detail = buildStageMenuDescription(selectedStageId, stageRegistry);
+    const detail = buildStageMenuDescription(selectedStageId, stageRegistry, scene);
 
     return {
       layoutMode: 'menu',

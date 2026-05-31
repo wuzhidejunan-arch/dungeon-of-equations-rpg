@@ -27,7 +27,7 @@ export class BattleDialogCoordinator {
           { phase: battleResultPhases.INFO, text: 'HP means health. If HP reaches 0, you lose.' },
           { phase: battleResultPhases.INFO, text: 'Step 1: Choose Fight.' },
           { phase: battleResultPhases.INFO, text: 'Step 2: Choose the correct attack skill.' },
-          { phase: battleResultPhases.INFO, text: 'Step 3: Make an even number.' },
+          { phase: battleResultPhases.INFO, text: 'Step 3: Make an even answer.' },
           { phase: battleResultPhases.INFO, text: 'Now choose Fight.' },
         ]
       : isGuidedBattle
@@ -36,7 +36,7 @@ export class BattleDialogCoordinator {
           { phase: battleResultPhases.INFO, text: 'HP means health. If HP reaches 0, you lose.' },
           { phase: battleResultPhases.INFO, text: 'Mini-step 1: Read the monster rule first.' },
           { phase: battleResultPhases.INFO, text: 'This monster starts with armor, so use Armor Break first.' },
-          { phase: battleResultPhases.INFO, text: 'Next, make an even number and read what happened.' },
+          { phase: battleResultPhases.INFO, text: 'Next, make an even answer and read what happened.' },
           { phase: battleResultPhases.INFO, text: 'Now choose Fight.' },
         ]
       : [

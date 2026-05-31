@@ -40,6 +40,8 @@ import { playSfx, preloadSfxAssets } from "../utils/sfxManager.js";
 
 const DEBUG_WORLD_COLLISION = false;
 const DEBUG_WORLD_BODY_BOUNDS = false;
+const WORLD_PLAYER_DISPLAY_SIZE = Math.round(EXPLORATION_PLAYER_DISPLAY_SIZE * 0.9);
+const WORLD_NPC_MAP_IMAGE_SCALE = 0.063;
 const BOOK_PANEL_KEY = "uiBookPanelFrame";
 const BOOK_PANEL_PATH = "assets/ui/ui_book_panel_frame.png";
 const DIALOGUE_PANEL_KEY = "dialoguePanel";
@@ -93,37 +95,29 @@ export class WorldScene extends BaseScene {
 
     createBasicTextures(this);
 
-    const worldBackground = this.add.image(400, 300, "worldGrassMap");
+    const worldBackground = this.add.image(400, 300, "worldVillageMap");
     const backgroundScale = Math.max(800 / worldBackground.width, 600 / worldBackground.height);
     worldBackground.setScale(backgroundScale);
     worldBackground.setDepth(-20);
 
-    const homeMapImage = this.add.image(220, 170, "mapHome");
+    const homeMapImage = this.add.image(200, 90, "mapHome");
     homeMapImage.setScale(0.16);
     homeMapImage.setDepth(-10);
 
-    const shopMapImage = this.add.image(580, 170, "mapShop");
+    const shopMapImage = this.add.image(590, 90, "mapShop");
     shopMapImage.setScale(0.16);
     shopMapImage.setDepth(-10);
 
-    const trainingGroundMapImage = this.add.image(650, 420, "mapTrainingGround");
+    const trainingGroundMapImage = this.add.image(600, 380, "mapTrainingGround");
     trainingGroundMapImage.setScale(0.14);
     trainingGroundMapImage.setDepth(-10);
 
-    const dungeonMapImage = this.add.image(120, 500, "mapDungeon");
+    const dungeonMapImage = this.add.image(195, 390, "mapDungeon");
     dungeonMapImage.setScale(0.14);
     dungeonMapImage.setDepth(-10);
 
-    const stoneMapImageA = this.add.image(400, 350, "mapStone");
-    stoneMapImageA.setScale(0.08);
-    stoneMapImageA.setDepth(-8);
-
-    const stoneMapImageB = this.add.image(500, 450, "mapStone");
-    stoneMapImageB.setScale(0.08);
-    stoneMapImageB.setDepth(-8);
-
-    const npcMapImage = this.add.image(360, 185, "mapNpc");
-    npcMapImage.setScale(0.07);
+    const npcMapImage = this.add.image(350, 170, "mapNpc");
+    npcMapImage.setScale(WORLD_NPC_MAP_IMAGE_SCALE);
     npcMapImage.setDepth(-8);
 
     this.player = this.physics.add.sprite(
@@ -132,7 +126,7 @@ export class WorldScene extends BaseScene {
       PLAYER_WALK_SHEET_KEY,
       1,
     );
-    this.player.setDisplaySize(EXPLORATION_PLAYER_DISPLAY_SIZE, EXPLORATION_PLAYER_DISPLAY_SIZE);
+    this.player.setDisplaySize(WORLD_PLAYER_DISPLAY_SIZE, WORLD_PLAYER_DISPLAY_SIZE);
     this.player.setDepth(-6);
     this.player.setCollideWorldBounds(true);
     const playerBodyWidth = Math.round(this.player.width * 0.4);
@@ -149,12 +143,6 @@ export class WorldScene extends BaseScene {
     this.houseDoor = this.add.rectangle(220, 240, 34, 26, 0x3b2f2f).setStrokeStyle(2, 0xe9d8a6);
     this.houseDoor.setVisible(false);
 
-    this.obstacles = this.physics.add.staticGroup();
-    this.obstaclePlaceholderA = this.obstacles.create(400, 350, "obstacleTexture");
-    this.obstaclePlaceholderB = this.obstacles.create(500, 450, "obstacleTexture");
-    this.obstaclePlaceholderA.setVisible(false);
-    this.obstaclePlaceholderB.setVisible(false);
-
     this.dungeonGate = this.add.rectangle(120, 500, 80, 100, 0x444444);
     this.physics.add.existing(this.dungeonGate, true);
     this.dungeonGate.setVisible(false);
@@ -169,10 +157,10 @@ export class WorldScene extends BaseScene {
 
     this.worldBlockers = this.physics.add.staticGroup();
     const blockerFillAlpha = DEBUG_WORLD_COLLISION ? 0.28 : 0;
-    const createWorldBlocker = (x, y, width, height) => {
-      const blocker = this.add.rectangle(x, y, width, height, 0xff00ff, blockerFillAlpha);
+    const createWorldBlocker = (x, y, width, height, debugColor = 0xff00ff) => {
+      const blocker = this.add.rectangle(x, y, width, height, debugColor, blockerFillAlpha);
       if (DEBUG_WORLD_COLLISION) {
-        blocker.setStrokeStyle(2, 0xff00ff, 0.9);
+        blocker.setStrokeStyle(2, debugColor, 0.9);
       }
       this.physics.add.existing(blocker, true);
       blocker.body.updateFromGameObject();
@@ -181,13 +169,18 @@ export class WorldScene extends BaseScene {
       return blocker;
     };
 
-    this.homeCollision = createWorldBlocker(220, 196, 126, 84);
-    this.shopCollision = createWorldBlocker(580, 214, 122, 92);
-    this.trainingCollision = createWorldBlocker(650, 420, 108, 72);
-    this.dungeonCollision = createWorldBlocker(120, 506, 116, 104);
-    this.stoneCollisionA = createWorldBlocker(400, 370, 70, 60);
-    this.stoneCollisionB = createWorldBlocker(500, 470, 70, 60);
-    this.npcCollision = createWorldBlocker(360, 198, 34, 60);
+    this.homeCollision = createWorldBlocker(200, 90, 126, 84);
+    this.shopCollision = createWorldBlocker(590, 90, 122, 92);
+    this.trainingCollision = createWorldBlocker(600, 380, 108, 72);
+    this.dungeonCollision = createWorldBlocker(195, 390, 116, 104);
+    this.npcCollision = createWorldBlocker(350, 170, 34, 60);
+    this.outerTopLeftCollision = createWorldBlocker(160, 25, 320, 50, 0x16a34a);
+    this.outerTopRightCollision = createWorldBlocker(640, 25, 320, 50, 0x16a34a);
+    this.outerLeftCollision = createWorldBlocker(25, 300, 50, 600, 0x22c55e);
+    this.outerRightCollision = createWorldBlocker(775, 300, 50, 600, 0x22c55e);
+    this.outerBottomLeftCollision = createWorldBlocker(160, 575, 320, 50, 0x16a34a);
+    this.outerBottomRightCollision = createWorldBlocker(640, 575, 320, 50, 0x16a34a);
+    this.centralFountainCollision = createWorldBlocker(400, 300, 110, 100, 0x38bdf8);
 
     this.worldBlockerCollider = this.physics.add.collider(this.player, this.worldBlockers);
 
@@ -199,9 +192,14 @@ export class WorldScene extends BaseScene {
         { label: "shopCollision", object: this.shopCollision, color: 0x00ffff },
         { label: "trainingCollision", object: this.trainingCollision, color: 0xffff00 },
         { label: "dungeonCollision", object: this.dungeonCollision, color: 0xff8800 },
-        { label: "stoneCollisionA", object: this.stoneCollisionA, color: 0x00ff00 },
-        { label: "stoneCollisionB", object: this.stoneCollisionB, color: 0x0088ff },
         { label: "npcCollision", object: this.npcCollision, color: 0xff4444 },
+        { label: "outerTopLeftCollision", object: this.outerTopLeftCollision, color: 0x16a34a },
+        { label: "outerTopRightCollision", object: this.outerTopRightCollision, color: 0x16a34a },
+        { label: "outerLeftCollision", object: this.outerLeftCollision, color: 0x22c55e },
+        { label: "outerRightCollision", object: this.outerRightCollision, color: 0x22c55e },
+        { label: "outerBottomLeftCollision", object: this.outerBottomLeftCollision, color: 0x16a34a },
+        { label: "outerBottomRightCollision", object: this.outerBottomRightCollision, color: 0x16a34a },
+        { label: "centralFountainCollision", object: this.centralFountainCollision, color: 0x38bdf8 },
       ];
       console.log("[WorldScene Debug] body bounds debug enabled");
       this.logWorldBodyBoundsOnce();
@@ -212,19 +210,19 @@ export class WorldScene extends BaseScene {
       this.worldBodyDebugTargets = [];
     }
 
-    this.shopZone = this.add.zone(580, 250, 120, 50);
+    this.shopZone = this.add.zone(590, 170, 100, 40);
     this.physics.add.existing(this.shopZone, true);
 
-    this.homeDoorZone = this.add.zone(220, 250, 100, 40);
+    this.homeDoorZone = this.add.zone(200, 100, 90, 90);
     this.physics.add.existing(this.homeDoorZone, true);
 
     this.villagerZone = this.add.zone(360, 220, 90, 70);
     this.physics.add.existing(this.villagerZone, true);
 
-    this.trainingZone = this.add.zone(650, 487, 64, 46);
+    this.trainingZone = this.add.zone(600, 447, 64, 46);
     this.physics.add.existing(this.trainingZone, true);
 
-    this.dungeonZone = this.add.zone(180, 500, 120, 100);
+    this.dungeonZone = this.add.zone(195, 400, 100, 120);
     this.physics.add.existing(this.dungeonZone, true);
 
     this.setupPrompt();
@@ -235,6 +233,7 @@ export class WorldScene extends BaseScene {
 
     this.keyENTER = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     this.keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.registerDemoMenuHotkey();
 
     this.createShopUI();
     this.guidePanel = createPanel(this, 400, 300, 520, 220);
@@ -322,6 +321,28 @@ export class WorldScene extends BaseScene {
       }
       this.handleWorldInteract();
     }
+  }
+
+  canOpenDemoMenu() {
+    return !this.shopOpen &&
+      !this.dialogueActive &&
+      !this.levelUpNoticeActive &&
+      !this.guideMessageActive &&
+      !this.inventoryOpen;
+  }
+
+  registerDemoMenuHotkey() {
+    this.demoMenuHotkeyHandler = (event) => {
+      event?.preventDefault?.();
+      if (!this.canOpenDemoMenu()) return;
+      this.scene.start("DemoMenuScene", {
+        returnScene: "WorldScene",
+      });
+    };
+    this.input.keyboard.on("keydown-F8", this.demoMenuHotkeyHandler);
+    this.events.once("shutdown", () => {
+      this.input.keyboard.off("keydown-F8", this.demoMenuHotkeyHandler);
+    });
   }
 
   logWorldBodyBoundsOnce() {
@@ -555,8 +576,8 @@ export class WorldScene extends BaseScene {
         saveGame();
       }
 
-      playerData.position.world.x = this.player.x;
-      playerData.position.world.y = this.player.y;
+      playerData.position.world.x = 600;
+      playerData.position.world.y = 515;
       saveGame();
 
       this.scene.start("TrainingScene", {

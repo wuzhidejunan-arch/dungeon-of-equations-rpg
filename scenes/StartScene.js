@@ -258,6 +258,7 @@ export class StartScene extends Phaser.Scene {
     this.keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     this.keyT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
+    this.registerDemoMenuHotkey();
 
     this.restoreEnemyVisualTestState();
     this.refreshDevTestUi();
@@ -730,6 +731,23 @@ export class StartScene extends Phaser.Scene {
     const nextScene = isTutorialDone(playerData) || isTesterMode() ? 'WorldScene' : 'HomeScene';
     this.modeStartRequested = true;
     this.scene.start(nextScene);
+  }
+
+  openDemoMenu() {
+    this.scene.start('DemoMenuScene', {
+      returnScene: 'StartScene',
+    });
+  }
+
+  registerDemoMenuHotkey() {
+    this.demoMenuHotkeyHandler = (event) => {
+      event?.preventDefault?.();
+      this.openDemoMenu();
+    };
+    this.input.keyboard.on('keydown-F8', this.demoMenuHotkeyHandler);
+    this.events.once('shutdown', () => {
+      this.input.keyboard.off('keydown-F8', this.demoMenuHotkeyHandler);
+    });
   }
 
   update() {

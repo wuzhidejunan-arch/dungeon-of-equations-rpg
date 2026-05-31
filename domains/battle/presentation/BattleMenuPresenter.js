@@ -127,9 +127,13 @@ export class BattleMenuPresenter {
       }
       index = scene.itemSelectionIndex;
     } else if (scene.menuState === battleMenuStates.ITEM_TARGET) {
-      positions = buildVerticalLayout(Math.max(scene.playerSkills?.length || 0, 1)).map((position) => ({
-        ...position,
-        x: 595,
+      const itemTargetTextPosition = scene.itemTargetMenuTextPosition || {};
+      const firstSkillTextX = Number.isFinite(itemTargetTextPosition.x) ? itemTargetTextPosition.x : 610;
+      const firstSkillTextY = Number.isFinite(itemTargetTextPosition.y) ? itemTargetTextPosition.y : 450;
+      const itemTargetRowSpacing = 20;
+      positions = Array.from({ length: Math.max(scene.playerSkills?.length || 0, 1) }, (_, skillIndex) => ({
+        x: firstSkillTextX - 15,
+        y: firstSkillTextY + (skillIndex * itemTargetRowSpacing),
       }));
       index = scene.itemTargetSkillIndex;
     }

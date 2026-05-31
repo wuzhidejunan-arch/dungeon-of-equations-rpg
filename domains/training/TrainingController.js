@@ -50,6 +50,10 @@ export class TrainingController {
     return this.store.get(['ui', 'mode']);
   }
 
+  get isDemoMode() {
+    return this.store.get(['navigation', 'demoMode']) === true;
+  }
+
   setMode(mode) {
     this.store.set(['ui', 'mode'], mode);
   }
@@ -87,16 +91,19 @@ export class TrainingController {
     const winKey = stageConfig?.battle?.winKey || null;
 
     if (winKey && state.lastBattleWinKey === winKey && !isTrainingStageCompleted(activeStageId)) {
-      const reward = completeTrainingStage(activeStageId);
       state.lastBattleWinKey = null;
       state.activeBattleStage = null;
-      playerData.pendingLevelUpMessages.push(reward.rewardLines);
 
-      if (activeStageId === 3 && getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO) {
-        advanceGuideStep(GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO, playerData);
+      if (!this.isDemoMode) {
+        const reward = completeTrainingStage(activeStageId);
+        playerData.pendingLevelUpMessages.push(reward.rewardLines);
+
+        if (activeStageId === 3 && getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO) {
+          advanceGuideStep(GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO, playerData);
+        }
+
+        saveGame();
       }
-
-      saveGame();
       this.setMessage(this.stageRegistry.getStageClearMessage(activeStageId), TRAINING_MODES.MENU);
       this.eventBus?.emit('training:stageCompleted', { stageId: activeStageId, source: 'battle' });
       return;
@@ -104,7 +111,9 @@ export class TrainingController {
 
     state.activeBattleStage = null;
     state.lastBattleWinKey = null;
-    saveGame();
+    if (!this.isDemoMode) {
+      saveGame();
+    }
     this.setMessage(this.stageRegistry.getStageFailMessage(activeStageId), TRAINING_MODES.MENU);
   }
 
@@ -124,7 +133,7 @@ export class TrainingController {
     }
 
     const stageId = stageIds[menuIndex];
-    if (!isTesterMode() && !isTrainingStageUnlocked(stageId)) {
+    if (!this.isDemoMode && !isTesterMode() && !isTrainingStageUnlocked(stageId)) {
       this.setMessage(
         `${this.stageRegistry.getStageName(stageId)} is locked.\n\nClear ${getPreviousStageShortLabel(this.stageRegistry, stageId)} first.`,
         TRAINING_MODES.MENU,
@@ -265,14 +274,16 @@ Read the expression again and count carefully.`))
       const scoreLine = `You got ${correctCount}/${questions.length}. Need at least ${passScore}/${questions.length}.`;
 
       if (passed) {
-        if (!isTrainingStageCompleted(stageId)) {
+        if (!this.isDemoMode && !isTrainingStageCompleted(stageId)) {
           const reward = completeTrainingStage(stageId);
           playerData.pendingLevelUpMessages.push(reward.rewardLines);
         }
-        if (stageId === 1 && getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_1) {
+        if (!this.isDemoMode && stageId === 1 && getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_1) {
           advanceGuideStep(GUIDE_STEP_IDS.TRAINING_STAGE_1, playerData);
         }
-        saveGame();
+        if (!this.isDemoMode) {
+          saveGame();
+        }
         playSfx(this.scene, audioKeys.sfx.victory);
         this.setMessage(`${scoreLine}
 
@@ -281,7 +292,9 @@ ${this.stageRegistry.getStageClearMessage(stageId)}`, TRAINING_MODES.MENU);
         return;
       }
 
-      saveGame();
+      if (!this.isDemoMode) {
+        saveGame();
+      }
       this.setMessage(
         `${scoreLine}
 
@@ -364,21 +377,25 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
       const scoreLine = `You got ${correctCount}/${BEGINNER_STAGE2_STEP_TOTAL} points. Need ${passScore}/${BEGINNER_STAGE2_STEP_TOTAL} points.`;
 
       if (passed) {
-        if (!isTrainingStageCompleted(2)) {
+        if (!this.isDemoMode && !isTrainingStageCompleted(2)) {
           const reward = completeTrainingStage(2);
           playerData.pendingLevelUpMessages.push(reward.rewardLines);
         }
-        if (getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_2) {
+        if (!this.isDemoMode && getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_2) {
           advanceGuideStep(GUIDE_STEP_IDS.TRAINING_STAGE_2, playerData);
         }
-        saveGame();
+        if (!this.isDemoMode) {
+          saveGame();
+        }
         playSfx(this.scene, audioKeys.sfx.victory);
         this.setMessage(`${scoreLine}\n\n${this.stageRegistry.getStageClearMessage(2)}`, TRAINING_MODES.MENU);
         this.eventBus?.emit('training:stageCompleted', { stageId: 2, source: 'quiz' });
         return;
       }
 
-      saveGame();
+      if (!this.isDemoMode) {
+        saveGame();
+      }
       this.setMessage(
         `${scoreLine}\n\n${this.stageRegistry.getStageFailMessage(2, { passScore, total: BEGINNER_STAGE2_STEP_TOTAL })}`,
         TRAINING_MODES.MENU,
@@ -400,20 +417,34 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
 
     state.activeBattleStage = stageId;
     state.lastBattleWinKey = null;
-    saveGame();
+    if (!this.isDemoMode) {
+      saveGame();
+    }
 
     this.eventBus?.emit('training:stageStarted', { stageId, type: 'battle' });
     this.scene.scene.start('BattleScene', {
       enemy: enemyData[enemyDataKey] || enemyData.trainingDummy,
       enemyKey: battleKey,
       returnScene: 'TrainingScene',
+      demoMode: this.isDemoMode,
+      returnSceneData: {
+        returnScene: this.store.get(['navigation', 'returnScene']),
+        returnSceneData: this.store.get(['navigation', 'returnSceneData']),
+        demoMode: this.isDemoMode,
+        demoDifficultyKey: this.store.get(['navigation', 'demoDifficultyKey']),
+      },
     });
   }
 
   closeTraining() {
+    const returnScene = this.store.get(['navigation', 'returnScene']);
+    const returnSceneData = this.store.get(['navigation', 'returnSceneData']) || undefined;
+
     if (this.mode === TRAINING_MODES.MENU) {
-      saveGame();
-      this.scene.scene.start(this.store.get(['navigation', 'returnScene']));
+      if (!this.isDemoMode) {
+        saveGame();
+      }
+      this.scene.scene.start(returnScene, returnSceneData);
       return;
     }
 
@@ -432,11 +463,14 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
       }
     }
 
-    saveGame();
-    this.scene.scene.start(this.store.get(['navigation', 'returnScene']));
+    if (!this.isDemoMode) {
+      saveGame();
+    }
+    this.scene.scene.start(returnScene, returnSceneData);
   }
 
   tryStartGuideIntro() {
+    if (this.isDemoMode) return;
     if (!isTutorialActive(playerData)) return;
 
     const step = getCurrentGuideStep(playerData);
@@ -478,7 +512,9 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
     const current = getCurrentGuideStep(playerData);
     if (current.id === GUIDE_STEP_IDS.TRAINING_INTRO) {
       advanceGuideStep(GUIDE_STEP_IDS.TRAINING_INTRO, playerData);
-      saveGame();
+      if (!this.isDemoMode) {
+        saveGame();
+      }
     }
   }
 }

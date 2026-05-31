@@ -104,8 +104,8 @@ export const trainingStageData = {
 Stage 2 taught add and subtract.`,
       `Step 1: Choose Fight.`,
       `Step 2: Choose Even Attack.`,
-      `Step 3: Make an even number.\nThen press Enter.`,
-      `Make an even number to attack.
+      `Step 3: Make an even answer.\nThen press Enter.`,
+      `Make an even answer to attack.
 Even Attack works with even answers.`,
       'In this lesson, only Fight and Even Attack are open.',
       `Watch the helper box.
