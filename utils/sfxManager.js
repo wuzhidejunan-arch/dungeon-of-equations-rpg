@@ -32,13 +32,17 @@ function normalizeKeys(keys) {
 }
 
 export function preloadSfxAssets(scene, keys = null) {
-  if (!scene?.load || !scene?.cache?.audio) return;
+  if (!scene?.load || !scene?.cache?.audio) return 0;
+  let queuedCount = 0;
 
   normalizeKeys(keys).forEach((key) => {
     const path = audioPaths.sfx?.[key];
     if (!key || !path || scene.cache.audio.exists(key)) return;
     scene.load.audio(key, path);
+    queuedCount += 1;
   });
+
+  return queuedCount;
 }
 
 function getNow(scene) {

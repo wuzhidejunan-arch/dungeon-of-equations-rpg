@@ -422,7 +422,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
     }
 
     this.eventBus?.emit('training:stageStarted', { stageId, type: 'battle' });
-    this.scene.scene.start('BattleScene', {
+    this.scene.scene.start('BattleLoadingScene', {
       enemy: enemyData[enemyDataKey] || enemyData.trainingDummy,
       enemyKey: battleKey,
       returnScene: 'TrainingScene',

@@ -26,6 +26,10 @@ function getGuidedIntermediateRuleText(scene) {
 }
 
 function getEnemyRulePanelText(scene) {
+  if (scene.battleEnded) {
+    return '';
+  }
+
   const enemyRule = getEnemyPrimaryRule(scene.enemy);
   return getGuidedIntermediateRuleText(scene) || getEntityUIText(
     scene.enemy,
@@ -34,6 +38,16 @@ function getEnemyRulePanelText(scene) {
       rule: scene.getRuleShortText?.(enemyRule) || enemyRule,
     }),
   );
+}
+
+function formatEnemyHpLabel(scene) {
+  return `${scene.enemyCurrentHp}/${scene.enemy?.hp}`;
+}
+
+function formatEnemyLevelLabel(enemy) {
+  const displayLevel = enemy?.displayLevel;
+
+  return Number.isFinite(displayLevel) ? `Lv.${displayLevel}` : '';
 }
 
 export class BattleViewStateBuilder {
@@ -54,7 +68,7 @@ export class BattleViewStateBuilder {
           current: scene.enemyCurrentHp,
           max: scene.enemy?.hp,
           ratio: Phaser.Math.Clamp((scene.enemyCurrentHp || 0) / (scene.enemy?.hp || 1), 0, 1),
-          label: `${scene.enemyCurrentHp}/${scene.enemy?.hp}`,
+          label: formatEnemyHpLabel(scene),
         },
         player: {
           current: playerData.hp,
@@ -65,9 +79,10 @@ export class BattleViewStateBuilder {
       },
       texts: {
         enemyName: (scene.enemy?.name || '').toUpperCase(),
+        enemyLevel: formatEnemyLevelLabel(scene.enemy),
         playerLevel: `Lv ${playerData.level}`,
         playerInfo: `${playerData.hp}/${playerData.maxHp}`,
-        enemyInfo: `${scene.enemyCurrentHp}/${scene.enemy?.hp}`,
+        enemyInfo: formatEnemyHpLabel(scene),
         playerBuff: scene.getPlayerEffectSummaryText?.() || scene.getBuffSummaryText?.() || '',
         enemyBuff: scene.getEnemyEffectSummaryText?.() || '',
         rulePanel: buildBattleRulePanelText(scene, { ruleText: getEnemyRulePanelText(scene) }),

@@ -16,6 +16,10 @@ function setFittedEnemyName(node, text = '') {
   }
 }
 
+function getStatusHpBarWidth(scene, side) {
+  return scene?.[`${side}StatusLayout`]?.hpBar?.width || 220;
+}
+
 export class BattleStatusRenderer {
   constructor(scene) {
     this.scene = scene;
@@ -45,16 +49,17 @@ export class BattleStatusRenderer {
     const playerRatio = viewState?.hp?.player?.ratio || 0;
 
     if (this.scene.enemyHpBarFill) {
-      this.scene.enemyHpBarFill.width = 220 * enemyRatio;
+      this.scene.enemyHpBarFill.width = getStatusHpBarWidth(this.scene, 'enemy') * enemyRatio;
     }
 
     if (this.scene.playerHpBarFill) {
-      this.scene.playerHpBarFill.width = 220 * playerRatio;
+      this.scene.playerHpBarFill.width = getStatusHpBarWidth(this.scene, 'player') * playerRatio;
     }
   }
 
   refreshStatus(viewState = {}) {
     setFittedEnemyName(this.scene.enemyNameText, viewState?.texts?.enemyName || '');
+    this.setTextNode(this.scene.enemyLevelText, viewState?.texts?.enemyLevel || '');
     this.setTextNode(this.scene.playerLevelText, viewState?.texts?.playerLevel || '');
     this.setTextNode(this.scene.enemyInfoText, viewState?.hp?.enemy?.label || '');
     this.setTextNode(this.scene.enemyBuffText, viewState?.texts?.enemyBuff || '');

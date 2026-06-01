@@ -5,6 +5,15 @@ export function createDialogueUI(scene) {
   const panelX = width / 2 - 5;
   const panelY = height - 105;
   const textLeft = panelX - panelWidth / 2 + 88;
+  const speakerX = textLeft + 30;
+  const speakerY = panelY - 45;
+  const bodyX = textLeft +30;
+  const bodyY = panelY - 2;
+  const hintX = panelX + panelWidth / 2 - 320;
+  const hintY = panelY + panelHeight / 2 - 140;
+  const speakerFontSize = "30px";
+  const bodyFontSize = "23px";
+  const hintFontSize = "20px";
 
   const container = scene.add
     .container(0, 0)
@@ -18,24 +27,24 @@ export function createDialogueUI(scene) {
         .rectangle(panelX, panelY, panelWidth, panelHeight, 0x000000, 0.9)
         .setStrokeStyle(2, 0xffffff);
 
-  const nameText = scene.add.text(textLeft, panelY - 45, "", {
-    fontSize: "25px",
+  const nameText = scene.add.text(speakerX, speakerY, "", {
+    fontSize: speakerFontSize,
     color: "#ffd43b",
     fontStyle: "bold",
     stroke: "#2b1608",
     strokeThickness: 3,
   });
 
-  const contentText = scene.add.text(textLeft, panelY - 2, "", {
-    fontSize: "23px",
+  const contentText = scene.add.text(bodyX, bodyY, "", {
+    fontSize: bodyFontSize,
     color: "#f8e7c0",
     stroke: "#2b1608",
     strokeThickness: 2,
     wordWrap: { width: panelWidth - 120 },
   });
 
-  const tipText = scene.add.text(panelX + panelWidth / 2 -320, panelY + panelHeight / 2 - 140, "Enter / Space: Next", {
-    fontSize: "20px",
+  const tipText = scene.add.text(hintX, hintY, "Enter / Space: Next", {
+    fontSize: hintFontSize,
     color: "#f0d8a8",
     stroke: "#2b1608",
     strokeThickness: 2,

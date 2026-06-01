@@ -15,6 +15,7 @@ import { BattleStatusMixin } from './battle/BattleStatusMixin.js';
 import { BattleTurnMixin } from './battle/BattleTurnMixin.js';
 import { BattleInputMixin } from './battle/BattleInputMixin.js';
 import { getBattleText } from '../utils/battleSchema.js';
+import { battleMenuStates } from '../data/battleStates.js';
 import { initializeBattleSession } from '../engine/battleSession.js';
 import { BattleController } from '../domains/battle/BattleController.js';
 import { BattleTutorialMixin } from './battle/BattleTutorialMixin.js';
@@ -26,8 +27,8 @@ import { BattleDialogCoordinator } from '../domains/battle/coordinators/BattleDi
 import { BattleUiCoordinator } from '../domains/battle/coordinators/BattleUiCoordinator.js';
 import { isTesterMode } from '../utils/debugState.js';
 import { audioKeys } from '../config/audioKeys.js';
-import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
-import { preloadSfxAssets } from '../utils/sfxManager.js';
+import { playBgm } from '../utils/musicManager.js';
+import { preloadBattleAssets } from '../utils/battleAssetPreloader.js';
 
 const BOSS_BATTLE_ENEMY_KEYS = new Set(['room1_boss', 'room2_boss', 'room3_boss', 'final_boss']);
 const BOSS_BATTLE_ENEMY_IDS = new Set(['boss1', 'boss2', 'boss3', 'finalBoss']);
@@ -38,148 +39,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   preload() {
-    preloadBgmAssets(this, [audioKeys.bgm.battle, audioKeys.bgm.bossBattle]);
-    preloadSfxAssets(this);
-
-    if (!this.textures.exists('battleBgDungeon')) {
-      this.load.image('battleBgDungeon', 'assets/images/ui/battle/battle_bg_dungeon.png');
-    }
-
-    if (!this.textures.exists('battleBlueMagicCircle')) {
-      this.load.image('battleBlueMagicCircle', 'assets/images/ui/battle/blue_magic_circle.png');
-    }
-
-    if (!this.textures.exists('battleRedMagicCircle')) {
-      this.load.image('battleRedMagicCircle', 'assets/images/ui/battle/red_magic_circle.png');
-    }
-
-    if (!this.textures.exists('battleStatusPanel')) {
-      this.load.image('battleStatusPanel', 'assets/images/ui/battle/battle_status_panel.png');
-    }
-
-    if (!this.textures.exists('battleMessagePanel')) {
-      this.load.image('battleMessagePanel', 'assets/images/ui/battle/battle_message_panel.png');
-    }
-
-    if (!this.textures.exists('battleSquarePanel')) {
-      this.load.image('battleSquarePanel', 'assets/images/ui/battle/battle_square_panel.png');
-    }
-
-    if (!this.textures.exists('attackHitSpark')) {
-      this.load.image('attackHitSpark', 'assets/effects/battle/attack_hit_spark.png');
-    }
-
-    if (!this.textures.exists('defenseShieldFlash')) {
-      this.load.image('defenseShieldFlash', 'assets/effects/battle/defense_shield_flash.png');
-    }
-
-    if (!this.textures.exists('mathBuilderPanel')) {
-      this.load.image('mathBuilderPanel', 'assets/ui/math-builder/math_panel.png');
-    }
-
-    if (!this.textures.exists('mathBuilderSlotEmpty')) {
-      this.load.image('mathBuilderSlotEmpty', 'assets/ui/math-builder/slot_box_empty.png');
-    }
-
-    if (!this.textures.exists('mathBuilderTokenIdle')) {
-      this.load.image('mathBuilderTokenIdle', 'assets/ui/math-builder/token_box_idle.png');
-    }
-
-    if (!this.textures.exists('mathBuilderTokenSelected')) {
-      this.load.image('mathBuilderTokenSelected', 'assets/ui/math-builder/token_box_selected.png');
-    }
-
-    if (!this.textures.exists('mathBuilderButtonIdle')) {
-      this.load.image('mathBuilderButtonIdle', 'assets/ui/math-builder/button_idle.png');
-    }
-
-    if (!this.textures.exists('playerBack')) {
-      this.load.image('playerBack', 'assets/images/characters/player_back.png');
-    }
-
-    if (!this.textures.exists('enemy_number_dummy')) {
-      this.load.image('enemy_number_dummy', 'assets/images/enemies/beginning/number_dummy.png');
-    }
-
-    if (!this.textures.exists('enemy_even_slime')) {
-      this.load.image('enemy_even_slime', 'assets/images/enemies/beginning/even_slime.png');
-    }
-
-    if (!this.textures.exists('enemy_odd_bat')) {
-      this.load.image('enemy_odd_bat', 'assets/images/enemies/beginning/odd_bat.png');
-    }
-
-    if (!this.textures.exists('enemy_even_gatekeeper')) {
-      this.load.image('enemy_even_gatekeeper', 'assets/images/enemies/beginning/even_gatekeeper.png');
-    }
-
-    if (!this.textures.exists('enemy_odd_gatekeeper')) {
-      this.load.image('enemy_odd_gatekeeper', 'assets/images/enemies/beginning/odd_gatekeeper.png');
-    }
-
-    if (!this.textures.exists('enemy_prime_gatekeeper')) {
-      this.load.image('enemy_prime_gatekeeper', 'assets/images/enemies/beginning/prime_gatekeeper.png');
-    }
-
-    if (!this.textures.exists('enemy_prime_dungeon_lord')) {
-      this.load.image('enemy_prime_dungeon_lord', 'assets/images/enemies/beginning/prime_dungeon_lord.png');
-    }
-
-    if (!this.textures.exists('enemy_intermediate_stone_shell')) {
-      this.load.image('enemy_intermediate_stone_shell', 'assets/images/enemies/intermediate/stone_shell.png');
-    }
-
-    if (!this.textures.exists('enemy_intermediate_armor_dummy')) {
-      this.load.image('enemy_intermediate_armor_dummy', 'assets/images/enemies/intermediate/armor_dummy.png');
-    }
-
-    if (!this.textures.exists('enemy_intermediate_wild_fang')) {
-      this.load.image('enemy_intermediate_wild_fang', 'assets/images/enemies/intermediate/wild_fang.png');
-    }
-
-    if (!this.textures.exists('enemy_intermediate_even_stone_gatekeeper')) {
-      this.load.image('enemy_intermediate_even_stone_gatekeeper', 'assets/images/enemies/intermediate/even_stone_gatekeeper.png');
-    }
-
-    if (!this.textures.exists('enemy_intermediate_odd_fang_gatekeeper')) {
-      this.load.image('enemy_intermediate_odd_fang_gatekeeper', 'assets/images/enemies/intermediate/odd_fang_gatekeeper.png');
-    }
-
-    if (!this.textures.exists('enemy_intermediate_iron_core_gatekeeper')) {
-      this.load.image('enemy_intermediate_iron_core_gatekeeper', 'assets/images/enemies/intermediate/iron_core_gatekeeper.png');
-    }
-
-    if (!this.textures.exists('enemy_intermediate_armor_core_lord')) {
-      this.load.image('enemy_intermediate_armor_core_lord', 'assets/images/enemies/intermediate/armor_core_lord.png');
-    }
-
-    if (!this.textures.exists('challenge_chain_dummy')) {
-      this.load.image('challenge_chain_dummy', 'assets/images/enemies/challenge/chain_dummy.png');
-    }
-
-    if (!this.textures.exists('challenge_chain_crawler')) {
-      this.load.image('challenge_chain_crawler', 'assets/images/enemies/challenge/chain_crawler.png');
-    }
-
-    if (!this.textures.exists('challenge_splitwing_imp')) {
-      this.load.image('challenge_splitwing_imp', 'assets/images/enemies/challenge/splitwing_imp.png');
-    }
-
-    if (!this.textures.exists('challenge_balanced_sentinel')) {
-      this.load.image('challenge_balanced_sentinel', 'assets/images/enemies/challenge/balanced_sentinel.png');
-    }
-
-    if (!this.textures.exists('challenge_crooked_sentinel')) {
-      this.load.image('challenge_crooked_sentinel', 'assets/images/enemies/challenge/crooked_sentinel.png');
-    }
-
-    if (!this.textures.exists('challenge_prime_warden')) {
-      this.load.image('challenge_prime_warden', 'assets/images/enemies/challenge/prime_warden.png');
-    }
-
-    if (!this.textures.exists('challenge_chain_oracle_lord')) {
-      this.load.image('challenge_chain_oracle_lord', 'assets/images/enemies/challenge/chain_oracle_lord.png');
-    }
+    preloadBattleAssets(this);
   }
 
   init(data) {
@@ -219,6 +79,12 @@ export class BattleScene extends Phaser.Scene {
 
   create() {
     playBgm(this, this.getBattleBgmKey());
+    // Future end-of-battle summary tracking; reset for each new battle.
+    this.battleSummary = {
+      attempts: [],
+      correct: 0,
+      wrong: 0,
+    };
 
     this.battleFeatures?.runHook?.('beforeCreate', this.battleFeatureContext, { scene: this });
 
@@ -256,6 +122,7 @@ export class BattleScene extends Phaser.Scene {
   update() {
     syncDebugBadge(this.debugBadge);
 
+    this.handleBattleSummaryModalInput?.();
     this.handleTesterInstantKillShortcut();
     this.battleFeatures?.runHook?.('beforeUpdate', this.battleFeatureContext, { scene: this });
     this.updateTrainingGuideUI();
@@ -270,9 +137,27 @@ export class BattleScene extends Phaser.Scene {
     if (!this.enemy || this.enemyCurrentHp <= 0) return;
 
     this.enemyCurrentHp = 0;
+    this.prepareTesterInstantKillVictoryState();
     this.refreshBattleUI();
     this.addBattleLog('Test Mode: Enemy defeated.');
     this.winBattle();
+  }
+
+  prepareTesterInstantKillVictoryState() {
+    this.battleEnded = true;
+    this.feedbackDelayActive = false;
+    this.dialogQueue = [];
+    this.dialogCallback = null;
+    this.selectedSkill = null;
+    this.selectedSkillIndex = 0;
+    this.selectedCommandIndex = 0;
+    this.selectedItemIndex = 0;
+    this.itemTargetSkillIndex = 0;
+    this.pendingBonusChoice = null;
+    this.builderActive = false;
+
+    this.showCombinedBox(false);
+    this.setBattleMenuState?.(battleMenuStates.END);
   }
 
   showCombinedBox(useCombined) {

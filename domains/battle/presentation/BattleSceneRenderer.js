@@ -2,6 +2,10 @@ import { battleMenuStates } from '../../../data/battleStates.js';
 import { battleResultPhases } from '../../../data/battlePhases.js';
 import { getBattleText, getBattleUIValue } from '../../../utils/battleSchema.js';
 
+function getStatusHpBarWidth(scene, side) {
+  return scene?.[`${side}StatusLayout`]?.hpBar?.width || 220;
+}
+
 export class BattleSceneRenderer {
   constructor(scene) {
     this.scene = scene;
@@ -121,14 +125,15 @@ export class BattleSceneRenderer {
 
   updateHpBars(viewState) {
     const scene = this.scene;
-    scene.enemyHpBarFill.width = 220 * (viewState?.hp?.enemy?.ratio || 0);
-    scene.playerHpBarFill.width = 220 * (viewState?.hp?.player?.ratio || 0);
+    scene.enemyHpBarFill.width = getStatusHpBarWidth(scene, 'enemy') * (viewState?.hp?.enemy?.ratio || 0);
+    scene.playerHpBarFill.width = getStatusHpBarWidth(scene, 'player') * (viewState?.hp?.player?.ratio || 0);
   }
 
   refreshStatus(viewState) {
     const scene = this.scene;
     this.renderTextGroup([
       { node: scene.enemyNameText, text: viewState?.texts?.enemyName || '' },
+      { node: scene.enemyLevelText, text: viewState?.texts?.enemyLevel || '' },
       { node: scene.playerLevelText, text: viewState?.texts?.playerLevel || '' },
       { node: scene.enemyInfoText, text: viewState?.hp?.enemy?.label || '' },
       { node: scene.enemyBuffText, text: viewState?.texts?.enemyBuff || '' },

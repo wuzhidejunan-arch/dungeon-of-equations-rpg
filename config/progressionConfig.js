@@ -1,10 +1,10 @@
 export const progressionConfig = {
   leveling: {
-    baseExpToNext: 16,
-    expStepPerLevel: 8,
+    baseExpToNext: 10,
+    expStepPerLevel: 5,
     goldPerLevel: 30,
     hpGrowth: {
-      maxHpGain: 2,
+      maxHpGain: 3,
       healOnGain: 2,
     },
   },
@@ -18,6 +18,12 @@ export const progressionConfig = {
       1: 3,
       2: 7,
       3: 10,
+      101: 3,
+      102: 7,
+      103: 10,
+      201: 3,
+      202: 7,
+      203: 10,
     },
   },
 };

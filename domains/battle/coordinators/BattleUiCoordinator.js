@@ -33,6 +33,10 @@ function setFittedEnemyName(node, text = '') {
   }
 }
 
+function getStatusHpBarWidth(scene, side) {
+  return scene?.[`${side}StatusLayout`]?.hpBar?.width || 220;
+}
+
 function getGuidedIntermediateRuleText(scene) {
   if (!scene.isTrainingGuideBattle?.() || scene.difficultyKey !== 'intermediate') {
     return '';
@@ -42,6 +46,10 @@ function getGuidedIntermediateRuleText(scene) {
 }
 
 function getEnemyRulePanelText(scene) {
+  if (scene.battleEnded) {
+    return '';
+  }
+
   const enemyRule = getEnemyPrimaryRule(scene.enemy);
   return getGuidedIntermediateRuleText(scene) || getEntityUIText(
     scene.enemy,
@@ -50,6 +58,16 @@ function getEnemyRulePanelText(scene) {
       rule: scene.getRuleShortText?.(enemyRule),
     }),
   );
+}
+
+function formatEnemyHpLabel(scene) {
+  return `${scene.enemyCurrentHp}/${scene.enemy?.hp}`;
+}
+
+function formatEnemyLevelLabel(enemy) {
+  const displayLevel = enemy?.displayLevel;
+
+  return Number.isFinite(displayLevel) ? `Lv.${displayLevel}` : '';
 }
 
 export class BattleUiCoordinator {
@@ -515,8 +533,8 @@ export class BattleUiCoordinator {
     const enemyRatio = Phaser.Math.Clamp(scene.enemyCurrentHp / scene.enemy.hp, 0, 1);
     const playerRatio = Phaser.Math.Clamp(playerData.hp / playerData.maxHp, 0, 1);
 
-    scene.enemyHpBarFill.width = 220 * enemyRatio;
-    scene.playerHpBarFill.width = 220 * playerRatio;
+    scene.enemyHpBarFill.width = getStatusHpBarWidth(scene, 'enemy') * enemyRatio;
+    scene.playerHpBarFill.width = getStatusHpBarWidth(scene, 'player') * playerRatio;
   }
 
   refreshBattleUI() {
@@ -528,8 +546,9 @@ export class BattleUiCoordinator {
     const scene = this.scene;
     setFittedEnemyName(scene.enemyNameText, scene.enemy.name.toUpperCase());
     this.renderTextGroup([
+      { node: scene.enemyLevelText, text: formatEnemyLevelLabel(scene.enemy) },
       { node: scene.playerLevelText, text: `Lv ${playerData.level}` },
-      { node: scene.enemyInfoText, text: `${scene.enemyCurrentHp}/${scene.enemy.hp}` },
+      { node: scene.enemyInfoText, text: formatEnemyHpLabel(scene) },
       { node: scene.enemyBuffText, text: scene.getEnemyEffectSummaryText?.() || '' },
       { node: scene.playerInfoText, text: `${playerData.hp}/${playerData.maxHp}` },
       { node: scene.playerBuffText, text: scene.getPlayerEffectSummaryText?.() || scene.getBuffSummaryText?.() || '' },

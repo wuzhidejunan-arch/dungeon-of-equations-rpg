@@ -79,6 +79,10 @@ export class WorldScene extends BaseScene {
     this.promptOverrideUntil = 0;
   }
 
+  init(data) {
+    this.initialPlayerFacingDirection = data?.playerFacingDirection || null;
+  }
+
   preload() {
     preloadWorldMapArt(this);
     preloadHudUiAssets(this);
@@ -129,6 +133,10 @@ export class WorldScene extends BaseScene {
     this.player.setDisplaySize(WORLD_PLAYER_DISPLAY_SIZE, WORLD_PLAYER_DISPLAY_SIZE);
     this.player.setDepth(-6);
     this.player.setCollideWorldBounds(true);
+    if (this.initialPlayerFacingDirection) {
+      this.playerFacingDirection = this.initialPlayerFacingDirection;
+      this.setExplorationPlayerIdleFrame(this.player);
+    }
     const playerBodyWidth = Math.round(this.player.width * 0.4);
     const playerBodyHeight = Math.round(this.player.height * 0.64);
     const playerBodyOffsetX = Math.round((this.player.width - playerBodyWidth) / 2);
@@ -577,11 +585,12 @@ export class WorldScene extends BaseScene {
       }
 
       playerData.position.world.x = 600;
-      playerData.position.world.y = 515;
+      playerData.position.world.y = 478;
       saveGame();
 
       this.scene.start("TrainingScene", {
         returnScene: "WorldScene",
+        returnSceneData: { playerFacingDirection: "down" },
       });
       return;
     }

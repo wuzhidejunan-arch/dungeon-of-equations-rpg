@@ -24,7 +24,7 @@ export const dungeonConfig = {
     missResetDistance: 80,
   },
   navigation: {
-    leaveToWorld: { x: 195, y: 500 },
+    leaveToWorld: { x: 195, y: 474 },
     previousRoomSpawn: { x: 680, y: 120 },
     nextRoomSpawn: { x: 140, y: 470 },
   },

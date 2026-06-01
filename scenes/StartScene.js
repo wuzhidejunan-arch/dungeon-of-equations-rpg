@@ -10,7 +10,8 @@ import { getRuntimeDifficultyState, switchRuntimeDifficultySlot } from '../utils
 import { beginDevEnemyVisualTestSession, clearDevEnemyVisualTestSession } from '../utils/devEnemyVisualTestSession.js';
 import { audioKeys } from '../config/audioKeys.js';
 import { playBgm, preloadBgmAssets } from '../utils/musicManager.js';
-import { playSfx, preloadSfxAssets } from '../utils/sfxManager.js';
+import { playSfx } from '../utils/sfxManager.js';
+import { preloadStartupAssets } from '../utils/gameAssetPreloader.js';
 
 const startSceneUiAssets = Object.freeze({
   levelSelectBg: {
@@ -63,10 +64,7 @@ export class StartScene extends Phaser.Scene {
   }
 
   preload() {
-    Object.values(startSceneUiAssets).forEach(({ key, path }) => {
-      this.load.image(key, path);
-    });
-    preloadSfxAssets(this);
+    preloadStartupAssets(this);
     // Keep the first menu paint fast; BGM loads after StartScene is visible.
   }
 
@@ -699,7 +697,7 @@ export class StartScene extends Phaser.Scene {
     beginDevEnemyVisualTestSession(playerData);
     switchRuntimeDifficultySlot(playerData, group.id);
 
-    this.scene.start('BattleScene', {
+    this.scene.start('BattleLoadingScene', {
       enemy,
       enemyKey: null,
       returnScene: 'StartScene',

@@ -18,11 +18,31 @@ import { GUIDE_STEP_IDS } from "../data/guideSteps.js";
 import { audioKeys } from "../config/audioKeys.js";
 import { loadAndPlayBgmAfterRender } from "../utils/musicManager.js";
 
-const WORLD_HOME_EXIT_POSITION = { x: 200, y: 190 };
+const WORLD_HOME_EXIT_POSITION = { x: 200, y: 166 };
 const HOME_INTERIOR_ENTRY_POSITION = { x: 400, y: 500 };
+const BEGINNER_HOME_OPENING_POSITION = { x: 400, y: 380 };
 const DEBUG_HOME_COLLISION = false;
 const GAME_OVER_PANEL_KEY = "gameOverPanel";
 const GAME_OVER_PANEL_PATH = "assets/images/ui/game_over_panel.png";
+const OPENING_BUBBLE_PANEL_KEY = "homeOpeningBubblePanel";
+const OPENING_BUBBLE_PANEL_PATH = "assets/ui/dialogue/home_opening_bubble.png";
+const OPENING_BUBBLE_LINES = [
+  "Welcome, hero!",
+  "Welcome to Dungeon of Equations RPG.",
+  "Follow the guide in the top-left corner.",
+  "Good luck clearing the dungeon!",
+];
+const OPENING_BUBBLE_LAYOUT = {
+  width: 380,
+  height: 140,
+  offsetX: 120,
+  offsetY: -70,
+  textX: 5,
+  textY: -3,
+  textWrapWidth: 285,
+  fontSize: "17px",
+  autoAdvanceDelayMs: 4000,
+};
 const GAME_OVER_PANEL_X = 370;
 const GAME_OVER_PANEL_Y = 300;
 const GAME_OVER_PANEL_DISPLAY_WIDTH = 720;
@@ -46,6 +66,7 @@ export class HomeScene extends BaseScene {
     preloadHomeMapArt(this);
     preloadHudUiAssets(this);
     this.load.image(GAME_OVER_PANEL_KEY, GAME_OVER_PANEL_PATH);
+    this.load.image(OPENING_BUBBLE_PANEL_KEY, OPENING_BUBBLE_PANEL_PATH);
     this.preloadResultModalAssets();
   }
 
@@ -64,9 +85,12 @@ export class HomeScene extends BaseScene {
       this.add.rectangle(400, 300, 800, 600, 0xd8c3a5).setDepth(-20);
     }
 
+    const homeSpawnPosition =
+      playerData.difficulty === "beginner" ? BEGINNER_HOME_OPENING_POSITION : playerData.position.home;
+
     this.player = this.physics.add.sprite(
-      playerData.position.home.x,
-      playerData.position.home.y,
+      homeSpawnPosition.x,
+      homeSpawnPosition.y,
       PLAYER_WALK_SHEET_KEY,
       1,
     );
@@ -89,6 +113,7 @@ export class HomeScene extends BaseScene {
     this.setupStatusUI();
     this.setupLevelUpUI();
     this.setupGameOverUI();
+    this.setupOpeningBubble();
 
     this.physics.add.collider(this.player, this.walls);
     this.physics.add.collider(this.player, this.furnitureBlockers);
@@ -104,6 +129,128 @@ export class HomeScene extends BaseScene {
     }
 
     loadAndPlayBgmAfterRender(this, audioKeys.bgm.normal);
+  }
+
+  setupOpeningBubble() {
+    this.openingBubbleActive = false;
+    this.openingBubbleIndex = 0;
+    this.openingBubbleLines = OPENING_BUBBLE_LINES;
+    this.openingBubbleTimer = null;
+    this.events.once("shutdown", () => this.clearOpeningBubbleTimer());
+
+    const panelItems = [];
+    if (this.textures.exists(OPENING_BUBBLE_PANEL_KEY)) {
+      panelItems.push(
+        this.add
+          .image(0, 0, OPENING_BUBBLE_PANEL_KEY)
+          .setDisplaySize(OPENING_BUBBLE_LAYOUT.width, OPENING_BUBBLE_LAYOUT.height),
+      );
+    } else {
+      panelItems.push(
+        this.add
+          .rectangle(
+            0,
+            0,
+            OPENING_BUBBLE_LAYOUT.width,
+            OPENING_BUBBLE_LAYOUT.height,
+            0x111827,
+            0.92,
+          )
+          .setStrokeStyle(3, 0xfacc15),
+      );
+    }
+
+    this.openingBubbleText = this.add
+      .text(OPENING_BUBBLE_LAYOUT.textX, OPENING_BUBBLE_LAYOUT.textY, "", {
+        fontSize: OPENING_BUBBLE_LAYOUT.fontSize,
+        color: "#3a2415",
+        align: "center",
+        wordWrap: { width: OPENING_BUBBLE_LAYOUT.textWrapWidth },
+      })
+      .setOrigin(0.5);
+
+    panelItems.push(this.openingBubbleText);
+    this.openingBubbleContainer = this.add
+      .container(0, 0, panelItems)
+      .setDepth(900)
+      .setVisible(false);
+
+    if (playerData.difficulty === "beginner" && !this.showGameOverOnCreate) {
+      this.openingBubbleActive = true;
+      this.openingBubbleText.setText(this.openingBubbleLines[this.openingBubbleIndex]);
+      this.updateOpeningBubblePosition();
+      this.openingBubbleContainer.setVisible(true);
+      this.startOpeningBubbleTimer();
+    }
+  }
+
+  startOpeningBubbleTimer() {
+    this.clearOpeningBubbleTimer();
+    if (!this.openingBubbleActive) return;
+
+    this.openingBubbleTimer = this.time.delayedCall(OPENING_BUBBLE_LAYOUT.autoAdvanceDelayMs, () => {
+      this.openingBubbleTimer = null;
+      this.advanceOpeningBubbleLine();
+    });
+  }
+
+  clearOpeningBubbleTimer() {
+    if (!this.openingBubbleTimer) return;
+
+    this.openingBubbleTimer.remove(false);
+    this.openingBubbleTimer = null;
+  }
+
+  updateOpeningBubblePosition() {
+    if (!this.openingBubbleActive || !this.openingBubbleContainer || !this.player) return;
+
+    const halfWidth = OPENING_BUBBLE_LAYOUT.width / 2;
+    const halfHeight = OPENING_BUBBLE_LAYOUT.height / 2;
+    const margin = 12;
+    const x = Phaser.Math.Clamp(
+      this.player.x + OPENING_BUBBLE_LAYOUT.offsetX,
+      halfWidth + margin,
+      800 - halfWidth - margin,
+    );
+    const y = Phaser.Math.Clamp(
+      this.player.y + OPENING_BUBBLE_LAYOUT.offsetY,
+      halfHeight + margin,
+      600 - halfHeight - margin,
+    );
+
+    this.openingBubbleContainer.setPosition(x, y);
+  }
+
+  hideOpeningBubble() {
+    this.clearOpeningBubbleTimer();
+    this.openingBubbleActive = false;
+    this.openingBubbleContainer?.setVisible(false);
+  }
+
+  advanceOpeningBubbleLine() {
+    if (!this.openingBubbleActive) return false;
+
+    this.openingBubbleIndex += 1;
+    if (this.openingBubbleIndex >= this.openingBubbleLines.length) {
+      this.hideOpeningBubble();
+      return true;
+    }
+
+    this.openingBubbleText.setText(this.openingBubbleLines[this.openingBubbleIndex]);
+    this.startOpeningBubbleTimer();
+    return true;
+  }
+
+  handleOpeningBubbleInput() {
+    if (!this.openingBubbleActive) return false;
+
+    const advancePressed =
+      Phaser.Input.Keyboard.JustDown(this.keyENTER) ||
+      Phaser.Input.Keyboard.JustDown(this.keySPACE);
+
+    if (!advancePressed) return false;
+
+    return this.advanceOpeningBubbleLine();
   }
 
   createWalls() {
@@ -235,6 +382,9 @@ export class HomeScene extends BaseScene {
       return;
     }
 
+    this.updateOpeningBubblePosition();
+    this.handleOpeningBubbleInput();
+
     this.updateHomeGuideProgress();
 
     const nearDoor = this.physics.overlap(this.player, this.doorZone);
@@ -286,7 +436,8 @@ export class HomeScene extends BaseScene {
         playerData.position.world.x = WORLD_HOME_EXIT_POSITION.x;
         playerData.position.world.y = WORLD_HOME_EXIT_POSITION.y;
         saveGame();
-        this.scene.start("WorldScene");
+        this.hideOpeningBubble();
+        this.scene.start("WorldScene", { playerFacingDirection: "down" });
       }
     }
   }

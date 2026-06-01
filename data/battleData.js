@@ -91,8 +91,8 @@ export const beginnerPlayerSkillDefinitions = [
       },
     },
     condition: { type: 'result_rule', value: 'odd' },
-    damageFormula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true },
-    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true } }],
+    damageFormula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true },
+    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true } }],
   }),
   createSkill({
     id: 'evenAttack',
@@ -112,8 +112,8 @@ export const beginnerPlayerSkillDefinitions = [
       },
     },
     condition: { type: 'result_rule', value: 'even' },
-    damageFormula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true },
-    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true } }],
+    damageFormula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true },
+    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true } }],
   }),
   createSkill({
     id: 'primeAttack',
@@ -133,8 +133,8 @@ export const beginnerPlayerSkillDefinitions = [
       },
     },
     condition: { type: 'result_rule', value: 'prime' },
-    damageFormula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true },
-    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true } }],
+    damageFormula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true },
+    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true } }],
   }),
   createSkill({
     id: 'zeroGuard',
@@ -268,8 +268,8 @@ export const challengePlayerSkillDefinitions = [
       },
     },
     condition: { type: 'skill_category', value: 'attack' },
-    damageFormula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true },
-    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 10, applyAttackBuff: true, applyNextAttackBonus: true } }],
+    damageFormula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true },
+    effects: [{ type: 'damage_enemy', formula: { type: 'flat', base: 12, applyAttackBuff: true, applyNextAttackBonus: true } }],
   }),
   createSkill({
     id: 'challengeHeavyAttack',
@@ -380,7 +380,7 @@ export const itemDefinitions = {
     menuLabel: 'Potion',
     canUse: ({ player }) => player.hp < player.maxHp,
     failMessage: 'HP is already full.',
-    effects: [{ type: 'healHp', amount: 8, message: 'Used Potion. Recovered {amount} HP.' }],
+    effects: [{ type: 'healHp', amount: 15, message: 'Used Potion. Recovered {amount} HP.' }],
     ui: { resultText: 'Recover some HP.' },
   }),
   'Skill Potion': createItem({

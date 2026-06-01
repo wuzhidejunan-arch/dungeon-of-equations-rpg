@@ -633,7 +633,7 @@ export class DungeonScene extends BaseScene {
     playerData.position.dungeon.y = this.player.y;
     saveGame();
 
-    this.scene.start('BattleScene', {
+    this.scene.start('BattleLoadingScene', {
       enemy,
       returnScene: 'DungeonScene',
       enemyKey,
@@ -753,7 +753,7 @@ export class DungeonScene extends BaseScene {
         playerData.position.world.x = dungeonConfig.navigation.leaveToWorld.x;
         playerData.position.world.y = dungeonConfig.navigation.leaveToWorld.y;
         saveGame();
-        this.scene.start('WorldScene');
+        this.scene.start('WorldScene', { playerFacingDirection: 'down' });
         return;
       }
 

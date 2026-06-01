@@ -58,6 +58,93 @@ function isDemoBattle(scene) {
   return scene?.returnSceneData?.demoBattle === true || scene?.returnSceneData?.demoMode === true;
 }
 
+function ensureBattleSummary(scene) {
+  const summary = scene.battleSummary && typeof scene.battleSummary === 'object'
+    ? scene.battleSummary
+    : {};
+
+  if (!Array.isArray(summary.attempts)) summary.attempts = [];
+  if (!Number.isFinite(summary.correct)) summary.correct = 0;
+  if (!Number.isFinite(summary.wrong)) summary.wrong = 0;
+
+  scene.battleSummary = summary;
+  return summary;
+}
+
+function buildBattleSummaryPayload(scene, resultLabel) {
+  const summary = scene?.battleSummary || {};
+  const attempts = Array.isArray(summary.attempts) ? summary.attempts : [];
+
+  return {
+    result: resultLabel,
+    enemyName: scene?.enemy?.name || 'Enemy',
+    correct: Number.isFinite(summary.correct) ? summary.correct : 0,
+    wrong: Number.isFinite(summary.wrong) ? summary.wrong : 0,
+    attempts,
+  };
+}
+
+function showBattleSummaryFirst(scene, resultLabel, continueAfterSummary) {
+  const summary = buildBattleSummaryPayload(scene, resultLabel);
+  let hasContinued = false;
+  const continueOnce = () => {
+    if (hasContinued) return;
+    hasContinued = true;
+    if (typeof continueAfterSummary === 'function') {
+      continueAfterSummary();
+    }
+  };
+
+  if (typeof scene?.showBattleSummaryModal !== 'function') {
+    continueOnce();
+    return;
+  }
+
+  scene.showBattleSummaryModal(summary, continueOnce);
+}
+
+function getAttemptReasonText(entry) {
+  if (typeof entry === 'string') return entry.trim();
+  if (entry?.text) return String(entry.text).trim();
+  if (entry?.message) return String(entry.message).trim();
+  return '';
+}
+
+function getBattleSummaryReason(resolved) {
+  const entries = [
+    ...(Array.isArray(resolved?.lines) ? resolved.lines : []),
+    ...(Array.isArray(resolved?.phases) ? resolved.phases : []),
+  ];
+  const reasons = entries.map(getAttemptReasonText).filter(Boolean);
+  const preferredReason = reasons.find((reason) => (
+    /correct|not activated|not |failed|needs|wrong|blocked|no damage|succeeded|works/i.test(reason)
+  ));
+
+  return preferredReason || reasons[0] || 'Attack did not fully succeed.';
+}
+
+function recordBattleSummaryAttempt(scene, { skill, expression, result, operator, resolved }) {
+  const summary = ensureBattleSummary(scene);
+  const resolutionState = resolved?.resolutionState || '';
+  const isCorrect = resolutionState === 'full_success';
+
+  summary.attempts.push({
+    skillName: skill?.displayName || skill?.name || skill?.id || 'Unknown Skill',
+    expression,
+    result,
+    operator,
+    resolutionState,
+    isCorrect,
+    reason: getBattleSummaryReason(resolved),
+  });
+
+  if (isCorrect) {
+    summary.correct += 1;
+  } else {
+    summary.wrong += 1;
+  }
+}
+
 function getSkillEffects(skill) {
   return Array.isArray(skill?.effects) ? skill.effects : [];
 }
@@ -183,6 +270,13 @@ export class BattleOutcomeSystem {
       expression,
       operator,
     });
+    recordBattleSummaryAttempt(this.scene, {
+      skill: usedSkill,
+      expression,
+      result,
+      operator,
+      resolved,
+    });
     const enemyHpAfterAttack = this.scene.enemyCurrentHp;
     const enemyHpDecreased = enemyHpAfterAttack < enemyHpBeforeAttack;
     const enemyDefeated = enemyHpBeforeAttack > 0 && enemyHpAfterAttack <= 0;
@@ -250,113 +344,122 @@ export class BattleOutcomeSystem {
     unlockBattleFeedback(this.scene);
     playSfx(this.scene, audioKeys.sfx.victory);
 
-    if (this.scene.devEnemyVisualTest) {
-      this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);
-      this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
-      this.scene.refreshBattleUI();
-
-      this.controller?.emitBattleEnded({ outcome: 'win' });
-
-      this.scene.time.delayedCall(800, () => {
-        restoreDevEnemyVisualTestSession(playerData);
-        this.scene.scene.start(this.scene.returnScene || 'StartScene', this.scene.returnSceneData || undefined);
-      });
-      return;
-    }
-
-    if (isDemoBattle(this.scene)) {
-      this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);
-      this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
-      this.scene.refreshBattleUI();
-
-      this.controller?.emitBattleEnded({ outcome: 'win' });
-
-      this.scene.time.delayedCall(800, () => {
-        if (isDemoTrainingBattle(this.scene)) {
-          markTrainingBattleOutcome(this.scene, true);
-        }
-        this.scene.scene.start(this.scene.returnScene || 'DemoMenuScene', this.scene.returnSceneData || undefined);
-      });
-      return;
-    }
-
-    const reward = this.scene.enemy.goldReward || 10;
-    const expReward = getExpRewardForEnemy(this.scene.enemy);
-    playerData.gold += reward;
-    const expResult = grantBattleExp(expReward);
-
-    applyBattleVictoryProgress(playerData, this.scene.enemyKey);
-    if (isDungeonBossVictory(this.scene)) {
-      playerData.hp = playerData.maxHp;
-    }
-
-    this.scene.renderResultText(
-      formatBattleTemplate(getBattleUIText('resultText.win', 'You beat the monster!\nYou got {reward} gold.'), { reward, expReward }),
-      battleResultPhases.VICTORY,
-      { reward, expReward },
-    );
-    this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
-    this.scene.addBattleLog(getBattleText('logs.playerGainedGold', `Player gained ${reward} Gold.`, { reward }));
-    this.scene.addBattleLog(`Player gained ${expReward} EXP.`);
-
-    if (expResult.leveledUp) {
-      this.scene.addBattleLog(`Level up! Now Lv.${expResult.currentLevel}.`);
-    }
-    this.scene.refreshBattleUI();
-
-    this.controller?.emitBattleEnded({ outcome: 'win' });
-
-    this.scene.time.delayedCall(800, () => {
-      persistBattleSkillLoadout(this.scene.playerSkills || []);
-      markTrainingBattleOutcome(this.scene, true);
-      saveGame();
-      this.scene.scene.start(this.scene.returnScene || 'WorldScene', this.scene.returnSceneData || undefined);
-    });
-  }
-
-  loseBattle() {
-    this.scene.battleEnded = true;
-    this.scene.renderResultText(getBattleUIText('resultText.lose', 'You lost this battle.'), battleResultPhases.DEFEAT);
-    this.scene.addBattleLog(getBattleText('logs.playerDefeated', 'Player was defeated.'));
-    this.scene.refreshBattleUI();
-
-    this.controller?.emitBattleEnded({ outcome: 'lose' });
-
-    this.scene.time.delayedCall(800, () => {
+    const continueAfterSummary = () => {
       if (this.scene.devEnemyVisualTest) {
-        restoreDevEnemyVisualTestSession(playerData);
-        this.scene.scene.start(this.scene.returnScene || 'StartScene', this.scene.returnSceneData || undefined);
+        this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);
+        this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
+        this.scene.refreshBattleUI();
+
+        this.controller?.emitBattleEnded({ outcome: 'win' });
+
+        this.scene.time.delayedCall(800, () => {
+          restoreDevEnemyVisualTestSession(playerData);
+          this.scene.scene.start(this.scene.returnScene || 'StartScene', this.scene.returnSceneData || undefined);
+        });
         return;
       }
 
       if (isDemoBattle(this.scene)) {
-        if (isDemoTrainingBattle(this.scene)) {
-          markTrainingBattleOutcome(this.scene, false);
-        }
-        this.scene.scene.start(this.scene.returnScene || 'DemoMenuScene', this.scene.returnSceneData || undefined);
+        this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);
+        this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
+        this.scene.refreshBattleUI();
+
+        this.controller?.emitBattleEnded({ outcome: 'win' });
+
+        this.scene.time.delayedCall(800, () => {
+          if (isDemoTrainingBattle(this.scene)) {
+            markTrainingBattleOutcome(this.scene, true);
+          }
+          this.scene.scene.start(this.scene.returnScene || 'DemoMenuScene', this.scene.returnSceneData || undefined);
+        });
         return;
       }
 
-      persistBattleSkillLoadout(this.scene.playerSkills || []);
-      playerData.hp = playerData.maxHp;
-      markTrainingBattleOutcome(this.scene, false);
+      const reward = this.scene.enemy.goldReward || 10;
+      const expReward = getExpRewardForEnemy(this.scene.enemy);
+      playerData.gold += reward;
+      const expResult = grantBattleExp(expReward);
 
-      if (this.scene.returnScene === 'TrainingScene') {
+      applyBattleVictoryProgress(playerData, this.scene.enemyKey);
+      if (isDungeonBossVictory(this.scene)) {
+        playerData.hp = playerData.maxHp;
+      }
+
+      this.scene.renderResultText(
+        formatBattleTemplate(getBattleUIText('resultText.win', 'You beat the monster!\nYou got {reward} gold.'), { reward, expReward }),
+        battleResultPhases.VICTORY,
+        { reward, expReward },
+      );
+      this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
+      this.scene.addBattleLog(getBattleText('logs.playerGainedGold', `Player gained ${reward} Gold.`, { reward }));
+      this.scene.addBattleLog(`Player gained ${expReward} EXP.`);
+
+      if (expResult.leveledUp) {
+        this.scene.addBattleLog(`Level up! Now Lv.${expResult.currentLevel}.`);
+      }
+      this.scene.refreshBattleUI();
+
+      this.controller?.emitBattleEnded({ outcome: 'win' });
+
+      this.scene.time.delayedCall(800, () => {
+        persistBattleSkillLoadout(this.scene.playerSkills || []);
+        markTrainingBattleOutcome(this.scene, true);
         saveGame();
-        this.scene.scene.start(this.scene.returnScene, this.scene.returnSceneData || undefined);
-        return;
-      }
-
-      playerData.position.home.x = HOME_RESPAWN_POSITION.x;
-      playerData.position.home.y = HOME_RESPAWN_POSITION.y;
-      playerData.position.world.x = WORLD_HOME_EXIT_POSITION.x;
-      playerData.position.world.y = WORLD_HOME_EXIT_POSITION.y;
-      saveGame();
-      this.scene.scene.start('HomeScene', {
-        showGameOver: true,
-        gameOverTitle: 'Game Over',
-        gameOverMessage: 'Try again. You can do it.',
+        this.scene.scene.start(this.scene.returnScene || 'WorldScene', this.scene.returnSceneData || undefined);
       });
-    });
+    };
+
+    showBattleSummaryFirst(this.scene, 'Victory', continueAfterSummary);
+  }
+
+  loseBattle() {
+    this.scene.battleEnded = true;
+
+    const continueAfterSummary = () => {
+      this.scene.renderResultText(getBattleUIText('resultText.lose', 'You lost this battle.'), battleResultPhases.DEFEAT);
+      this.scene.addBattleLog(getBattleText('logs.playerDefeated', 'Player was defeated.'));
+      this.scene.refreshBattleUI();
+
+      this.controller?.emitBattleEnded({ outcome: 'lose' });
+
+      this.scene.time.delayedCall(800, () => {
+        if (this.scene.devEnemyVisualTest) {
+          restoreDevEnemyVisualTestSession(playerData);
+          this.scene.scene.start(this.scene.returnScene || 'StartScene', this.scene.returnSceneData || undefined);
+          return;
+        }
+
+        if (isDemoBattle(this.scene)) {
+          if (isDemoTrainingBattle(this.scene)) {
+            markTrainingBattleOutcome(this.scene, false);
+          }
+          this.scene.scene.start(this.scene.returnScene || 'DemoMenuScene', this.scene.returnSceneData || undefined);
+          return;
+        }
+
+        persistBattleSkillLoadout(this.scene.playerSkills || []);
+        playerData.hp = playerData.maxHp;
+        markTrainingBattleOutcome(this.scene, false);
+
+        if (this.scene.returnScene === 'TrainingScene') {
+          saveGame();
+          this.scene.scene.start(this.scene.returnScene, this.scene.returnSceneData || undefined);
+          return;
+        }
+
+        playerData.position.home.x = HOME_RESPAWN_POSITION.x;
+        playerData.position.home.y = HOME_RESPAWN_POSITION.y;
+        playerData.position.world.x = WORLD_HOME_EXIT_POSITION.x;
+        playerData.position.world.y = WORLD_HOME_EXIT_POSITION.y;
+        saveGame();
+        this.scene.scene.start('HomeScene', {
+          showGameOver: true,
+          gameOverTitle: 'Game Over',
+          gameOverMessage: 'Try again. You can do it.',
+        });
+      });
+    };
+
+    showBattleSummaryFirst(this.scene, 'Defeat', continueAfterSummary);
   }
 }

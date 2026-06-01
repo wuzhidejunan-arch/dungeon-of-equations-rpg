@@ -13,10 +13,11 @@ const DEFAULT_BGM_CONFIG = {
 };
 
 export function preloadBgmAssets(scene, keys = []) {
-  if (!scene?.load || !scene?.cache?.audio) return;
+  if (!scene?.load || !scene?.cache?.audio) return 0;
 
   const requestedKeys = Array.isArray(keys) ? keys : [keys];
   const uniqueKeys = requestedKeys.filter((key, index) => key && requestedKeys.indexOf(key) === index);
+  let queuedCount = 0;
 
   uniqueKeys.forEach((key) => {
     const path = audioPaths.bgm[key];
@@ -24,8 +25,11 @@ export function preloadBgmAssets(scene, keys = []) {
 
     if (!scene.cache.audio.exists(key)) {
       scene.load.audio(key, path);
+      queuedCount += 1;
     }
   });
+
+  return queuedCount;
 }
 
 function isSceneActive(scene) {

@@ -234,7 +234,7 @@ export class DemoMenuScene extends Phaser.Scene {
     beginDemoSession();
     this.prepareDemoRuntime(selectedDifficultyKey);
 
-    this.scene.start('BattleScene', {
+    this.scene.start('BattleLoadingScene', {
       demoMode: true,
       demoBattle: true,
       difficultyKey: selectedDifficultyKey,

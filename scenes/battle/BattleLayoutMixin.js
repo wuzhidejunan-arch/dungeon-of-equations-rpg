@@ -1,3 +1,32 @@
+const BATTLE_SUMMARY_TEXT_LAYOUT = {
+  panel: { width: 740, height: 555 },
+  resultValue: { x: 300, y: 114, fontSize: '20px' },
+  enemyValue: { x: 300, y: 150, fontSize: '20px' },
+  correctValue: { x: 300, y: 184, fontSize: '20px' },
+  wrongValue: { x: 300, y: 220, fontSize: '20px' },
+  mistakesText: { x: 84, y: 290, width: 632, height: 194, fontSize: '17px', lineSpacing: 5 },
+};
+
+const ENEMY_STATUS_LAYOUT = {
+  panel: { x: 215, y: 92, width: 380, height: 148 },
+  name: { x: 70, y: 60, fontSize: '20px' },
+  level: { x: 320, y: 60, fontSize: '18px' },
+  hpLabel: { x: 60, y: 91, fontSize: '22px' },
+  hpBar: { x: 120, y: 99, width: 240, height: 13 },
+  hpValue: { x: 310, y: 119, fontSize: '16px' },
+  buff: { x: 120, y: 110, fontSize: '12px', lineSpacing: 2, wrapWidth: 268 },
+};
+
+const PLAYER_STATUS_LAYOUT = {
+  panel: { x: 590, y: 332, width: 380, height: 148 },
+  name: { x: 450, y: 300, fontSize: '22px' },
+  level: { x: 680, y: 300, fontSize: '18px' },
+  hpLabel: { x: 435, y: 331, fontSize: '22px' },
+  hpBar: { x: 490, y: 339, width: 240, height: 13 },
+  hpValue: { x: 680, y: 359, fontSize: '16px' },
+  buff: { x: 490, y: 350, fontSize: '12px', lineSpacing: 2, wrapWidth: 268 },
+};
+
 export const BattleLayoutMixin = {
   createBattleLayout() {
     const { width, height } = this.scale;
@@ -27,15 +56,6 @@ export const BattleLayoutMixin = {
     const leftPanelX = bottomGroupLeft + (leftPanelWidth / 2);
     const rightPanelX = bottomGroupLeft + leftPanelWidth + bottomPanelGap + (commandPanelWidth / 2);
     const dialogPanelX = bottomGroupCenterX;
-    const enemyStatusX = 215;
-    const enemyStatusY = 92;
-    const enemyStatusW = 380;
-    const enemyStatusH = 148;
-    const playerStatusX = 590;
-    const playerStatusY = 332;
-    const playerStatusW = 380;
-    const playerStatusH = 148;
-    const hpBarWidth = 220;
     const playerStandX = 225;
     const playerStandY = 350;
     const playerCircleW = 300;
@@ -108,27 +128,6 @@ export const BattleLayoutMixin = {
         : this.add.rectangle(x, y, panelWidth, panelHeight, fallbackFill).setStrokeStyle(5, colors.panelTrim, 0.92);
       return panel.setDepth(panelDepth).setVisible(visible);
     };
-    const getStatusLayout = (x, y, panelWidth, panelHeight) => {
-      const left = x - (panelWidth / 2);
-      const right = x + (panelWidth / 2);
-      const top = y - (panelHeight / 2);
-      return {
-        nameX: left + 56,
-        nameY: top + 30,
-        levelX: right - 82,
-        levelY: top + 30,
-        hpLabelX: left + 56,
-        hpLabelY: top + 64,
-        hpBarX: left + 108,
-        hpBarY: top + 71,
-        infoX: left + 258,
-        infoY: top + 96,
-        buffX: left + 56,
-        buffY: top + 100,
-        wrapWidth: panelWidth - 112,
-      };
-    };
-
     if (this.textures.exists('battleBgDungeon')) {
       this.add.image(width / 2, height / 2, 'battleBgDungeon').setDisplaySize(width, height);
     } else {
@@ -136,8 +135,23 @@ export const BattleLayoutMixin = {
     }
     this.add.rectangle(width / 2, 212, width - 72, 322, colors.fieldFill, 0).setStrokeStyle(0, colors.panelBorder, 0);
 
-    this.enemyStatusBox = createPanelBox('battleStatusPanel', enemyStatusX, enemyStatusY, enemyStatusW, enemyStatusH);
-    this.playerStatusBox = createPanelBox('battleStatusPanel', playerStatusX, playerStatusY, playerStatusW, playerStatusH);
+    this.enemyStatusLayout = ENEMY_STATUS_LAYOUT;
+    this.playerStatusLayout = PLAYER_STATUS_LAYOUT;
+
+    this.enemyStatusBox = createPanelBox(
+      'battleStatusPanel',
+      ENEMY_STATUS_LAYOUT.panel.x,
+      ENEMY_STATUS_LAYOUT.panel.y,
+      ENEMY_STATUS_LAYOUT.panel.width,
+      ENEMY_STATUS_LAYOUT.panel.height,
+    );
+    this.playerStatusBox = createPanelBox(
+      'battleStatusPanel',
+      PLAYER_STATUS_LAYOUT.panel.x,
+      PLAYER_STATUS_LAYOUT.panel.y,
+      PLAYER_STATUS_LAYOUT.panel.width,
+      PLAYER_STATUS_LAYOUT.panel.height,
+    );
 
     this.messageBox = createPanelBox('battleMessagePanel', leftPanelX, bottomPanelY, leftPanelWidth, bottomPanelHeight, false);
     this.rulePanelBox = this.add.rectangle(leftPanelX, bottomPanelY, leftPanelWidth, bottomPanelHeight, 0xffffff, 0).setStrokeStyle(0, 0x1a1a1a, 0).setDepth(panelDepth).setVisible(false);
@@ -146,35 +160,32 @@ export const BattleLayoutMixin = {
     this.commandBox = createPanelBox('battleSquarePanel', rightPanelX, bottomPanelY, commandPanelWidth, commandPanelHeight, false);
     this.combinedDialogBox = createPanelBox('battleMessagePanel', dialogPanelX, bottomPanelY, dialogPanelWidth, bottomPanelHeight, false);
 
-    const enemyStatusLayout = getStatusLayout(enemyStatusX, enemyStatusY, enemyStatusW, enemyStatusH);
-    const playerStatusLayout = getStatusLayout(playerStatusX, playerStatusY, playerStatusW, playerStatusH);
-
-    this.enemyNameText = this.add.text(enemyStatusLayout.nameX, enemyStatusLayout.nameY, '', { fontSize: '20px', color: colors.textPrimary, fontStyle: 'bold' });
-    this.enemyLevelText = this.add.text(enemyStatusLayout.levelX, enemyStatusLayout.levelY, 'Lv5', { fontSize: '17px', color: colors.textSecondary, fontStyle: 'bold' });
-    this.enemyHpLabel = this.add.text(enemyStatusLayout.hpLabelX, enemyStatusLayout.hpLabelY, 'HP', { fontSize: '17px', color: colors.textPrimary, fontStyle: 'bold' });
-    this.enemyHpBarBg = this.add.rectangle(enemyStatusLayout.hpBarX, enemyStatusLayout.hpBarY, hpBarWidth, 12, colors.hpTrack).setOrigin(0, 0.5);
-    this.enemyHpBarFill = this.add.rectangle(enemyStatusLayout.hpBarX, enemyStatusLayout.hpBarY, hpBarWidth, 12, colors.hpFill).setOrigin(0, 0.5);
-    this.enemyInfoText = this.add.text(enemyStatusLayout.infoX, enemyStatusLayout.infoY, '', { fontSize: '15px', color: colors.textSecondary, fontStyle: 'bold' });
-    this.enemyBuffText = this.add.text(enemyStatusLayout.buffX, enemyStatusLayout.buffY, '', {
-      fontSize: '12px',
+    this.enemyNameText = this.add.text(ENEMY_STATUS_LAYOUT.name.x, ENEMY_STATUS_LAYOUT.name.y, '', { fontSize: ENEMY_STATUS_LAYOUT.name.fontSize, color: colors.textPrimary, fontStyle: 'bold' });
+    this.enemyLevelText = this.add.text(ENEMY_STATUS_LAYOUT.level.x, ENEMY_STATUS_LAYOUT.level.y, 'Lv5', { fontSize: ENEMY_STATUS_LAYOUT.level.fontSize, color: colors.textSecondary, fontStyle: 'bold' });
+    this.enemyHpLabel = this.add.text(ENEMY_STATUS_LAYOUT.hpLabel.x, ENEMY_STATUS_LAYOUT.hpLabel.y, 'HP', { fontSize: ENEMY_STATUS_LAYOUT.hpLabel.fontSize, color: colors.textPrimary, fontStyle: 'bold' });
+    this.enemyHpBarBg = this.add.rectangle(ENEMY_STATUS_LAYOUT.hpBar.x, ENEMY_STATUS_LAYOUT.hpBar.y, ENEMY_STATUS_LAYOUT.hpBar.width, ENEMY_STATUS_LAYOUT.hpBar.height, colors.hpTrack).setOrigin(0, 0.5);
+    this.enemyHpBarFill = this.add.rectangle(ENEMY_STATUS_LAYOUT.hpBar.x, ENEMY_STATUS_LAYOUT.hpBar.y, ENEMY_STATUS_LAYOUT.hpBar.width, ENEMY_STATUS_LAYOUT.hpBar.height, colors.hpFill).setOrigin(0, 0.5);
+    this.enemyInfoText = this.add.text(ENEMY_STATUS_LAYOUT.hpValue.x, ENEMY_STATUS_LAYOUT.hpValue.y, '', { fontSize: ENEMY_STATUS_LAYOUT.hpValue.fontSize, color: colors.textSecondary, fontStyle: 'bold' });
+    this.enemyBuffText = this.add.text(ENEMY_STATUS_LAYOUT.buff.x, ENEMY_STATUS_LAYOUT.buff.y, '', {
+      fontSize: ENEMY_STATUS_LAYOUT.buff.fontSize,
       color: '#fca5a5',
       fontStyle: 'bold',
-      lineSpacing: 2,
-      wordWrap: { width: enemyStatusLayout.wrapWidth },
+      lineSpacing: ENEMY_STATUS_LAYOUT.buff.lineSpacing,
+      wordWrap: { width: ENEMY_STATUS_LAYOUT.buff.wrapWidth },
     });
 
-    this.playerNameText = this.add.text(playerStatusLayout.nameX, playerStatusLayout.nameY, 'PLAYER', { fontSize: '20px', color: colors.textPrimary, fontStyle: 'bold' });
-    this.playerLevelText = this.add.text(playerStatusLayout.levelX, playerStatusLayout.levelY, '', { fontSize: '17px', color: colors.textSecondary, fontStyle: 'bold' });
-    this.playerHpLabel = this.add.text(playerStatusLayout.hpLabelX, playerStatusLayout.hpLabelY, 'HP', { fontSize: '17px', color: colors.textPrimary, fontStyle: 'bold' });
-    this.playerHpBarBg = this.add.rectangle(playerStatusLayout.hpBarX, playerStatusLayout.hpBarY, hpBarWidth, 12, colors.hpTrack).setOrigin(0, 0.5);
-    this.playerHpBarFill = this.add.rectangle(playerStatusLayout.hpBarX, playerStatusLayout.hpBarY, hpBarWidth, 12, colors.hpFill).setOrigin(0, 0.5);
-    this.playerInfoText = this.add.text(playerStatusLayout.infoX, playerStatusLayout.infoY, '', { fontSize: '15px', color: colors.textSecondary, fontStyle: 'bold' });
-    this.playerBuffText = this.add.text(playerStatusLayout.buffX, playerStatusLayout.buffY, '', {
-      fontSize: '12px',
+    this.playerNameText = this.add.text(PLAYER_STATUS_LAYOUT.name.x, PLAYER_STATUS_LAYOUT.name.y, 'PLAYER', { fontSize: PLAYER_STATUS_LAYOUT.name.fontSize, color: colors.textPrimary, fontStyle: 'bold' });
+    this.playerLevelText = this.add.text(PLAYER_STATUS_LAYOUT.level.x, PLAYER_STATUS_LAYOUT.level.y, '', { fontSize: PLAYER_STATUS_LAYOUT.level.fontSize, color: colors.textSecondary, fontStyle: 'bold' });
+    this.playerHpLabel = this.add.text(PLAYER_STATUS_LAYOUT.hpLabel.x, PLAYER_STATUS_LAYOUT.hpLabel.y, 'HP', { fontSize: PLAYER_STATUS_LAYOUT.hpLabel.fontSize, color: colors.textPrimary, fontStyle: 'bold' });
+    this.playerHpBarBg = this.add.rectangle(PLAYER_STATUS_LAYOUT.hpBar.x, PLAYER_STATUS_LAYOUT.hpBar.y, PLAYER_STATUS_LAYOUT.hpBar.width, PLAYER_STATUS_LAYOUT.hpBar.height, colors.hpTrack).setOrigin(0, 0.5);
+    this.playerHpBarFill = this.add.rectangle(PLAYER_STATUS_LAYOUT.hpBar.x, PLAYER_STATUS_LAYOUT.hpBar.y, PLAYER_STATUS_LAYOUT.hpBar.width, PLAYER_STATUS_LAYOUT.hpBar.height, colors.hpFill).setOrigin(0, 0.5);
+    this.playerInfoText = this.add.text(PLAYER_STATUS_LAYOUT.hpValue.x, PLAYER_STATUS_LAYOUT.hpValue.y, '', { fontSize: PLAYER_STATUS_LAYOUT.hpValue.fontSize, color: colors.textSecondary, fontStyle: 'bold' });
+    this.playerBuffText = this.add.text(PLAYER_STATUS_LAYOUT.buff.x, PLAYER_STATUS_LAYOUT.buff.y, '', {
+      fontSize: PLAYER_STATUS_LAYOUT.buff.fontSize,
       color: '#bbf7d0',
       fontStyle: 'bold',
-      lineSpacing: 2,
-      wordWrap: { width: playerStatusLayout.wrapWidth },
+      lineSpacing: PLAYER_STATUS_LAYOUT.buff.lineSpacing,
+      wordWrap: { width: PLAYER_STATUS_LAYOUT.buff.wrapWidth },
     });
 
     const enemyVisualX = enemyStandX;
@@ -367,7 +378,268 @@ export const BattleLayoutMixin = {
       this.skillInfoText,
     ].filter(Boolean).forEach((node) => node.setDepth(uiTextDepth));
 
+    this.createBattleSummaryModal();
+
     this.logText = this.add.text(70, 598, '', { fontSize: '1px', color: '#ffffff' }).setVisible(false);
+  },
+
+  createBattleSummaryModal() {
+    const { width, height } = this.scale;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const panelWidth = BATTLE_SUMMARY_TEXT_LAYOUT.panel.width;
+    const panelHeight = BATTLE_SUMMARY_TEXT_LAYOUT.panel.height;
+    const modalDepth = 1000;
+    const scrollArea = {
+      x: BATTLE_SUMMARY_TEXT_LAYOUT.mistakesText.x,
+      y: BATTLE_SUMMARY_TEXT_LAYOUT.mistakesText.y,
+      width: BATTLE_SUMMARY_TEXT_LAYOUT.mistakesText.width,
+      height: BATTLE_SUMMARY_TEXT_LAYOUT.mistakesText.height,
+    };
+    const valueTextStyle = {
+      color: '#fff4c7',
+      fontStyle: 'bold',
+      fontFamily: 'monospace',
+      stroke: '#20140a',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true },
+    };
+
+    const overlay = this.add.rectangle(centerX, centerY, width, height, 0x000000, 0.62);
+    const shadow = this.add.rectangle(centerX + 8, centerY + 8, panelWidth, panelHeight, 0x000000, 0.38);
+    const panel = this.textures.exists('battleSummaryPanel')
+      ? this.add.image(centerX, centerY, 'battleSummaryPanel').setDisplaySize(panelWidth, panelHeight)
+      : this.add.rectangle(centerX, centerY, panelWidth, panelHeight, 0x111827, 0.98)
+        .setStrokeStyle(5, 0xb9823b, 0.95);
+
+    this.battleSummaryResultValueText = this.add.text(
+      BATTLE_SUMMARY_TEXT_LAYOUT.resultValue.x,
+      BATTLE_SUMMARY_TEXT_LAYOUT.resultValue.y,
+      '',
+      { ...valueTextStyle, fontSize: BATTLE_SUMMARY_TEXT_LAYOUT.resultValue.fontSize },
+    ).setOrigin(0, 0.5);
+
+    this.battleSummaryEnemyValueText = this.add.text(
+      BATTLE_SUMMARY_TEXT_LAYOUT.enemyValue.x,
+      BATTLE_SUMMARY_TEXT_LAYOUT.enemyValue.y,
+      '',
+      { ...valueTextStyle, fontSize: BATTLE_SUMMARY_TEXT_LAYOUT.enemyValue.fontSize },
+    ).setOrigin(0, 0.5);
+
+    this.battleSummaryCorrectValueText = this.add.text(
+      BATTLE_SUMMARY_TEXT_LAYOUT.correctValue.x,
+      BATTLE_SUMMARY_TEXT_LAYOUT.correctValue.y,
+      '',
+      { ...valueTextStyle, fontSize: BATTLE_SUMMARY_TEXT_LAYOUT.correctValue.fontSize },
+    ).setOrigin(0, 0.5);
+
+    this.battleSummaryWrongValueText = this.add.text(
+      BATTLE_SUMMARY_TEXT_LAYOUT.wrongValue.x,
+      BATTLE_SUMMARY_TEXT_LAYOUT.wrongValue.y,
+      '',
+      { ...valueTextStyle, fontSize: BATTLE_SUMMARY_TEXT_LAYOUT.wrongValue.fontSize },
+    ).setOrigin(0, 0.5);
+
+    this.battleSummaryBodyText = this.add.text(scrollArea.x, scrollArea.y, '', {
+      fontSize: BATTLE_SUMMARY_TEXT_LAYOUT.mistakesText.fontSize,
+      color: '#fff4d6',
+      fontStyle: 'bold',
+      fontFamily: 'monospace',
+      lineSpacing: BATTLE_SUMMARY_TEXT_LAYOUT.mistakesText.lineSpacing,
+      stroke: '#0b1220',
+      strokeThickness: 3,
+      wordWrap: { width: scrollArea.width },
+    });
+
+    this.battleSummaryScrollMaskShape = this.add.graphics()
+      .fillStyle(0xffffff, 1)
+      .fillRect(scrollArea.x, scrollArea.y, scrollArea.width, scrollArea.height)
+      .setVisible(false);
+    this.battleSummaryBodyText.setMask(this.battleSummaryScrollMaskShape.createGeometryMask());
+    this.battleSummaryScrollArea = scrollArea;
+    this.battleSummaryScrollY = 0;
+    this.battleSummaryMaxScrollY = 0;
+
+    this.battleSummaryModal = this.add.container(0, 0, [
+      overlay,
+      shadow,
+      panel,
+      this.battleSummaryResultValueText,
+      this.battleSummaryEnemyValueText,
+      this.battleSummaryCorrectValueText,
+      this.battleSummaryWrongValueText,
+      this.battleSummaryBodyText,
+    ]).setDepth(modalDepth).setVisible(false);
+    this.battleSummaryScrollMaskShape.setDepth(modalDepth);
+    this.battleSummaryModalActive = false;
+    this.battleSummaryModalOnClose = null;
+
+    this.battleSummaryWheelHandler = (pointer, gameObjects, deltaX, deltaY, deltaZ, event) => {
+      if (!this.battleSummaryModalActive) return;
+      event?.preventDefault?.();
+      pointer?.event?.preventDefault?.();
+      this.scrollBattleSummaryModal(deltaY);
+    };
+    this.input?.on?.('wheel', this.battleSummaryWheelHandler);
+  },
+
+  scrollBattleSummaryModal(deltaY = 0) {
+    if (!this.battleSummaryModalActive || !this.battleSummaryBodyText || !this.battleSummaryScrollArea) return;
+
+    const scrollAmount = Math.sign(deltaY) * 28;
+    const nextScrollY = this.battleSummaryScrollY + scrollAmount;
+    this.setBattleSummaryScrollY(nextScrollY);
+  },
+
+  setBattleSummaryScrollY(scrollY = 0) {
+    const scrollArea = this.battleSummaryScrollArea;
+    if (!scrollArea || !this.battleSummaryBodyText) return;
+
+    const maxScrollY = Math.max(0, Number(this.battleSummaryMaxScrollY) || 0);
+    this.battleSummaryScrollY = Phaser.Math.Clamp(scrollY, 0, maxScrollY);
+    this.battleSummaryBodyText.setY(scrollArea.y - this.battleSummaryScrollY);
+  },
+
+  updateBattleSummaryScrollBounds() {
+    const scrollArea = this.battleSummaryScrollArea;
+    if (!scrollArea || !this.battleSummaryBodyText) return;
+
+    const contentHeight = this.battleSummaryBodyText.height || 0;
+    this.battleSummaryMaxScrollY = Math.max(0, contentHeight - scrollArea.height);
+    this.setBattleSummaryScrollY(0);
+  },
+
+  formatBattleSummaryExpression(attempt = {}) {
+    const expressionText = String(attempt.expression || '').trim();
+    const resultText = Number.isFinite(Number(attempt.result)) ? String(Number(attempt.result)) : '';
+
+    if (!expressionText) {
+      return resultText ? `Answer = ${resultText}` : 'Answer';
+    }
+
+    if (!resultText || expressionText.includes('=')) {
+      return expressionText;
+    }
+
+    return `${expressionText} = ${resultText}`;
+  },
+
+  getBattleSummaryNeededRule(attempt = {}) {
+    const reason = String(attempt.reason || '').toLowerCase();
+    const skillName = String(attempt.skillName || '').toLowerCase();
+    const reasonMatch = reason.match(/needs? (?:an? )?(even|odd|prime|zero)(?: answer| number)?/)
+      || reason.match(/not (even|odd|prime|zero)/);
+
+    if (reasonMatch?.[1]) return reasonMatch[1];
+    if (skillName.includes('even')) return 'even';
+    if (skillName.includes('odd')) return 'odd';
+    if (skillName.includes('prime')) return 'prime';
+    if (skillName.includes('zero')) return 'zero';
+    return null;
+  },
+
+  isBattleSummaryPrimeValue(value) {
+    const number = Number(value);
+    if (!Number.isInteger(number) || number < 2) return false;
+
+    for (let divisor = 2; divisor * divisor <= number; divisor += 1) {
+      if (number % divisor === 0) return false;
+    }
+    return true;
+  },
+
+  formatBattleSummaryMistakeReason(attempt = {}) {
+    const result = Number(attempt.result);
+    const resultText = Number.isFinite(result) ? String(result) : 'The answer';
+    const neededRule = this.getBattleSummaryNeededRule(attempt);
+
+    if (Number.isFinite(result)) {
+      if (neededRule === 'even') {
+        return result % 2 !== 0
+          ? `${resultText} is odd. This monster needs even.`
+          : `${resultText} is not even. This monster needs even.`;
+      }
+
+      if (neededRule === 'odd') {
+        return result % 2 === 0
+          ? `${resultText} is even. This monster needs odd.`
+          : `${resultText} is not odd. This monster needs odd.`;
+      }
+
+      if (neededRule === 'prime') {
+        return this.isBattleSummaryPrimeValue(result)
+          ? `${resultText} does not match this monster's rule.`
+          : `${resultText} is not prime. This monster needs prime.`;
+      }
+
+      if (neededRule === 'zero') {
+        return result === 0
+          ? `${resultText} does not match this monster's rule.`
+          : `${resultText} is not zero. This monster needs zero.`;
+      }
+    }
+
+    return "The answer does not match this monster's rule.";
+  },
+
+  formatBattleSummaryText(summary = {}) {
+    const attempts = Array.isArray(summary.attempts) ? summary.attempts : [];
+    const mistakes = attempts.filter((attempt) => !attempt?.isCorrect);
+    const lines = [];
+
+    if (mistakes.length) {
+      mistakes.forEach((attempt, index) => {
+        const skillName = attempt?.skillName || 'Skill';
+        const expressionText = this.formatBattleSummaryExpression(attempt);
+        const reason = this.formatBattleSummaryMistakeReason(attempt);
+        lines.push(`${index + 1}. ${skillName} | ${expressionText}`);
+        lines.push(`   Blocked: ${reason}`);
+        lines.push('');
+      });
+    } else {
+      lines.push('None');
+    }
+
+    return lines.join('\n');
+  },
+
+  showBattleSummaryModal(summary = {}, onClose = null) {
+    if (!this.battleSummaryModal) {
+      this.createBattleSummaryModal();
+    }
+
+    this.battleSummaryResultValueText?.setText(summary.result || summary.resultLabel || 'Battle Ended');
+    this.battleSummaryEnemyValueText?.setText(summary.enemyName || this.enemy?.name || 'Enemy');
+    this.battleSummaryCorrectValueText?.setText(String(Number(summary.correct) || 0));
+    this.battleSummaryWrongValueText?.setText(String(Number(summary.wrong) || 0));
+    this.battleSummaryBodyText?.setText(this.formatBattleSummaryText(summary));
+    this.updateBattleSummaryScrollBounds();
+    this.battleSummaryModalOnClose = typeof onClose === 'function' ? onClose : null;
+    this.battleSummaryModalActive = true;
+    this.battleSummaryModal?.setVisible(true);
+    this.battleSummaryScrollMaskShape?.setVisible(false);
+  },
+
+  hideBattleSummaryModal() {
+    this.battleSummaryModal?.setVisible(false);
+    this.battleSummaryModalActive = false;
+    this.battleSummaryModalOnClose = null;
+    this.setBattleSummaryScrollY(0);
+  },
+
+  handleBattleSummaryModalInput() {
+    if (!this.battleSummaryModalActive) return false;
+
+    const enterPressed = this.keyENTER && Phaser.Input.Keyboard.JustDown(this.keyENTER);
+    const spacePressed = this.keySPACE && Phaser.Input.Keyboard.JustDown(this.keySPACE);
+    if (!enterPressed && !spacePressed) return false;
+
+    const onClose = this.battleSummaryModalOnClose;
+    this.hideBattleSummaryModal();
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+    return true;
   },
 
   createBattleInputs() {

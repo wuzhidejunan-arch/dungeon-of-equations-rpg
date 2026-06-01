@@ -5,8 +5,32 @@ const DEFAULT_LEVEL_STATE = {
   level: 1,
   exp: 0,
   expToNext: progressionConfig.leveling.baseExpToNext,
+  hp: 20,
+  maxHp: 20,
   pendingLevelUpMessages: [],
 };
+
+function getFiniteNumber(value, fallback) {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : fallback;
+}
+
+export function ensureHpState(target = playerData) {
+  const maxHp = Math.max(
+    1,
+    Math.floor(getFiniteNumber(target.maxHp, DEFAULT_LEVEL_STATE.maxHp))
+  );
+  const hp = Math.floor(getFiniteNumber(target.hp, maxHp));
+
+  target.maxHp = maxHp;
+  target.hp = Math.max(0, Math.min(hp, maxHp));
+
+  return target;
+}
 
 export function ensureLevelState(target = playerData) {
   if (!Array.isArray(target.pendingLevelUpMessages)) {
@@ -24,6 +48,8 @@ export function ensureLevelState(target = playerData) {
   if (typeof target.expToNext !== "number" || target.expToNext <= 0) {
     target.expToNext = getRequiredExpForLevel(target.level);
   }
+
+  ensureHpState(target);
 
   return target;
 }
