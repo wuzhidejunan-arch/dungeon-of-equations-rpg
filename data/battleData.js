@@ -376,11 +376,11 @@ export const itemDefinitions = {
   Potion: createItem({
     name: 'Potion',
     target: 'self',
-    shortLabel: 'Potion',
-    menuLabel: 'Potion',
+    shortLabel: 'Health Potion',
+    menuLabel: 'Health Potion',
     canUse: ({ player }) => player.hp < player.maxHp,
     failMessage: 'HP is already full.',
-    effects: [{ type: 'healHp', amount: 15, message: 'Used Potion. Recovered {amount} HP.' }],
+    effects: [{ type: 'healHp', amount: 15, message: 'Used Health Potion. Recovered {amount} HP.' }],
     ui: { resultText: 'Recover some HP.' },
   }),
   'Skill Potion': createItem({

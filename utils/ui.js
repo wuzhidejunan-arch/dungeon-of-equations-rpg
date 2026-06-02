@@ -11,9 +11,15 @@ const HINT_PLATE_CENTER_X = 168.5;
 const HINT_PLATE_CENTER_Y = 38;
 
 export function preloadHudUiAssets(scene) {
-  scene.load.image(UI_HINT_WOOD_PLATE_KEY, UI_HINT_WOOD_PLATE_PATH);
-  scene.load.image(UI_STATUS_WOOD_PANEL_KEY, UI_STATUS_WOOD_PANEL_PATH);
-  scene.load.image(UI_GOLD_COIN_ICON_KEY, UI_GOLD_COIN_ICON_PATH);
+  if (!scene.textures.exists(UI_HINT_WOOD_PLATE_KEY)) {
+    scene.load.image(UI_HINT_WOOD_PLATE_KEY, UI_HINT_WOOD_PLATE_PATH);
+  }
+  if (!scene.textures.exists(UI_STATUS_WOOD_PANEL_KEY)) {
+    scene.load.image(UI_STATUS_WOOD_PANEL_KEY, UI_STATUS_WOOD_PANEL_PATH);
+  }
+  if (!scene.textures.exists(UI_GOLD_COIN_ICON_KEY)) {
+    scene.load.image(UI_GOLD_COIN_ICON_KEY, UI_GOLD_COIN_ICON_PATH);
+  }
 }
 
 export function createPrompt(scene) {

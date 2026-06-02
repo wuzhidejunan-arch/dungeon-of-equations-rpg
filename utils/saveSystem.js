@@ -11,18 +11,54 @@ import {
   extractDifficultyStateFromPlayerData,
   getDifficultyState,
 } from "./playerStateSlots.js";
+import {
+  clearRuntimeDifficultySlots,
+  getRuntimeSaveRootSnapshot,
+  hydrateRuntimeDifficultySlots,
+} from "./runtimeDifficultySlots.js";
 
 const LEGACY_SAVE_KEY = "naic_game_save";
 const SAVE_ROOT_KEY = "naic_game_save_root";
 
-// Legacy flat save helpers remain for compatibility with the current runtime playerData flow.
-// Startup auto-load is intentionally not enabled yet; browser refresh should still act as a clean reset.
+function createStablePlayerDataSnapshot(sourcePlayerData = playerData) {
+  return {
+    ...sourcePlayerData,
+    trainingProgress: {
+      ...(sourcePlayerData.trainingProgress || {}),
+      activeBattleStage: null,
+      lastBattleWinKey: null,
+    },
+  };
+}
+
+function createStableSaveRootSnapshot(saveRootData) {
+  const stableRoot = ensureSaveRootShape(saveRootData);
+  Object.values(stableRoot.difficulties || {}).forEach((difficultyState) => {
+    if (!difficultyState.trainingProgress) return;
+    difficultyState.trainingProgress.activeBattleStage = null;
+    difficultyState.trainingProgress.lastBattleWinKey = null;
+  });
+  return stableRoot;
+}
+
+function ensureRuntimeStateAfterLoad(targetPlayerData = playerData) {
+  ensurePlayerSkillState();
+  ensureLevelState(targetPlayerData);
+  ensureTrainingState(targetPlayerData);
+  ensureGuideState(targetPlayerData);
+}
+
 export function saveGame() {
   ensurePlayerSkillState();
   ensureLevelState();
   ensureTrainingState();
   ensureGuideState();
-  localStorage.setItem(LEGACY_SAVE_KEY, JSON.stringify(playerData));
+
+  const stablePlayerData = createStablePlayerDataSnapshot(playerData);
+  const stableRoot = createStableSaveRootSnapshot(getRuntimeSaveRootSnapshot(playerData));
+
+  localStorage.setItem(LEGACY_SAVE_KEY, JSON.stringify(stablePlayerData));
+  saveRoot(stableRoot);
 }
 
 export function loadGame() {
@@ -33,10 +69,7 @@ export function loadGame() {
   const parsedData = JSON.parse(saveData);
 
   Object.assign(playerData, parsedData);
-  ensurePlayerSkillState();
-  ensureLevelState();
-  ensureTrainingState();
-  ensureGuideState();
+  ensureRuntimeStateAfterLoad(playerData);
 }
 
 // Future nested save-root helpers for per-difficulty save slots.
@@ -64,6 +97,49 @@ export function loadSaveRoot() {
 
 export function hasSaveRoot() {
   return Boolean(localStorage.getItem(SAVE_ROOT_KEY));
+}
+
+export function hasRootSave() {
+  return hasSaveRoot();
+}
+
+export function hasAnySave() {
+  const snapshot = getDebugSaveSnapshot();
+  return snapshot.hasRootSave || snapshot.hasLegacySave;
+}
+
+export function loadSavedProgress(targetPlayerData = playerData) {
+  const snapshot = getDebugSaveSnapshot();
+
+  if (snapshot.hasRootSave && snapshot.rootData) {
+    const stableRoot = createStableSaveRootSnapshot(snapshot.rootData);
+    const hydrated = hydrateRuntimeDifficultySlots(stableRoot, targetPlayerData, stableRoot.currentDifficulty);
+    ensureRuntimeStateAfterLoad(targetPlayerData);
+    return {
+      success: true,
+      source: "root",
+      ...hydrated,
+    };
+  }
+
+  if (snapshot.hasLegacySave && snapshot.legacyData) {
+    Object.assign(targetPlayerData, createStablePlayerDataSnapshot(snapshot.legacyData));
+    ensureRuntimeStateAfterLoad(targetPlayerData);
+
+    const migratedRoot = createStableSaveRootSnapshot(migrateFlatPlayerDataToSaveRoot(targetPlayerData, targetPlayerData.difficulty));
+    saveRoot(migratedRoot);
+    const hydrated = hydrateRuntimeDifficultySlots(migratedRoot, targetPlayerData, migratedRoot.currentDifficulty);
+    return {
+      success: true,
+      source: "legacy",
+      ...hydrated,
+    };
+  }
+
+  return {
+    success: false,
+    source: "none",
+  };
 }
 
 export function migrateFlatPlayerDataToSaveRoot(sourcePlayerData = playerData, difficultyKey = null) {
@@ -125,6 +201,11 @@ export function clearRootSaveOnly() {
 export function clearAllSaves() {
   clearSave();
   clearSaveRoot();
+}
+
+export function resetGame() {
+  clearAllSaves();
+  clearRuntimeDifficultySlots();
 }
 
 export function resetDifficultySlot(difficultyKey = "beginner") {

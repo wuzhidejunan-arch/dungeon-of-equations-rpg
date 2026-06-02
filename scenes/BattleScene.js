@@ -139,7 +139,7 @@ export class BattleScene extends Phaser.Scene {
     this.enemyCurrentHp = 0;
     this.prepareTesterInstantKillVictoryState();
     this.refreshBattleUI();
-    this.addBattleLog('Test Mode: Enemy defeated.');
+    this.addBattleLog('Test Mode: Monster defeated.');
     this.winBattle();
   }
 

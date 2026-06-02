@@ -235,7 +235,7 @@ export function getDefaultEffectHandlers() {
         type: effect.type,
         success: true,
         amount: actualHeal,
-        message: formatTemplate(effect.message, { amount: actualHeal }) || getBattleSystemText('healPotion', `Used Potion. Recovered ${actualHeal} HP.`, { amount: actualHeal }),
+        message: formatTemplate(effect.message, { amount: actualHeal }) || getBattleSystemText('healPotion', `Used Health Potion. Recovered ${actualHeal} HP.`, { amount: actualHeal }),
       };
     })
     .register('restoreSkillUses', resolveSkillUseRestoreEffect)

@@ -72,7 +72,7 @@ export class BattleLoadingScene extends Phaser.Scene {
 
     this.loadingUi.add(
       this.add
-        .text(centerX, centerY - 35, 'Preparing enemies and battle UI', {
+        .text(centerX, centerY - 35, 'Preparing monsters and battle UI', {
           fontSize: '20px',
           color: '#f8e7c0',
           fontFamily: 'monospace',

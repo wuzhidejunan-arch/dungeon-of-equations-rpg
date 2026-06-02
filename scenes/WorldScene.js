@@ -21,7 +21,7 @@ import {
 } from "../utils/ui.js";
 import { startDialogue } from "../utils/dialogueSystem.js";
 import { saveGame } from "../utils/saveSystem.js";
-import { addItem } from "../utils/inventory.js";
+import { addItem, getItemDisplayName } from "../utils/inventory.js";
 import {
   advanceGuideStep,
   ensureGuideState,
@@ -54,7 +54,7 @@ const BOOK_PANEL_LAYOUT = {
 };
 
 function getShopDisplayName(item) {
-  return item?.name === "Potion" ? "Potion" : item?.name || "";
+  return getItemDisplayName(item?.name);
 }
 
 function getShopItemDescription(item) {
@@ -88,8 +88,12 @@ export class WorldScene extends BaseScene {
     preloadHudUiAssets(this);
     preloadSfxAssets(this);
     this.preloadResultModalAssets();
-    this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
-    this.load.image(DIALOGUE_PANEL_KEY, DIALOGUE_PANEL_PATH);
+    if (!this.textures.exists(BOOK_PANEL_KEY)) {
+      this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
+    }
+    if (!this.textures.exists(DIALOGUE_PANEL_KEY)) {
+      this.load.image(DIALOGUE_PANEL_KEY, DIALOGUE_PANEL_PATH);
+    }
   }
 
   create() {

@@ -10,7 +10,7 @@ export const battleFeedbackSpec = {
     },
     ineffective: {
       label: 'Blocked',
-      detail: 'Skill worked, but the enemy rule was not met.',
+      detail: 'Skill worked, but the monster rule was not met.',
     },
   },
   intermediate: {
@@ -24,7 +24,7 @@ export const battleFeedbackSpec = {
     },
     ineffective: {
       label: 'Blocked',
-      detail: 'Skill worked, but the enemy rule was not met.',
+      detail: 'Skill worked, but the monster rule was not met.',
     },
   },
 };

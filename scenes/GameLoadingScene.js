@@ -1,4 +1,4 @@
-import { preloadStartupAssets } from '../utils/gameAssetPreloader.js';
+import { preloadFullGameAssets } from '../utils/fullGameAssetPreloader.js';
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
@@ -23,10 +23,10 @@ export class GameLoadingScene extends Phaser.Scene {
   }
 
   create() {
-    const queuedFiles = preloadStartupAssets(this);
+    const queuedFiles = preloadFullGameAssets(this);
 
     if (queuedFiles <= 0) {
-      this.scene.start('StartScene');
+      this.scene.start('SaveSelectScene');
       return;
     }
 
@@ -64,7 +64,7 @@ export class GameLoadingScene extends Phaser.Scene {
 
     this.loadingUi.add(
       this.add
-        .text(centerX, centerY - 35, 'Preparing game assets', {
+        .text(centerX, centerY - 35, 'Loading game files', {
           fontSize: '20px',
           color: '#f8e7c0',
           fontFamily: 'monospace',
@@ -98,7 +98,7 @@ export class GameLoadingScene extends Phaser.Scene {
 
     this.loadingUi.add(
       this.add
-        .text(centerX, centerY + 106, 'Tip: Train first before entering harder battles.', {
+        .text(centerX, centerY + 106, 'Tip: Training helps you win harder battles.', {
           fontSize: '17px',
           color: '#c7b78f',
           align: 'center',
@@ -153,7 +153,7 @@ export class GameLoadingScene extends Phaser.Scene {
     this.load.off('progress', this.updateLoadingProgress, this);
     this.load.off('complete', this.completeStartupAssetLoading, this);
     this.updateLoadingProgress(1);
-    this.scene.start('StartScene');
+    this.scene.start('SaveSelectScene');
   }
 
   updateLoadingProgress(value = 0) {

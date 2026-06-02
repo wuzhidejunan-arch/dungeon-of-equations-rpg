@@ -257,7 +257,7 @@ export class BattleMenuCoordinator {
     if (!isSkillUsable(skill)) {
       this.playUiSfx(audioKeys.sfx.answerWrong);
       scene.renderResultText(
-        'No uses left. Use a potion to restore.',
+        'No uses left. Use a Health Potion to restore.',
         battleResultPhases.INFO,
       );
       this.updateSkillMenuUI();

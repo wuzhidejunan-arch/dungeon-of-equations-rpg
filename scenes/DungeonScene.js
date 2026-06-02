@@ -722,7 +722,7 @@ export class DungeonScene extends BaseScene {
           showPrompt(this.promptText, 'Press E to go back');
           this.interactTarget = 'previousRoom';
         } else {
-          showPrompt(this.promptText, 'Press E to leave the cave');
+          showPrompt(this.promptText, 'Press E to exit the cave');
           this.interactTarget = 'leaveDungeon';
         }
       } else if (bossDefeated && nearNextDoor) {

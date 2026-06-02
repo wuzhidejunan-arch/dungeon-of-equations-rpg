@@ -100,7 +100,7 @@ function appendSafeSkillHintPhases(ctx) {
     buildBattlePhaseLine(
       battleResultPhases.RESULT_SKILL_CHECK,
       hint.failureText,
-      { outcome: ctx.outcome || 'failure', enemy: ctx.scene.enemy?.name || 'Enemy' },
+      { outcome: ctx.outcome || 'failure', enemy: ctx.scene.enemy?.name || 'Monster' },
     ),
     buildBattlePhaseLine(
       battleResultPhases.RESULT_SKILL_CHECK,
@@ -179,7 +179,7 @@ function getOperationLessonLabel(skill) {
 }
 
 function getGuidedEnemyNeedText(ctx) {
-  const enemyName = ctx.scene.enemy?.name || 'The enemy';
+  const enemyName = ctx.scene.enemy?.name || 'The monster';
   return `${enemyName} only takes damage when the answer is ${getEnemyRuleSummaryText(ctx.scene.enemy)}.`;
 }
 
@@ -194,7 +194,7 @@ function buildGuidedTeachingPhases(ctx, finalLine) {
       { skill: ctx.skill.name },
     ),
     buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `Your answer was ${ctx.result}.`, { result: ctx.result }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, getGuidedEnemyNeedText(ctx), { enemy: ctx.scene.enemy?.name || 'Enemy' }),
+    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, getGuidedEnemyNeedText(ctx), { enemy: ctx.scene.enemy?.name || 'Monster' }),
     buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, finalLine, { skill: ctx.skill.name, result: ctx.result }),
   ];
 }
@@ -206,7 +206,7 @@ function buildGuidedUtilityTeachingPhases(ctx, finalLine) {
     buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `You used ${ctx.skill.name}.`, { skill: ctx.skill.name }),
     buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `This helper skill uses ${buildOperationNeedText(ctx.skill)}.`, { skill: ctx.skill.name }),
     buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `Your answer was ${ctx.result}.`, { result: ctx.result }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, 'Helper skills can still work if you use the right math.', { enemy: ctx.scene.enemy?.name || 'Enemy' }),
+    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, 'Helper skills can still work if you use the right math.', { enemy: ctx.scene.enemy?.name || 'Monster' }),
     buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, finalLine, { skill: ctx.skill.name, result: ctx.result }),
   ];
 }
@@ -564,4 +564,3 @@ export function getDefaultAttackRules() {
     ['finalize', finalizeAttackRule],
   ];
 }
-

@@ -8,7 +8,7 @@ import {
   isSkillEquipped,
   toggleEquippedSkill,
 } from "../utils/playerSkills.js";
-import { consumeItem, getInventoryEntries, isFieldUsableItem } from "../utils/inventory.js";
+import { consumeItem, getInventoryEntries, getItemDisplayName, isFieldUsableItem } from "../utils/inventory.js";
 import { saveGame } from "../utils/saveSystem.js";
 import { isTesterMode } from "../utils/debugState.js";
 import { getDifficultySkillIds } from "../config/difficultySettings.js";
@@ -44,7 +44,9 @@ export class InventoryScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
+    if (!this.textures.exists(BOOK_PANEL_KEY)) {
+      this.load.image(BOOK_PANEL_KEY, BOOK_PANEL_PATH);
+    }
     if (!this.textures.exists(UI_GOLD_COIN_ICON_KEY)) {
       this.load.image(UI_GOLD_COIN_ICON_KEY, GOLD_COIN_ICON_PATH);
     }
@@ -514,7 +516,7 @@ export class InventoryScene extends Phaser.Scene {
 
     this.leftTitleText.setText("Item");
     this.rightTitleText.setText("Info");
-    this.subText.setText("Potion and Skill Potion can be used here.");
+    this.subText.setText("Health Potion and Skill Potion can be used here.");
     this.leftText.setText("");
 
     if (!items.length) {
@@ -538,7 +540,7 @@ export class InventoryScene extends Phaser.Scene {
     const usageText = isFieldUsableItem(selectedItem.name) ? "Use: Here / Battle" : "Use: Battle only";
     const targetText = itemDef?.chooseSkillTarget ? "Pick a skill" : "No pick needed";
     this.setRightDetailLines([
-      selectedItem.name,
+      getItemDisplayName(selectedItem.name),
       ...this.wrapDetailText(desc, 22).slice(0, 1),
       usageText,
       targetText,
@@ -744,7 +746,7 @@ export class InventoryScene extends Phaser.Scene {
       }
 
       node?.setPosition(row.textX, row.y);
-      node?.setText(`${item.name} x${item.qty}`);
+      node?.setText(`${getItemDisplayName(item.name)} x${item.qty}`);
       node?.setVisible(true);
     });
   }
@@ -831,4 +833,3 @@ export class InventoryScene extends Phaser.Scene {
     this.cursorText.setPosition(row.cursorX, row.y);
   }
 }
-

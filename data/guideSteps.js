@@ -95,7 +95,7 @@ export const guideSteps = {
   },
   [GUIDE_STEP_IDS.DUNGEON_INTRO]: {
     id: GUIDE_STEP_IDS.DUNGEON_INTRO,
-    messageQueue: ['This is the dungeon.', 'Stronger enemies are inside.', 'Go in when you are ready.'],
+    messageQueue: ['This is the dungeon.', 'Stronger monsters are inside.', 'Go in when you are ready.'],
     next: GUIDE_STEP_IDS.TUTORIAL_DONE,
   },
   [GUIDE_STEP_IDS.TUTORIAL_DONE]: {

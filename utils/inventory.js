@@ -81,6 +81,10 @@ export function getItemDefinition(itemName) {
   return itemDefinitions[itemName] || null;
 }
 
+export function getItemDisplayName(itemName) {
+  return getItemDefinition(itemName)?.menuLabel || itemName || '';
+}
+
 export function isFieldUsableItem(itemName) {
   const itemDefinition = getItemDefinition(itemName);
   if (!itemDefinition || !Array.isArray(itemDefinition.effects)) return false;
@@ -120,7 +124,7 @@ function applyFieldItemEffect(effect, fullContext, options = {}) {
 
     return {
       success: true,
-      message: getBattleSystemText('healPotion', `Used Potion. Recovered ${actualHeal} HP.`, { amount: actualHeal }),
+      message: getBattleSystemText('healPotion', `Used Health Potion. Recovered ${actualHeal} HP.`, { amount: actualHeal }),
     };
   }
 
@@ -154,11 +158,12 @@ function applyFieldItemEffect(effect, fullContext, options = {}) {
 
 export function consumeItem(itemName, context = {}) {
   const item = getInventoryEntry(itemName, { includeAllInTesterMode: true });
+  const itemDisplayName = getItemDisplayName(itemName);
 
   if (!item || item.qty <= 0) {
     return {
       success: false,
-      message: getBattleSystemText('itemNotAvailable', `${itemName} is not available.`, { item: itemName }),
+      message: getBattleSystemText('itemNotAvailable', `${itemDisplayName} is not available.`, { item: itemDisplayName }),
     };
   }
 
@@ -213,7 +218,7 @@ export function consumeItem(itemName, context = {}) {
   if (!removeItem(itemName, 1)) {
     return {
       success: false,
-      message: getBattleSystemText('itemNotAvailable', `${itemName} is not available.`, { item: itemName }),
+      message: getBattleSystemText('itemNotAvailable', `${itemDisplayName} is not available.`, { item: itemDisplayName }),
     };
   }
 
@@ -235,7 +240,7 @@ export function consumeItem(itemName, context = {}) {
 
   return {
     success: true,
-    message: messages[0] || previewMessages[0] || getItemUIText(itemDefinition, 'usedText', getBattleSystemText('itemUsed', `Used ${itemName}.`, { item: itemName })),
+    message: messages[0] || previewMessages[0] || getItemUIText(itemDefinition, 'usedText', getBattleSystemText('itemUsed', `Used ${itemDisplayName}.`, { item: itemDisplayName })),
     messages: messages.length ? messages : previewMessages,
   };
 }
@@ -247,6 +252,6 @@ export function getInventoryText() {
   }
 
   return entries
-    .map((item, index) => `${index + 1}. ${item.name} x${item.qty}`)
+    .map((item, index) => `${index + 1}. ${getItemDisplayName(item.name)} x${item.qty}`)
     .join('\n');
 }

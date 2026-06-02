@@ -8,7 +8,8 @@ export const STARTUP_IMAGE_ASSETS = Object.freeze([
   { key: 'startShieldSkull', path: 'assets/images/ui/start_scene/icon_shield_skull_transparent.png' },
 ]);
 
-export function preloadStartupAssets(scene) {
+export function preloadStartupAssets(scene, options = {}) {
+  const { includeSfx = true } = options;
   let queuedCount = 0;
 
   STARTUP_IMAGE_ASSETS.forEach(({ key, path }) => {
@@ -18,7 +19,9 @@ export function preloadStartupAssets(scene) {
     }
   });
 
-  queuedCount += preloadSfxAssets(scene) || 0;
+  if (includeSfx) {
+    queuedCount += preloadSfxAssets(scene) || 0;
+  }
 
   return queuedCount;
 }

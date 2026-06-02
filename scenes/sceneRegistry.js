@@ -1,4 +1,5 @@
 import { GameLoadingScene } from './GameLoadingScene.js';
+import { SaveSelectScene } from './SaveSelectScene.js';
 import { StartScene } from './StartScene.js';
 import { WorldScene } from './WorldScene.js';
 import { HomeScene } from './HomeScene.js';
@@ -11,6 +12,7 @@ import { DemoMenuScene } from './DemoMenuScene.js';
 
 export const gameScenes = [
   GameLoadingScene,
+  SaveSelectScene,
   StartScene,
   WorldScene,
   HomeScene,

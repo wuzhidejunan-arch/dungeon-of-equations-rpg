@@ -1,6 +1,7 @@
 import {
   applyDifficultyStateToPlayerData,
   createDefaultSaveRoot,
+  ensureSaveRootShape,
   extractDifficultyStateFromPlayerData,
   getDifficultyState,
 } from './playerStateSlots.js';
@@ -45,6 +46,29 @@ export function saveCurrentRuntimeDifficultySlot(targetPlayerData) {
     slotState: saveRoot.difficulties[activeDifficulty],
     saveRoot,
   };
+}
+
+export function getRuntimeSaveRootSnapshot(targetPlayerData) {
+  return saveCurrentRuntimeDifficultySlot(targetPlayerData).saveRoot;
+}
+
+export function hydrateRuntimeDifficultySlots(saveRootData, targetPlayerData, difficultyKey = null) {
+  runtimeSaveRoot = ensureSaveRootShape(saveRootData);
+
+  const nextDifficulty = difficultyKey || runtimeSaveRoot.currentDifficulty || getActiveDifficultyKey(targetPlayerData);
+  const nextState = getDifficultyState(runtimeSaveRoot, nextDifficulty);
+  applyDifficultyStateToPlayerData(targetPlayerData, nextState, nextDifficulty);
+  runtimeSaveRoot.currentDifficulty = nextDifficulty;
+
+  return {
+    currentDifficulty: nextDifficulty,
+    slotState: nextState,
+    saveRoot: runtimeSaveRoot,
+  };
+}
+
+export function clearRuntimeDifficultySlots() {
+  runtimeSaveRoot = null;
 }
 
 export function switchRuntimeDifficultySlot(targetPlayerData, difficultyKey) {

@@ -212,7 +212,7 @@ export class StartScene extends Phaser.Scene {
       .setDepth(21);
 
     this.enemyVisualTestTitleText = this.add
-      .text(width / 2, height / 2 - 122, 'Enemy Visual Test', {
+      .text(width / 2, height / 2 - 122, 'Monster Visual Test', {
         fontSize: '26px',
         color: '#ffffff',
         fontStyle: 'bold',
@@ -233,7 +233,7 @@ export class StartScene extends Phaser.Scene {
       .setDepth(22);
 
     this.enemyVisualTestControlsText = this.add
-      .text(width / 2, height / 2 + 52, 'LEFT/RIGHT: Enemy\nUP/DOWN: Group\nENTER: Test Battle\nESC: Back', {
+      .text(width / 2, height / 2 + 52, 'LEFT/RIGHT: Monster\nUP/DOWN: Group\nENTER: Test Battle\nESC: Back', {
         fontSize: '18px',
         color: '#facc15',
         fontStyle: 'bold',
@@ -652,7 +652,7 @@ export class StartScene extends Phaser.Scene {
     (this.controlHintTexts || []).forEach((node) => node.setVisible(!visualTestOpen));
 
     if (visualTestOpen && group && enemy) {
-      this.enemyVisualTestInfoText?.setText(`Group: ${group.label}\nEnemy: ${enemy.label}\nKey: ${enemy.key}`);
+      this.enemyVisualTestInfoText?.setText(`Group: ${group.label}\nMonster: ${enemy.label}\nKey: ${enemy.key}`);
     }
   }
 

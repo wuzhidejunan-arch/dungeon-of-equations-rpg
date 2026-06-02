@@ -128,8 +128,8 @@ export function finalizeEnemyTurnRule(ctx) {
 
   if (ctx.blocked) {
     ctx.scene.addBattleLog(ctx.activeBonus === 'guard'
-      ? getBattleLogText('enemyAttackBlockedByGuard', 'Bonus guard blocked the enemy attack.')
-      : getBattleLogText('enemyAttackBlockedByZeroGuard', 'Zero Guard blocked the enemy attack.'));
+      ? getBattleLogText('enemyAttackBlockedByGuard', 'Bonus guard blocked the monster attack.')
+      : getBattleLogText('enemyAttackBlockedByZeroGuard', 'Zero Guard blocked the monster attack.'));
   }
 
   ctx.scene.addBattleLog(getBattleLogText('enemyUsedSkill', `${ctx.scene.enemy.name} used ${ctx.enemySkill.name}.`, {

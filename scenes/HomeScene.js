@@ -65,8 +65,12 @@ export class HomeScene extends BaseScene {
   preload() {
     preloadHomeMapArt(this);
     preloadHudUiAssets(this);
-    this.load.image(GAME_OVER_PANEL_KEY, GAME_OVER_PANEL_PATH);
-    this.load.image(OPENING_BUBBLE_PANEL_KEY, OPENING_BUBBLE_PANEL_PATH);
+    if (!this.textures.exists(GAME_OVER_PANEL_KEY)) {
+      this.load.image(GAME_OVER_PANEL_KEY, GAME_OVER_PANEL_PATH);
+    }
+    if (!this.textures.exists(OPENING_BUBBLE_PANEL_KEY)) {
+      this.load.image(OPENING_BUBBLE_PANEL_KEY, OPENING_BUBBLE_PANEL_PATH);
+    }
     this.preloadResultModalAssets();
   }
 
@@ -394,9 +398,9 @@ export class HomeScene extends BaseScene {
     if (nearDoor) {
       this.interactTarget = "exitHome";
       if (tutorialActive && guideStep.id === GUIDE_STEP_IDS.HOME_INTERACT) {
-        showPrompt(this.promptText, "Press E to leave");
+        showPrompt(this.promptText, "Press E to exit");
       } else {
-        showPrompt(this.promptText, "Press E to leave home");
+        showPrompt(this.promptText, "Press E to exit home");
       }
     } else {
       this.interactTarget = null;

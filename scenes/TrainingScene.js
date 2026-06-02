@@ -101,8 +101,12 @@ export class TrainingScene extends BaseScene {
     preloadBgmAssets(this, audioKeys.bgm.normal);
     preloadSfxAssets(this);
     this.preloadResultModalAssets();
-    this.load.image(TRAINING_UI_ASSETS.woodButton.key, TRAINING_UI_ASSETS.woodButton.path);
-    this.load.image(TRAINING_UI_ASSETS.parchmentPanel.key, TRAINING_UI_ASSETS.parchmentPanel.path);
+    if (!this.textures.exists(TRAINING_UI_ASSETS.woodButton.key)) {
+      this.load.image(TRAINING_UI_ASSETS.woodButton.key, TRAINING_UI_ASSETS.woodButton.path);
+    }
+    if (!this.textures.exists(TRAINING_UI_ASSETS.parchmentPanel.key)) {
+      this.load.image(TRAINING_UI_ASSETS.parchmentPanel.key, TRAINING_UI_ASSETS.parchmentPanel.path);
+    }
     TRAINING_VISUAL_ASSETS.forEach((asset) => {
       if (!this.textures.exists(asset.key)) {
         this.load.image(asset.key, asset.path);

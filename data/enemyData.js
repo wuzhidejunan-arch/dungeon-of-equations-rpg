@@ -253,7 +253,7 @@ export const enemyData = {
     expReward: 12,
     rule: 'odd',
     ui: {
-      ruleText: 'Your answer must be odd.\nUse Weaken to lower enemy attack.',
+      ruleText: 'Your answer must be odd.\nUse Weaken to lower monster attack.',
       blockText: 'Wild Fang slipped away from the damage.',
     },
     skills: [
@@ -336,7 +336,7 @@ export const enemyData = {
     expReward: 25,
     rule: 'odd',
     ui: {
-      ruleText: 'Your answer must be odd.\nUse Weaken to lower enemy attack.',
+      ruleText: 'Your answer must be odd.\nUse Weaken to lower monster attack.',
       blockText: 'Odd Fang Gatekeeper slipped away from the damage.',
     },
     skills: [

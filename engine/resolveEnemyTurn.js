@@ -80,8 +80,8 @@ function resolveEnemyTurnLegacy(scene, { activeBonus = null } = {}) {
       skill: enemySkill.name,
     });
     scene.addBattleLog(resolvedActiveBonus === 'guard'
-      ? getBattleLogText('enemyAttackBlockedByGuard', 'Bonus guard blocked the enemy attack.')
-      : getBattleLogText('enemyAttackBlockedByZeroGuard', 'Zero Guard blocked the enemy attack.'));
+      ? getBattleLogText('enemyAttackBlockedByGuard', 'Bonus guard blocked the monster attack.')
+      : getBattleLogText('enemyAttackBlockedByZeroGuard', 'Zero Guard blocked the monster attack.'));
   }
 
   scene.addBattleLog(getBattleLogText('enemyUsedSkill', `${scene.enemy.name} used ${enemySkill.name}.`, { enemy: scene.enemy.name, skill: enemySkill.name }));
