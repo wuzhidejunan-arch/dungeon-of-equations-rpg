@@ -181,7 +181,11 @@ const CHAIN_BUILDER_CONTENT_OFFSET_Y = -50;
 const CHAIN_BUILDER_BUTTON_OFFSET_Y = -32;
 const BUILDER_BUTTON_TEXT_VISUAL_ADJUST_Y = -3;
 const BUILDER_FEEDBACK_COLOR = '#1a1a1a';
-const BUILDER_REQUIREMENT_COLOR = '#ff4d4d';
+const BUILDER_REQUIREMENT_COLOR = '#7A1F1F';
+const BUILDER_WARNING_STROKE_COLOR = '#F6E3B4';
+const BUILDER_WARNING_STROKE_THICKNESS = 3;
+const GUIDED_BUILDER_ERROR_COLOR = '#7A1F1F';
+const GUIDED_BUILDER_ERROR_Y_OFFSET = -6;
 const BUILDER_FEEDBACK_FONT_SIZE = '16px';
 const BEGINNER_REQUIREMENT_FEEDBACK_STYLE = Object.freeze({ fontSize: '16px', yOffset: -8 });
 const MEDIUM_REQUIREMENT_FEEDBACK_STYLE = Object.freeze({ fontSize: '16px', yOffset: -7 });
@@ -456,18 +460,25 @@ function renderChallengeBuilderFeedback(scene, lines = []) {
   scene.builderFeedbackText?.setY?.(getBuilderFeedbackBaseY(scene));
   scene.builderFeedbackText?.setFontSize?.(BUILDER_FEEDBACK_FONT_SIZE);
   scene.builderFeedbackText?.setColor?.(BUILDER_FEEDBACK_COLOR);
+  scene.builderFeedbackText?.setStroke?.(BUILDER_FEEDBACK_COLOR, 0);
   scene.builderFeedbackText?.setText?.(message);
   scene.builderFeedbackText?.setVisible?.(Boolean(message));
 }
 
-function showBuilderValidationFeedback(scene, message = '') {
+function showBuilderValidationFeedback(scene, message = '', options = {}) {
   const isRequirement = isBuilderRequirementFeedback(message);
+  const isGuidedError = options.guidedError === true;
+  const isWarning = isRequirement || isGuidedError;
   const requirementStyle = getRequirementFeedbackStyle(scene);
   const baseY = getBuilderFeedbackBaseY(scene);
-  scene.builderFeedbackText?.setY?.(baseY + (isRequirement ? requirementStyle.yOffset : 0));
+  scene.builderFeedbackText?.setY?.(baseY + (isGuidedError ? GUIDED_BUILDER_ERROR_Y_OFFSET : isRequirement ? requirementStyle.yOffset : 0));
   scene.builderFeedbackText?.setFontSize?.(isRequirement ? requirementStyle.fontSize : BUILDER_FEEDBACK_FONT_SIZE);
   scene.builderFeedbackText?.setColor?.(
-    isRequirement ? BUILDER_REQUIREMENT_COLOR : BUILDER_FEEDBACK_COLOR,
+    isGuidedError ? GUIDED_BUILDER_ERROR_COLOR : isRequirement ? BUILDER_REQUIREMENT_COLOR : BUILDER_FEEDBACK_COLOR,
+  );
+  scene.builderFeedbackText?.setStroke?.(
+    isWarning ? BUILDER_WARNING_STROKE_COLOR : BUILDER_FEEDBACK_COLOR,
+    isWarning ? BUILDER_WARNING_STROKE_THICKNESS : 0,
   );
   scene.builderFeedbackText?.setText?.(message);
   scene.builderFeedbackText?.setVisible?.(Boolean(message));
@@ -1255,7 +1266,7 @@ export function confirmBuilderAction(scene) {
 
     if (!tutorialValidation.allowed) {
       playSfx(scene, audioKeys.sfx.answerWrong);
-      scene.renderResultText(tutorialValidation.message, battleResultPhases.INFO);
+      showBuilderValidationFeedback(scene, tutorialValidation.message, { guidedError: true });
       return;
     }
   }

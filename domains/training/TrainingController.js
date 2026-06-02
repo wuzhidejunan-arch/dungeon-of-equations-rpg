@@ -90,15 +90,18 @@ export class TrainingController {
     const stageConfig = this.stageRegistry.getStageConfig(activeStageId);
     const winKey = stageConfig?.battle?.winKey || null;
 
-    if (winKey && state.lastBattleWinKey === winKey && !isTrainingStageCompleted(activeStageId)) {
+    if (winKey && state.lastBattleWinKey === winKey) {
+      const alreadyCompleted = isTrainingStageCompleted(activeStageId);
       state.lastBattleWinKey = null;
       state.activeBattleStage = null;
 
       if (!this.isDemoMode) {
-        const reward = completeTrainingStage(activeStageId);
-        playerData.pendingLevelUpMessages.push(reward.rewardLines);
+        if (!alreadyCompleted) {
+          const reward = completeTrainingStage(activeStageId);
+          playerData.pendingLevelUpMessages.push(reward.rewardLines);
+        }
 
-        if (activeStageId === 3 && getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO) {
+        if (!alreadyCompleted && activeStageId === 3 && getCurrentGuideStep(playerData).id === GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO) {
           advanceGuideStep(GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO, playerData);
         }
 
@@ -271,7 +274,7 @@ Read the expression again and count carefully.`))
     const correctCount = this.store.get(['stage1', 'correctCount']);
     if (nextIndex >= questions.length) {
       const passed = correctCount >= passScore;
-      const scoreLine = `You got ${correctCount}/${questions.length}. Need at least ${passScore}/${questions.length}.`;
+      const scoreLine = `You got ${correctCount}/${questions.length}.\nNeed at least ${passScore}/${questions.length}.`;
 
       if (passed) {
         if (!this.isDemoMode && !isTrainingStageCompleted(stageId)) {
@@ -358,7 +361,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
     this.store.patch((state) => {
       state.message.text = typeCorrect
         ? `Correct. That answer is ${selectedCategoryLabel}.`
-        : 'Not quite. Check the number kind again.';
+        : 'Not quite. Check the number type again.';
 
       if (typeCorrect) {
         state.stage2.correctCount += 1;
@@ -374,7 +377,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
     const correctCount = this.store.get(['stage2', 'correctCount']);
     if (nextIndex >= questions.length) {
       const passed = correctCount >= passScore;
-      const scoreLine = `You got ${correctCount}/${BEGINNER_STAGE2_STEP_TOTAL} points. Need ${passScore}/${BEGINNER_STAGE2_STEP_TOTAL} points.`;
+      const scoreLine = `You got ${correctCount}/${BEGINNER_STAGE2_STEP_TOTAL} points.\nNeed ${passScore}/${BEGINNER_STAGE2_STEP_TOTAL} points.`;
 
       if (passed) {
         if (!this.isDemoMode && !isTrainingStageCompleted(2)) {

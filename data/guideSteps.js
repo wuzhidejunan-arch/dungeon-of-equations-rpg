@@ -50,17 +50,17 @@ export const guideSteps = {
   },
   [GUIDE_STEP_IDS.TRAINING_STAGE_1]: {
     id: GUIDE_STEP_IDS.TRAINING_STAGE_1,
-    prompt: 'Beat Stage 1 in training',
+    prompt: 'Clear Stage 1 in training',
     next: GUIDE_STEP_IDS.TRAINING_STAGE_2,
   },
   [GUIDE_STEP_IDS.TRAINING_STAGE_2]: {
     id: GUIDE_STEP_IDS.TRAINING_STAGE_2,
-    prompt: 'Beat Stage 2 in training',
+    prompt: 'Clear Stage 2 in training',
     next: GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO,
   },
   [GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO]: {
     id: GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO,
-    prompt: 'Beat Stage 3 in training',
+    prompt: 'Clear Stage 3 in training',
     messageQueue: ['Now use math in battle.', 'This time, use Fight and Even Attack only.'],
     next: GUIDE_STEP_IDS.GO_SHOP,
   },

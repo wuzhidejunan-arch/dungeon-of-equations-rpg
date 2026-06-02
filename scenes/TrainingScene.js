@@ -160,7 +160,7 @@ export class TrainingScene extends BaseScene {
         listWrapWidth: Math.min(285, Math.max(160, boardX - leftColumnX - 45)),
         detailX: rightColumnX,
         detailTitleY: safeTop + 100,
-        detailBodyY: safeTop + 145,
+        detailBodyY: safeTop + 162,
         detailWrapWidth: Math.max(300, safeRight - rightColumnX),
       },
       focused: {

@@ -11,6 +11,8 @@ const ESCAPE_RATES = {
   miniBoss: 0.3,
   boss: 0,
 };
+const ESCAPE_BLOCKED_MENU_REOPEN_DELAY_MS = 1100;
+const ESCAPE_SUCCESS_RETURN_DELAY_MS = 1200;
 
 function getEscapeCategory(enemy = null) {
   const enemyId = String(enemy?.id || '');
@@ -63,7 +65,11 @@ export const BattleEnemyFlowMixin = {
       const message = getBattleUIText('prompts.escapeBlocked', 'You cannot escape from this battle!');
       this.renderResultText(message, battleResultPhases.INFO);
       this.addBattleLog(message);
-      this.openMainMenu?.();
+      this.time.delayedCall(ESCAPE_BLOCKED_MENU_REOPEN_DELAY_MS, () => {
+        if (!this.battleEnded) {
+          this.openMainMenu?.();
+        }
+      });
       return;
     }
 
@@ -86,7 +92,7 @@ export const BattleEnemyFlowMixin = {
     this.addBattleLog(getBattleText('logs.playerRanAway', 'Player ran away.'));
     this.battleEnded = true;
 
-    this.time.delayedCall(500, () => {
+    this.time.delayedCall(ESCAPE_SUCCESS_RETURN_DELAY_MS, () => {
       if (this.devEnemyVisualTest) {
         restoreDevEnemyVisualTestSession(playerData);
       }

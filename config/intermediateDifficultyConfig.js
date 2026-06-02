@@ -46,7 +46,7 @@ export const intermediateDifficultyConfig = {
           },
         },
         passScore: 15,
-        clearMessage: 'You beat Stage 1. You know the basics of multiplication.',
+        clearMessage: 'You cleared Stage 1.\nYou know the basics of multiplication.',
         failMessage: 'Not yet. Look at multiplication again and try again.',
         questions: [
           { expression: '2 × 3', options: [5, 6, 7, 8], answer: 6 },
@@ -101,7 +101,7 @@ export const intermediateDifficultyConfig = {
           },
         },
         passScore: 15,
-        clearMessage: 'You beat Stage 2. You know the basics of division.',
+        clearMessage: 'You cleared Stage 2.\nYou know the basics of division.',
         failMessage: 'Not yet. Look at division again and try again.',
         questions: [
           { expression: '6 ÷ 2', options: [2, 3, 4, 5], answer: 3 },
@@ -159,7 +159,7 @@ It tells you what to do next.
 Read the battle message after each action.`,
           'Press Enter to start the guided battle.',
         ],
-        clearMessage: 'Medium Dungeon Clear! You can use these battle steps now. Try Challenge next.',
+        clearMessage: 'Medium Level Completed!\nYou can use these battle steps now.\nTry Challenge Level Next.',
         failMessage: 'Stage 3 not yet. Read the guide messages and try again.',
         battle: {
           enemyDataKey: 'intermediate_armorDummy',

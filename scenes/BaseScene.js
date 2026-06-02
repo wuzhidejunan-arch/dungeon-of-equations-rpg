@@ -51,7 +51,7 @@ const RESULT_MODAL_ASSETS = {
 };
 const GOLD_REWARD_LINE_PATTERN = /^\+(\d+)\s+Gold$/;
 const LEVEL_UP_REWARD_TEXT_OFFSET_Y = -36;
-const TRAINING_REWARD_TEXT_OFFSET_Y = -12;
+const TRAINING_REWARD_TEXT_OFFSET_Y = -38;
 const LEVEL_UP_GOLD_REWARD_ICON_LAYOUT = {
   iconOffsetX: -54,
   iconOffsetY: 34,
@@ -62,11 +62,11 @@ const LEVEL_UP_GOLD_REWARD_ICON_LAYOUT = {
 };
 const TRAINING_GOLD_REWARD_ICON_LAYOUT = {
   iconOffsetX: -54,
-  iconOffsetY: 75,
+  iconOffsetY: 49,
   iconWidth: 50,
   iconHeight: 40,
   amountOffsetX: -5,
-  amountOffsetY: 75,
+  amountOffsetY: 49,
 };
 
 function getRewardMessageSource(rewardLines) {

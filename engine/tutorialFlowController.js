@@ -6,11 +6,79 @@ import {
 import { TutorialRestrictionSystem } from '../domains/tutorial/TutorialRestrictionSystem.js';
 import { formatTutorialTemplate as formatTemplateHelper } from '../domains/tutorial/tutorialTemplateHelper.js';
 import { isTesterMode } from '../utils/debugState.js';
-import { getBattleUIValue } from '../utils/battleSchema.js';
+import { getBattleUIValue, getSkillPrimaryRule } from '../utils/battleSchema.js';
+import { isPrimeNumber } from '../utils/battleMath.js';
 import { createBattleSkillLoadout } from '../utils/playerSkills.js';
 
 function getDataValue(target, key) {
   return target && typeof target === 'object' ? target[key] : null;
+}
+
+function formatOperatorForTutorial(operator) {
+  if (operator === '*' || operator === '?' || operator === '×') return '×';
+  if (operator === '/' || operator === '÷') return '÷';
+  if (operator === '-') return '−';
+  if (operator === '+') return '+';
+  return `${operator ?? '?'}`;
+}
+
+function getResultTypeForTutorial(result) {
+  const number = Number(result);
+  if (!Number.isFinite(number)) return 'not a valid answer';
+  if (number === 0) return 'zero';
+  if (Math.abs(number % 2) === 1) return 'odd';
+  if (number % 2 === 0) return 'even';
+  if (Number.isInteger(number) && isPrimeNumber(number)) return 'prime';
+  return 'not a whole number';
+}
+
+function buildRuleMismatchMessage(result, requiredRule) {
+  const rule = String(requiredRule || '').toLowerCase();
+  const resultType = getResultTypeForTutorial(result);
+  const resultText = Number.isFinite(Number(result)) ? String(Number(result)) : 'This answer';
+
+  if (rule === 'even') {
+    return resultType === 'even'
+      ? `${resultText} does not match this step. Try again.`
+      : `${resultText} is ${resultType}, not even. Try again.`;
+  }
+
+  if (rule === 'odd') {
+    return resultType === 'odd'
+      ? `${resultText} does not match this step. Try again.`
+      : `${resultText} is ${resultType}, not odd. Try again.`;
+  }
+
+  if (rule === 'prime') {
+    return resultType === 'prime'
+      ? `${resultText} does not match this step. Try again.`
+      : `${resultText} is not prime. Try again.`;
+  }
+
+  if (rule === 'zero') {
+    return resultType === 'zero'
+      ? `${resultText} does not match this step. Try again.`
+      : `${resultText} is ${resultType}, not zero. Try again.`;
+  }
+
+  return `This step needs ${rule || 'the right answer type'}. Your answer was ${resultText}. Try again.`;
+}
+
+function buildSkillConditionMismatchMessage(scene, skill, result, operator) {
+  if (skill?.operationType === 'multiply') {
+    return `${skill.name} needs ×. You used ${formatOperatorForTutorial(operator)}. Try again.`;
+  }
+
+  if (skill?.operationType === 'divide') {
+    return `${skill.name} needs ÷. You used ${formatOperatorForTutorial(operator)}. Try again.`;
+  }
+
+  const skillRule = getSkillPrimaryRule(skill);
+  if (skillRule) {
+    return buildRuleMismatchMessage(result, skillRule);
+  }
+
+  return formatTutorialTemplate(scene, 'wrongResult', { skill: skill?.name || 'Skill' }, 'This answer does not work for this step. Try again.');
 }
 
 function getGuidedBattleTutorialConfigForDifficulty(difficultyKey, enemyKey, returnScene) {
@@ -104,6 +172,14 @@ export function validateTutorialBuilderAction(scene, payload = {}) {
     };
   }
 
+  const skillMatchesStep = scene?.matchesSkillRule?.(result, skill, operator);
+  if (!skillMatchesStep) {
+    return {
+      allowed: false,
+      message: buildSkillConditionMismatchMessage(scene, skill, result, operator),
+    };
+  }
+
   const resultMatchesEnemy = scene?.matchesEnemyRule?.(result, skill, operator);
   if (resultMatchesEnemy) {
     return { allowed: true, message: '' };
@@ -111,12 +187,7 @@ export function validateTutorialBuilderAction(scene, payload = {}) {
 
   return {
     allowed: false,
-    message: [
-      `You used ${skill?.name || 'this skill'}.`,
-      `Your answer was ${result}.`,
-      `This monster needs the correct answer type.`,
-      formatTutorialTemplate(scene, 'wrongResult', { skill: skill?.name || 'Skill', rule: requiredRule }, 'Right skill, but the answer was wrong. Try again.'),
-    ].join('\n'),
+    message: buildRuleMismatchMessage(result, requiredRule),
   };
 }
 

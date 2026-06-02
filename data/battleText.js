@@ -37,7 +37,7 @@ export const battleUIText = {
     nextAttackDouble: 'Bonus: Double damage!',
     enemyUsedSkill: '{enemy} used {skill}. You took {amount} damage.',
     enemyAttackBlocked: 'Blocked! {enemy} used {skill}, but you took no damage.',
-    win: 'You beat the monster!\nYou got {reward} gold.',
+    win: 'You defeated the monster!\nYou got {reward} gold.',
     lose: 'You lost this battle.',
   },
   ui: {

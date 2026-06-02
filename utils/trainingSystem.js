@@ -16,6 +16,19 @@ function getCurrentTrainingStageOrder(target = playerData) {
   return Array.isArray(stageOrder) && stageOrder.length ? stageOrder : TRAINING_STAGE_IDS;
 }
 
+export function getTrainingStageDisplayNumber(stageId) {
+  const numericStageId = Number(stageId);
+  if (!Number.isFinite(numericStageId)) return stageId;
+
+  const normalizedStageId = Math.abs(Math.trunc(numericStageId));
+  if (normalizedStageId >= 100) {
+    const displayNumber = normalizedStageId % 100;
+    if (displayNumber > 0) return displayNumber;
+  }
+
+  return normalizedStageId;
+}
+
 export function ensureTrainingState(target = playerData) {
   if (!target.trainingProgress || typeof target.trainingProgress !== 'object') {
     target.trainingProgress = { ...DEFAULT_TRAINING_STATE };
@@ -65,7 +78,7 @@ export function completeTrainingStage(stageId, target = playerData) {
   target.gold += rewardConfig.goldGain;
 
   const rewardLines = [
-    `Training Stage ${stageId} Clear!`,
+    `Training Stage ${getTrainingStageDisplayNumber(stageId)} Clear!`,
   ];
 
   const targetLevel = progressionConfig.trainingRewards.stageLevelTargets[stageId] || null;

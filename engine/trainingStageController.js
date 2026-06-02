@@ -1,6 +1,7 @@
 import { beginnerDifficultyConfig } from '../config/beginnerDifficultyConfig.js';
 import { getCurrentDifficultyKey, getDifficultyConfig } from '../config/difficultySettings.js';
 import { trainingStageData } from '../data/trainingStages.js';
+import { getTrainingStageDisplayNumber } from '../utils/trainingSystem.js';
 
 function getTrainingRoot(difficultyKey = null) {
   return getDifficultyConfig(difficultyKey)?.training || beginnerDifficultyConfig.training;
@@ -44,11 +45,11 @@ export function getTrainingStageConfig(stageId, difficultyKey = null) {
 }
 
 export function getTrainingStageName(stageId, difficultyKey = null) {
-  return getTrainingStageConfig(stageId, difficultyKey)?.name || `Stage ${stageId}`;
+  return getTrainingStageConfig(stageId, difficultyKey)?.name || `Stage ${getTrainingStageDisplayNumber(stageId)}`;
 }
 
 export function getTrainingStageTutorialTitle(stageId, difficultyKey = null) {
-  return getTrainingStageConfig(stageId, difficultyKey)?.tutorialTitle || `Stage ${stageId} Tutorial`;
+  return getTrainingStageConfig(stageId, difficultyKey)?.tutorialTitle || `Stage ${getTrainingStageDisplayNumber(stageId)} Tutorial`;
 }
 
 export function getTrainingStageLessonPages(stageId, difficultyKey = null) {
@@ -68,11 +69,11 @@ export function getTrainingStageBattleConfig(stageId, difficultyKey = null) {
 }
 
 export function getTrainingStageClearMessage(stageId, replacements = {}, difficultyKey = null) {
-  return formatTemplate(getTrainingStageConfig(stageId, difficultyKey)?.clearMessage || `Stage ${stageId} clear.`, replacements);
+  return formatTemplate(getTrainingStageConfig(stageId, difficultyKey)?.clearMessage || `Stage ${getTrainingStageDisplayNumber(stageId)} clear.`, replacements);
 }
 
 export function getTrainingStageFailMessage(stageId, replacements = {}, difficultyKey = null) {
-  return formatTemplate(getTrainingStageConfig(stageId, difficultyKey)?.failMessage || `Stage ${stageId} not cleared yet.`, replacements);
+  return formatTemplate(getTrainingStageConfig(stageId, difficultyKey)?.failMessage || `Stage ${getTrainingStageDisplayNumber(stageId)} not cleared yet.`, replacements);
 }
 
 function formatTemplate(template, replacements = {}) {

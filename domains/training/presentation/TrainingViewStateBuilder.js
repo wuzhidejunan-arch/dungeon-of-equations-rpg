@@ -1,13 +1,16 @@
-import { isTrainingStageCompleted, isTrainingStageUnlocked } from '../../../utils/trainingSystem.js';
+import {
+  getTrainingStageDisplayNumber,
+  isTrainingStageCompleted,
+  isTrainingStageUnlocked,
+} from '../../../utils/trainingSystem.js';
 import { isTesterMode } from '../../../utils/debugState.js';
 import { TRAINING_MODES } from '../TrainingStateFactory.js';
 
 const TYPE_LABELS = ['Zero', 'Odd', 'Even', 'Prime'];
 const MENU_CURSOR = { x: 74, startY: 176 };
-const BEGINNER_STAGE2_STEP_TOTAL = 20;
 
 function getCompactStageLabel(stageId, stageRegistry) {
-  const name = stageRegistry.getStageName(stageId) || `Stage ${stageId}`;
+  const name = stageRegistry.getStageName(stageId) || `Stage ${getTrainingStageDisplayNumber(stageId)}`;
   return name.replace(/^Stage\s+\d+\s*-\s*/i, '');
 }
 
@@ -29,8 +32,8 @@ function getStageStatusLabel(stageId, scene = null) {
 function getStageGoalText(stageId, stageRegistry) {
   const battle = stageRegistry.getStageBattleConfig(stageId);
   const hasBattle = Boolean(battle?.enemyKey || battle?.winKey || battle?.enemyDataKey);
-  if (stageId === 3 && hasBattle) return 'Goal: win the practice battle using what you learned.';
-  if (hasBattle) return 'Goal: beat the practice battle.';
+  if (stageId === 3 && hasBattle) return 'Goal: Win the practice battle using what you learned.';
+  if (hasBattle) return 'Goal: Win the practice battle.';
 
   const questions = stageRegistry.getStageQuestions(stageId) || [];
   const passScore = stageRegistry.getStagePassScore(stageId);
@@ -51,6 +54,18 @@ function getRightCountText(correctCount, totalCount) {
   }
 
   return `Right: ${correctCount}`;
+}
+
+function getPointProgressText(points, targetPoints) {
+  if (Number.isFinite(targetPoints) && targetPoints > 0) {
+    return `Points: ${points} / ${targetPoints}`;
+  }
+
+  return `Points: ${points}`;
+}
+
+function getStage2TotalSteps(questions = []) {
+  return questions.length * 2;
 }
 
 function getStagePreviewText(stageId, stageRegistry) {
@@ -215,7 +230,7 @@ export class TrainingViewStateBuilder {
         text: question
           ? (isMultipleChoiceStage
             ? `${question.expression}${shouldAppendPromptEquals ? ' = ?' : ''}\n${buildOptionLines(options, scene.stageOptionIndex)}`
-            : `Choose the number kind:\n${question.value}\n${buildOptionLines(options, scene.stageOptionIndex)}`)
+            : `Choose the number type:\n${question.value}\n${buildOptionLines(options, scene.stageOptionIndex)}`)
           : 'No question found.',
       },
       controls: 'UP / DOWN choose    ENTER answer    ESC stage list',
@@ -226,17 +241,19 @@ export class TrainingViewStateBuilder {
   buildStage2AnswerState({ scene, stageRegistry }) {
     const questions = stageRegistry.getStageQuestions(2);
     const question = questions[scene.stage2Index];
+    const totalSteps = getStage2TotalSteps(questions);
+    const currentStep = (scene.stage2Index * 2) + 1;
     return {
       layoutMode: 'focused',
       header: {
         title: 'Stage 2 - Find the Answer',
-        subtitle: `Question ${scene.stage2Index + 1} / ${questions.length}`,
+        subtitle: `Question ${currentStep} / ${totalSteps}`,
       },
       list: { visible: false, text: '' },
       detail: {
         visible: true,
         title: '',
-        text: `${getStageGoalText(2, stageRegistry)}\n${getRightCountText(scene.stage2CorrectCount, BEGINNER_STAGE2_STEP_TOTAL)}`,
+        text: `${getStageGoalText(2, stageRegistry)}\n${getPointProgressText(scene.stage2CorrectCount, totalSteps)}`,
       },
       content: {
         visible: true,
@@ -251,22 +268,25 @@ export class TrainingViewStateBuilder {
 
   buildStage2TypeState({ scene, stageRegistry }) {
     const question = scene.pendingStage2TypeQuestion;
+    const questions = stageRegistry.getStageQuestions(2);
+    const totalSteps = getStage2TotalSteps(questions);
+    const currentStep = (scene.stage2Index * 2) + 2;
     return {
       layoutMode: 'focused',
       header: {
         title: 'Stage 2 - Number Type',
-        subtitle: 'Choose the number kind',
+        subtitle: `Question ${currentStep} / ${totalSteps}`,
       },
       list: { visible: false, text: '' },
       detail: {
         visible: true,
         title: '',
-        text: `${getStageGoalText(2, stageRegistry)}\n${getRightCountText(scene.stage2CorrectCount, BEGINNER_STAGE2_STEP_TOTAL)}`,
+        text: `${getStageGoalText(2, stageRegistry)}\n${getPointProgressText(scene.stage2CorrectCount, totalSteps)}`,
       },
       content: {
         visible: true,
         text: question
-          ? `Now choose the number kind for ${question.answer}.\n${buildOptionLines(TYPE_LABELS, scene.stageOptionIndex)}`
+          ? `Now choose the number type for ${question.answer}.\n${buildOptionLines(TYPE_LABELS, scene.stageOptionIndex)}`
           : 'No type question found.',
       },
       controls: 'UP / DOWN choose    ENTER answer    ESC stage list',

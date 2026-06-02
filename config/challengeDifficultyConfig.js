@@ -66,7 +66,7 @@ Press Enter to start.`,
           },
         },
         passScore: 7,
-        clearMessage: 'You beat Stage 1. You can carry the Row 1 answer into Row 2.',
+        clearMessage: 'You cleared Stage 1.\nYou can carry the Row 1 answer into Row 2.',
         failMessage: 'Not yet. Use the Row 1 answer again in Row 2.',
         questions: [
           {
@@ -86,7 +86,7 @@ Press Enter to start.`,
           },
           {
             expression: 'Row 1: 5 × 2 = 10\nCan Row 2 start with 7?',
-            options: ['Yes', 'No', 'Only if the rule changes', 'Only on Heavy Attack'],
+            options: ['Yes', 'No'],
             answer: 'No',
           },
           {
@@ -106,7 +106,7 @@ Press Enter to start.`,
           },
           {
             expression: 'Row 1: 9 ÷ 3 = 3\nCan Row 2 start with 9?',
-            options: ['Yes', 'No', 'Only on Normal Attack', 'Only if Row 2 uses +'],
+            options: ['Yes', 'No'],
             answer: 'No',
           },
           {
@@ -173,7 +173,7 @@ Press Enter to start.`,
           },
         },
         passScore: 7,
-        clearMessage: 'You beat Stage 2. You know the row order.',
+        clearMessage: 'You cleared Stage 2.\nYou know the row order.',
         failMessage: 'Not yet. Remember: Row 1 is \u00d7 or \u00f7. Row 2 is + or \u2212.',
         questions: [
           {
@@ -249,7 +249,7 @@ try Defend or Self Buff first,
 then use both rows for an attack skill.`,
           'Press Enter to start the practice battle.',
         ],
-        clearMessage: 'You beat Stage 3. You used the real Challenge skills in battle.',
+        clearMessage: 'You cleared Stage 3.\nYou used the real Challenge skills in battle.',
         failMessage: 'Stage 3 not yet. Read the battle message and try again.',
         battle: {
           enemyDataKey: 'challenge_training_scout',

@@ -6,8 +6,8 @@ export const trainingStageData = {
       `Zero means none.\n0 is the only zero.\nExample: 0 apples.`,
       `Even numbers can be put in twos.\nNone is left.\nExamples: 2, 4, 6, 8.`,
       `Odd numbers can be put in twos.\nOne is left.\nExamples: 1, 3, 5, 7.`,
-      `Prime numbers are bigger than 1.\nOnly 1 and the number itself can divide them evenly.\nExamples: 2, 3, 5, 7, 11.`,
-      `In this game, check zero first.\nThen check prime.\nThen check odd or even.`,
+      `Prime numbers are whole numbers bigger than 1.\nOnly 1 and the number itself can divide them evenly.\nExamples: 2, 3, 5, 7, 11.`,
+      `In this game, check for zero first.\nThen check for prime number.\nThen check for odd or even number.`,
       `Remember:\n1 is odd, but not prime.\n2 is prime and even.`,
       `There are 20 questions.\nUse UP / DOWN.\nPress Enter.`,
       `Goal: Get 15 correct.\nIf you miss one,\nthe stage keeps going.`,
@@ -62,12 +62,12 @@ export const trainingStageData = {
   2: {
     id: 2,
     lessonPages: [
-      `Addition means putting things together.\n\nUse + to add.`,
+      `Addition means putting things together.\nUse + to add.\n\nSubtraction means taking things away.\nUse - to subtract.`,
       `Example:\n4 + 2 = 6.\n\nThen 6 is an even number.`,
       `Subtraction means taking things away.\n\nUse − to subtract.`,
       `Example:\n5 − 2 = 3.\n\nThen 3 is a prime number.`,
       `There are 10 questions.\nEach question has 2 steps.`,
-      `Goal: Get 15 points.\nPart 1: Solve the math.\nPart 2: Choose the number kind.`,
+      `Goal: Get 15 points.\nPart 1: Solve the math.\nPart 2: Choose the number type.`,
       `Start when you are ready.\nPress Enter.`,
     ],
     lessonVisuals: {

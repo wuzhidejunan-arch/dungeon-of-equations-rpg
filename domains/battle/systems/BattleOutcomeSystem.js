@@ -305,6 +305,7 @@ export class BattleOutcomeSystem {
     this.scene.selectedSkillIndex = 0;
 
     if (this.scene.enemyCurrentHp <= 0) {
+      this.controller?.emitActionResolved({ result, expression, operator, resolved });
       scheduleBattleFeedback(this.scene, PLAYER_ATTACK_IMPACT_DELAY_MS, () => {
         unlockBattleFeedback(this.scene);
         playImpactFeedback();
@@ -346,7 +347,7 @@ export class BattleOutcomeSystem {
 
     const continueAfterSummary = () => {
       if (this.scene.devEnemyVisualTest) {
-        this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);
+        this.scene.renderResultText('You defeated the monster!', battleResultPhases.VICTORY);
         this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
         this.scene.refreshBattleUI();
 
@@ -360,7 +361,7 @@ export class BattleOutcomeSystem {
       }
 
       if (isDemoBattle(this.scene)) {
-        this.scene.renderResultText('You beat the monster!', battleResultPhases.VICTORY);
+        this.scene.renderResultText('You defeated the monster!', battleResultPhases.VICTORY);
         this.scene.addBattleLog(getBattleText('logs.enemyDefeated', `${this.scene.enemy.name} was defeated.`, { enemy: this.scene.enemy.name }));
         this.scene.refreshBattleUI();
 
@@ -386,7 +387,7 @@ export class BattleOutcomeSystem {
       }
 
       this.scene.renderResultText(
-        formatBattleTemplate(getBattleUIText('resultText.win', 'You beat the monster!\nYou got {reward} gold.'), { reward, expReward }),
+        formatBattleTemplate(getBattleUIText('resultText.win', 'You defeated the monster!\nYou got {reward} gold.'), { reward, expReward }),
         battleResultPhases.VICTORY,
         { reward, expReward },
       );

@@ -81,7 +81,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Attack if the answer is odd.',
-      menuInfo: { label: 'Kind', value: 'Attack' },
+      menuInfo: { label: 'Type', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -102,7 +102,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Attack if the answer is even.',
-      menuInfo: { label: 'Kind', value: 'Attack' },
+      menuInfo: { label: 'Type', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -123,7 +123,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Attack if the answer is prime.',
-      menuInfo: { label: 'Kind', value: 'Attack' },
+      menuInfo: { label: 'Type', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -144,7 +144,7 @@ export const beginnerPlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Guard if the answer is 0.',
-      menuInfo: { label: 'Kind', value: 'Guard' },
+      menuInfo: { label: 'Type', value: 'Guard' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -169,7 +169,7 @@ export const intermediatePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Use multiplication to power up your next hit.',
-      menuInfo: { label: 'Kind', value: 'Power Up' },
+      menuInfo: { label: 'Type', value: 'Power Up' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -191,7 +191,7 @@ export const intermediatePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Use multiplication to attack.',
-      menuInfo: { label: 'Kind', value: 'Burst' },
+      menuInfo: { label: 'Type', value: 'Burst' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -213,7 +213,7 @@ export const intermediatePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Use division to make the monster weaker.',
-      menuInfo: { label: 'Kind', value: 'Weaken' },
+      menuInfo: { label: 'Type', value: 'Weaken' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -235,7 +235,7 @@ export const intermediatePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: "Use division to lower the monster's attack.",
-      menuInfo: { label: 'Kind', value: 'Weaker Hit' },
+      menuInfo: { label: 'Type', value: 'Weaker Hit' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -258,7 +258,7 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Build a chain to attack.',
-      menuInfo: { label: 'Kind', value: 'Attack' },
+      menuInfo: { label: 'Type', value: 'Attack' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -279,7 +279,7 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Build a chain. The final answer must be more than 10.',
-      menuInfo: { label: 'Kind', value: 'Heavy' },
+      menuInfo: { label: 'Type', value: 'Heavy' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -300,7 +300,7 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Block the next monster attack.',
-      menuInfo: { label: 'Kind', value: 'Defend' },
+      menuInfo: { label: 'Type', value: 'Defend' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',
@@ -320,7 +320,7 @@ export const challengePlayerSkillDefinitions = [
     ui: {
       showInMenu: true,
       description: 'Power up your next hit.',
-      menuInfo: { label: 'Kind', value: 'Power Up' },
+      menuInfo: { label: 'Type', value: 'Power Up' },
       textTemplates: {
         success: '{skill} works.',
         fail: '{skill} failed.',

@@ -8,8 +8,6 @@ import {
   getBattleUIText,
   getEnemyPrimaryRule,
   getEnemyRuleSummaryText,
-  getEntityUIText,
-  getSafeBattleSkillHint,
   getSkillPrimaryRule,
   isDirectAttackSkill,
   isUtilitySkill,
@@ -20,7 +18,6 @@ import {
   buildExpressionPhase,
   buildPropertyPhase,
   buildSkillUsesLeftPhase,
-  buildFeedbackPhases,
 } from '../../../engine/battleResultFormatter.js';
 import { normalizeOperator } from '../../../utils/battleMath.js';
 import { getRuleConfig } from '../../../utils/battleMath.js';
@@ -88,28 +85,6 @@ function buildWrongAttackTypeFeedback(ctx) {
   return buildEnemyRuleMismatchFeedback(ctx);
 }
 
-function appendSafeSkillHintPhases(ctx) {
-  const hint = getSafeBattleSkillHint({
-    enemy: ctx.scene.enemy,
-    skills: ctx.scene.playerSkills,
-    difficultyKey: getDifficultyKey(ctx.scene),
-  });
-  if (!hint) return;
-
-  ctx.phases.push(
-    buildBattlePhaseLine(
-      battleResultPhases.RESULT_SKILL_CHECK,
-      hint.failureText,
-      { outcome: ctx.outcome || 'failure', enemy: ctx.scene.enemy?.name || 'Monster' },
-    ),
-    buildBattlePhaseLine(
-      battleResultPhases.RESULT_SKILL_CHECK,
-      hint.retryText,
-      { outcome: ctx.outcome || 'failure', skill: hint.skillName },
-    ),
-  );
-}
-
 function getEnemyMultipleOfRule(enemy) {
   return Array.isArray(enemy?.rules)
     ? enemy.rules.find((rule) => rule?.type === 'accept_result_rule' && rule?.value === 'multipleOf' && Number.isFinite(Number(rule?.divisor))) || null
@@ -172,49 +147,33 @@ function isGuidedTutorialBattle(scene) {
   return Boolean(scene?.isTrainingGuideBattle?.());
 }
 
-function getOperationLessonLabel(skill) {
-  if (skill?.operationType === 'multiply') return 'multiplication';
-  if (skill?.operationType === 'divide') return 'division';
-  return 'correct';
-}
-
-function getGuidedEnemyNeedText(ctx) {
-  const enemyName = ctx.scene.enemy?.name || 'The monster';
-  return `${enemyName} only takes damage when the answer is ${getEnemyRuleSummaryText(ctx.scene.enemy)}.`;
-}
-
-function buildGuidedTeachingPhases(ctx, finalLine) {
-  if (!isGuidedTutorialBattle(ctx.scene)) return [];
-
+function buildGuidedSuccessDamagePhases(ctx) {
+  const successText = buildSuccessCategoryFeedback(ctx).replace(/^Correct\./, 'Success!');
   return [
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `You used ${ctx.skill.name}.`, { skill: ctx.skill.name }),
     buildBattlePhaseLine(
       battleResultPhases.RESULT_SKILL_CHECK,
-      `This skill uses ${buildOperationNeedText(ctx.skill) || 'the right math'}.`,
-      { skill: ctx.skill.name },
+      successText,
+      { outcome: 'full_success', enemy: ctx.scene.enemy.name, result: ctx.result },
     ),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `Your answer was ${ctx.result}.`, { result: ctx.result }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, getGuidedEnemyNeedText(ctx), { enemy: ctx.scene.enemy?.name || 'Monster' }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, finalLine, { skill: ctx.skill.name, result: ctx.result }),
+    buildBattlePhaseLine(
+      battleResultPhases.RESULT_DAMAGE,
+      `${ctx.skill.name} dealt ${ctx.damage} damage.`,
+      { damage: ctx.damage, outcome: 'full_success', skill: ctx.skill.name },
+    ),
   ];
 }
 
-function buildGuidedUtilityTeachingPhases(ctx, finalLine) {
-  if (!isGuidedTutorialBattle(ctx.scene)) return [];
-
-  return [
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `You used ${ctx.skill.name}.`, { skill: ctx.skill.name }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `This helper skill uses ${buildOperationNeedText(ctx.skill)}.`, { skill: ctx.skill.name }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, `Your answer was ${ctx.result}.`, { result: ctx.result }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, 'Helper skills can still work if you use the right math.', { enemy: ctx.scene.enemy?.name || 'Monster' }),
-    buildBattlePhaseLine(battleResultPhases.RESULT_SKILL_CHECK, finalLine, { skill: ctx.skill.name, result: ctx.result }),
-  ];
+function buildDamageResultPhase(ctx) {
+  return buildBattlePhaseLine(
+    battleResultPhases.RESULT_DAMAGE,
+    `${ctx.skill.name} dealt ${ctx.damage} damage.`,
+    { damage: ctx.damage, outcome: 'full_success', skill: ctx.skill.name },
+  );
 }
 
-
-function prependFeedback(ctx, outcomeKey, payload = {}) {
-  const feedbackPhases = buildFeedbackPhases(getDifficultyKey(ctx.scene), outcomeKey, payload);
-  ctx.phases = [...feedbackPhases, ...ctx.phases];
+function isDuplicateDamageMessage(message, damage) {
+  const text = String(message || '').toLowerCase();
+  return text.includes(String(damage)) && /damage/.test(text);
 }
 
 
@@ -291,14 +250,6 @@ export function skillConditionRule(ctx) {
   const skillRuleId = getSkillPrimaryRule(ctx.skill);
   const isBeginner = getDifficultyKey(ctx.scene) === 'beginner';
 
-  prependFeedback(ctx, 'failure', { outcome: 'failure', skill: ctx.skill.name });
-  ctx.phases.push(...buildGuidedTeachingPhases(ctx, isBeginner ? 'This skill does not work with this answer. Try again.' : 'Wrong math sign. Action failed.'));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    getSkillTextTemplate(ctx.skill, 'fail', `${ctx.skill.name} failed.`).replace('{skill}', ctx.skill.name),
-    { outcome: 'failure', skill: ctx.skill.name },
-  ));
-
   if (expectedOperatorText) {
     ctx.phases.push(buildBattlePhaseLine(
       battleResultPhases.RESULT_SKILL_CHECK,
@@ -311,14 +262,12 @@ export function skillConditionRule(ctx) {
       buildWrongAttackTypeFeedback(ctx),
       { outcome: 'failure', skill: ctx.skill.name, result: ctx.result, enemy: ctx.scene.enemy.name },
     ));
-    appendSafeSkillHintPhases(ctx);
   } else if (isDirectAttack && enemyRuleId) {
     ctx.phases.push(buildBattlePhaseLine(
       battleResultPhases.RESULT_SKILL_CHECK,
       buildEnemyRuleMismatchFeedback(ctx),
       { outcome: 'failure', skill: ctx.skill.name, result: ctx.result, enemy: ctx.scene.enemy.name },
     ));
-    appendSafeSkillHintPhases(ctx);
   } else {
     const failureText = isBeginner
       ? `${ctx.skill.name} needs ${ctx.skillNeedText}. Your answer was ${ctx.result}. Try again.`
@@ -330,16 +279,6 @@ export function skillConditionRule(ctx) {
       { outcome: 'failure', skill: ctx.skill.name, result: ctx.result },
     ));
   }
-
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    getSkillTextTemplate(
-      ctx.skill,
-      'miss',
-      ctx.skill.category === 'guard' ? getBattleSystemText('noGuard', 'No guard.') : getBattleSystemText('miss', 'Miss.'),
-    ).replace('{skill}', ctx.skill.name),
-    { outcome: 'failure', skill: ctx.skill.name },
-  ));
 
   const failEffects = ctx.scene.applyTriggeredEffects(ctx.scene.enemy, 'on_player_skill_failed', {
     result: ctx.result,
@@ -364,13 +303,7 @@ export function guardSkillRule(ctx) {
     operationType: ctx.operationType,
   });
 
-  prependFeedback(ctx, 'success', { outcome: 'full_success', skill: ctx.skill.name });
-  ctx.phases.push(...buildGuidedTeachingPhases(ctx, 'Action succeeded.'));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    getSkillTextTemplate(ctx.skill, 'success', `${ctx.skill.name} works.`).replace('{skill}', ctx.skill.name),
-    { outcome: 'full_success', skill: ctx.skill.name },
-  ));
+  ctx.phases = [];
   ctx.phases.push(...(messages.length ? messages : [getSkillTextTemplate(ctx.skill, 'ready', getBattleSystemText('guardUp', 'Guard up.'))])
     .map((message) => buildBattlePhaseLine(battleResultPhases.RESULT_BUFF, message.replace('{skill}', ctx.skill.name), { outcome: 'full_success', skill: ctx.skill.name })));
   ctx.scene.addBattleLog(getBattleLogText('skillReady', `${ctx.skill.name} is ready.`, { skill: ctx.skill.name }));
@@ -389,14 +322,9 @@ export function utilitySkillRule(ctx) {
     operationType: ctx.operationType,
   });
 
-  prependFeedback(ctx, 'success', { outcome: 'full_success', skill: ctx.skill.name });
-  ctx.phases.push(...buildGuidedUtilityTeachingPhases(ctx, 'Helper skill succeeded.'));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    getSkillTextTemplate(ctx.skill, 'success', `${ctx.skill.name} works.`).replace('{skill}', ctx.skill.name),
-    { outcome: 'full_success', skill: ctx.skill.name },
-  ));
-  ctx.phases.push(...messages.map((message) => buildBattlePhaseLine(
+  ctx.phases = [];
+  const effectMessages = messages.length ? messages : [`${ctx.skill.name} worked.`];
+  ctx.phases.push(...effectMessages.map((message) => buildBattlePhaseLine(
     battleResultPhases.RESULT_BUFF,
     message,
     { outcome: 'full_success', skill: ctx.skill.name },
@@ -418,24 +346,11 @@ export function enemyGateRule(ctx) {
     operationType: ctx.operationType,
   }, { utilityOnly: true });
 
-  prependFeedback(ctx, 'ineffective', { outcome: 'partial_success', skill: ctx.skill.name });
-  ctx.phases.push(...buildGuidedTeachingPhases(
-    ctx,
-    getDifficultyKey(ctx.scene) === 'beginner'
-      ? `Not yet. This monster needs ${getFriendlyRuleAnswerText(ctx.scene)}.`
-      : 'Right skill type, but the answer did not match. Try again.',
-  ));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    getSkillTextTemplate(ctx.skill, 'success', `${ctx.skill.name} works.`).replace('{skill}', ctx.skill.name),
-    { outcome: 'partial_success', skill: ctx.skill.name },
-  ));
   ctx.phases.push(buildBattlePhaseLine(
     battleResultPhases.RESULT_SKILL_CHECK,
     buildEnemyRuleMismatchFeedback(ctx),
     { outcome: 'partial_success', enemy: ctx.scene.enemy.name, result: ctx.result },
   ));
-  appendSafeSkillHintPhases(ctx);
   ctx.phases.push(...utilityEffectResult.messages.map((message) => buildBattlePhaseLine(
     battleResultPhases.RESULT_BUFF,
     message,
@@ -443,18 +358,8 @@ export function enemyGateRule(ctx) {
   )));
   ctx.phases.push(buildBattlePhaseLine(
     battleResultPhases.RESULT_DAMAGE,
-    'No damage dealt.',
+    'No damage.',
     { damage: 0, outcome: 'partial_success' },
-  ));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_DAMAGE,
-    getSkillTextTemplate(ctx.skill, 'blocked', getBattleSystemText('blocked', 'Blocked.')).replace('{skill}', ctx.skill.name),
-    { damage: 0, outcome: 'partial_success' },
-  ));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    getEntityUIText(ctx.scene.enemy, 'blockText', `${ctx.scene.enemy.name} blocked the attack.`),
-    { outcome: 'partial_success', enemy: ctx.scene.enemy.name },
   ));
 
   const blockedEffects = ctx.scene.applyTriggeredEffects(ctx.scene.enemy, 'on_player_attack_blocked', {
@@ -484,28 +389,20 @@ export function successDamageRule(ctx) {
   const damageResult = results.find((entry) => entry?.type === 'damage_enemy' || typeof entry?.amount === 'number');
   ctx.damage = Number(damageResult?.amount) || 0;
   ctx.scene.successfulAttackCount += 1;
+  ctx.phases = [];
 
-  prependFeedback(ctx, 'success', { outcome: 'full_success', skill: ctx.skill.name });
-  ctx.phases.push(...buildGuidedTeachingPhases(ctx, 'Attack succeeded.'));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    getSkillTextTemplate(ctx.skill, 'success', `${ctx.skill.name} works.`).replace('{skill}', ctx.skill.name),
-    { outcome: 'full_success', skill: ctx.skill.name },
-  ));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_SKILL_CHECK,
-    buildSuccessCategoryFeedback(ctx),
-    { outcome: 'full_success', enemy: ctx.scene.enemy.name, result: ctx.result },
-  ));
-  ctx.phases.push(buildBattlePhaseLine(
-    battleResultPhases.RESULT_DAMAGE,
-    getSkillTextTemplate(ctx.skill, 'hit', 'Hit! {amount} damage.')
-      .replace('{skill}', ctx.skill.name)
-      .replace('{amount}', ctx.damage),
-    { damage: ctx.damage, outcome: 'full_success', skill: ctx.skill.name },
-  ));
+  if (isGuidedTutorialBattle(ctx.scene)) {
+    ctx.phases.push(...buildGuidedSuccessDamagePhases(ctx));
+  } else {
+    ctx.phases.push(buildBattlePhaseLine(
+      battleResultPhases.RESULT_SKILL_CHECK,
+      buildSuccessCategoryFeedback(ctx),
+      { outcome: 'full_success', enemy: ctx.scene.enemy.name, result: ctx.result },
+    ));
+    ctx.phases.push(buildDamageResultPhase(ctx));
+  }
   ctx.phases.push(...messages
-    .filter((message) => message !== `Hit! ${ctx.damage} damage.`)
+    .filter((message) => !isDuplicateDamageMessage(message, ctx.damage))
     .map((message) => buildBattlePhaseLine(battleResultPhases.RESULT_DAMAGE, message, { damage: ctx.damage, outcome: 'full_success' })));
 
   if (ctx.scene.getActiveAttackMultiplier() > 1) {

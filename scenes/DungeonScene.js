@@ -735,7 +735,7 @@ export class DungeonScene extends BaseScene {
       showPrompt(this.promptText, 'Go to the door behind the boss');
         this.interactTarget = null;
       } else if (!bossDefeated && nearBossTrigger) {
-      showPrompt(this.promptText, this.roomNumber < 4 ? 'Beat the big monster by the door' : 'Beat the last big monster');
+      showPrompt(this.promptText, this.roomNumber < 4 ? 'Defeat the big monster by the door' : 'Defeat the final big monster');
         this.interactTarget = null;
     } else {
       hidePrompt(this.promptText);
