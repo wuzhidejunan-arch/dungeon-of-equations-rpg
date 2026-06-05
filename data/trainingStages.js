@@ -31,8 +31,8 @@ export const trainingStageData = {
       },
       4: {
         key: 'beginningStage1PrimeGems',
-        image: { x: 320, y: 300, width: 380, height: 170 },
-        text: { x: 155, y: 360, fontSize: '18px', wordWrapWidth: 350 },
+        image: { x: 320, y: 290, width: 380, height: 170 },
+        text: { x: 155, y: 350, fontSize: '18px', wordWrapWidth: 350 },
       },
     },
     passScore: 15,

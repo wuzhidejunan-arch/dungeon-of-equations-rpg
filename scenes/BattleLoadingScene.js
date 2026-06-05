@@ -52,8 +52,8 @@ export class BattleLoadingScene extends Phaser.Scene {
 
     this.loadingUi = this.add.container(0, 0).setDepth(99999);
     this.loadingUi.add(this.add.rectangle(centerX, centerY, width, height, 0x07111f, 1));
-    this.loadingUi.add(this.add.rectangle(centerX, centerY + 2, 640, 260, 0x020617, 0.34));
-    this.loadingUi.add(this.add.rectangle(centerX, centerY + 2, 560, 210, 0x111827, 0.18));
+    this.loadingUi.add(this.add.rectangle(centerX, centerY + 2, 640, 260, 0x020617, 0.2));
+    this.loadingUi.add(this.add.rectangle(centerX, centerY + 2, 560, 210, 0x111827, 0.1));
 
     this.loadingUi.add(
       this.add
