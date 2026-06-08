@@ -58,10 +58,11 @@ export class TrainingController {
     this.store.set(['ui', 'mode'], mode);
   }
 
-  setMessage(text, afterMode = TRAINING_MODES.MENU) {
+  setMessage(text, afterMode = TRAINING_MODES.MENU, resultStatus = null) {
     this.store.patch((state) => {
       state.message.text = text;
       state.message.afterMode = afterMode;
+      state.message.resultStatus = resultStatus;
       state.ui.mode = TRAINING_MODES.MESSAGE;
     }, { type: 'training:message' });
   }
@@ -76,6 +77,7 @@ export class TrainingController {
       state.stage2.pendingTypeQuestion = null;
       state.stage1.questionIndex = 0;
       state.stage2.questionIndex = 0;
+      state.message.resultStatus = null;
     }, { type: 'training:resetProgress' });
   }
 
@@ -107,7 +109,7 @@ export class TrainingController {
 
         saveGame();
       }
-      this.setMessage(this.stageRegistry.getStageClearMessage(activeStageId), TRAINING_MODES.MENU);
+      this.setMessage(this.stageRegistry.getStageClearMessage(activeStageId), TRAINING_MODES.MENU, 'success');
       this.eventBus?.emit('training:stageCompleted', { stageId: activeStageId, source: 'battle' });
       return;
     }
@@ -117,7 +119,7 @@ export class TrainingController {
     if (!this.isDemoMode) {
       saveGame();
     }
-    this.setMessage(this.stageRegistry.getStageFailMessage(activeStageId), TRAINING_MODES.MENU);
+    this.setMessage(this.stageRegistry.getStageFailMessage(activeStageId), TRAINING_MODES.MENU, 'retry');
   }
 
   moveMenuCursor(delta) {
@@ -167,6 +169,7 @@ export class TrainingController {
       this.store.patch((state) => {
         state.ui.mode = nextMode;
         state.message.afterMode = null;
+        state.message.resultStatus = null;
       }, { type: 'training:continueMessage', nextMode });
       return;
     }
@@ -268,6 +271,7 @@ Read the expression again and count carefully.`))
 
       state.stage1.questionIndex += 1;
       state.selection.optionIndex = 0;
+      state.message.resultStatus = null;
     }, { type: 'training:stage1Answered', correct, stageId });
 
     const nextIndex = this.store.get(['stage1', 'questionIndex']);
@@ -290,7 +294,7 @@ Read the expression again and count carefully.`))
         playSfx(this.scene, audioKeys.sfx.victory);
         this.setMessage(`${scoreLine}
 
-${this.stageRegistry.getStageClearMessage(stageId)}`, TRAINING_MODES.MENU);
+${this.stageRegistry.getStageClearMessage(stageId)}`, TRAINING_MODES.MENU, 'success');
         this.eventBus?.emit('training:stageCompleted', { stageId, source: 'quiz' });
         return;
       }
@@ -303,6 +307,7 @@ ${this.stageRegistry.getStageClearMessage(stageId)}`, TRAINING_MODES.MENU);
 
 ${this.stageRegistry.getStageFailMessage(stageId, { passScore, total: questions.length })}`,
         TRAINING_MODES.MENU,
+        'retry',
       );
       return;
     }
@@ -310,6 +315,7 @@ ${this.stageRegistry.getStageFailMessage(stageId, { passScore, total: questions.
     this.store.patch((state) => {
       state.ui.mode = TRAINING_MODES.MESSAGE;
       state.message.afterMode = TRAINING_MODES.STAGE1;
+      state.message.resultStatus = null;
     }, { type: 'training:stage1NextQuestion', stageId });
   }
 
@@ -342,6 +348,7 @@ You solved the ${operationText}.`
 Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
       state.ui.mode = TRAINING_MODES.MESSAGE;
       state.message.afterMode = TRAINING_MODES.STAGE2_TYPE;
+      state.message.resultStatus = null;
     }, { type: 'training:stage2AnswerSelected', correct });
   }
 
@@ -371,6 +378,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
       state.stage2.pendingTypeQuestion = null;
       state.stage2.currentAnswerCorrect = false;
       state.selection.optionIndex = 0;
+      state.message.resultStatus = null;
     }, { type: 'training:stage2TypeSelected', typeCorrect });
 
     const nextIndex = this.store.get(['stage2', 'questionIndex']);
@@ -391,7 +399,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
           saveGame();
         }
         playSfx(this.scene, audioKeys.sfx.victory);
-        this.setMessage(`${scoreLine}\n\n${this.stageRegistry.getStageClearMessage(2)}`, TRAINING_MODES.MENU);
+        this.setMessage(`${scoreLine}\n\n${this.stageRegistry.getStageClearMessage(2)}`, TRAINING_MODES.MENU, 'success');
         this.eventBus?.emit('training:stageCompleted', { stageId: 2, source: 'quiz' });
         return;
       }
@@ -402,6 +410,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
       this.setMessage(
         `${scoreLine}\n\n${this.stageRegistry.getStageFailMessage(2, { passScore, total: BEGINNER_STAGE2_STEP_TOTAL })}`,
         TRAINING_MODES.MENU,
+        'retry',
       );
       return;
     }
@@ -409,6 +418,7 @@ Try ${operationText === 'addition' ? 'adding' : 'subtracting'} carefully.`;
     this.store.patch((state) => {
       state.ui.mode = TRAINING_MODES.MESSAGE;
       state.message.afterMode = TRAINING_MODES.STAGE2_ANSWER;
+      state.message.resultStatus = null;
     }, { type: 'training:stage2NextQuestion' });
   }
 

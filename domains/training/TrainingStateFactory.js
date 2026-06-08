@@ -26,6 +26,7 @@ export const DEFAULT_TRAINING_ACCESSORS = {
   stage2CurrentAnswerCorrect: ['stage2', 'currentAnswerCorrect'],
   messageTextValue: ['message', 'text'],
   afterMessageMode: ['message', 'afterMode'],
+  messageResultStatus: ['message', 'resultStatus'],
   guideIntroActive: ['guideIntro', 'active'],
   guideIntroQueue: ['guideIntro', 'queue'],
 };
@@ -63,6 +64,7 @@ export function createTrainingState(data = {}) {
     message: {
       text: '',
       afterMode: null,
+      resultStatus: null,
     },
     guideIntro: {
       active: false,

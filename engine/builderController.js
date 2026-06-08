@@ -484,6 +484,15 @@ function showBuilderValidationFeedback(scene, message = '', options = {}) {
   scene.builderFeedbackText?.setVisible?.(Boolean(message));
 }
 
+function clearBuilderValidationFeedback(scene) {
+  scene.builderFeedbackText?.setY?.(getBuilderFeedbackBaseY(scene));
+  scene.builderFeedbackText?.setFontSize?.(BUILDER_FEEDBACK_FONT_SIZE);
+  scene.builderFeedbackText?.setColor?.(BUILDER_FEEDBACK_COLOR);
+  scene.builderFeedbackText?.setStroke?.(BUILDER_FEEDBACK_COLOR, 0);
+  scene.builderFeedbackText?.setText?.('');
+  scene.builderFeedbackText?.setVisible?.(false);
+}
+
 function commitChallengeFailedSkill(scene, skill, message) {
   if (!skill) return;
 
@@ -1101,6 +1110,7 @@ export function resetCardPosition(scene, card) {
 }
 
 export function clearBuilderSlots(scene) {
+  clearBuilderValidationFeedback(scene);
   scene.builderCards.forEach((card) => resetCardPosition(scene, card));
   scene.refreshPreview();
 }

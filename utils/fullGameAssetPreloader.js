@@ -36,6 +36,8 @@ const FULL_GAME_IMAGE_ASSETS = Object.freeze([
 
   { key: 'trainingWoodButton', path: 'assets/ui/training/wood_button.png' },
   { key: 'trainingParchmentPanel', path: 'assets/ui/training/parchment_panel.png' },
+  { key: 'trainingResultMascotSuccess', path: 'assets/ui/training/training_result_mascot_success.png' },
+  { key: 'trainingResultMascotRetry', path: 'assets/ui/training/training_result_mascot_retry.png' },
   { key: 'beginningStage1ZeroEmpty', path: 'assets/images/training/beginning_stage1_zero_empty.png' },
   { key: 'beginningStage1EvenPairs', path: 'assets/images/training/beginning_stage1_even_pairs.png' },
   { key: 'beginningStage1OddLeftover', path: 'assets/images/training/beginning_stage1_odd_leftover.png' },

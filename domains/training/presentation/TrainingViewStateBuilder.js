@@ -8,6 +8,10 @@ import { TRAINING_MODES } from '../TrainingStateFactory.js';
 
 const TYPE_LABELS = ['Zero', 'Odd', 'Even', 'Prime'];
 const MENU_CURSOR = { x: 74, startY: 176 };
+const TRAINING_RESULT_MASCOT_KEYS = Object.freeze({
+  success: 'trainingResultMascotSuccess',
+  retry: 'trainingResultMascotRetry',
+});
 
 function getCompactStageLabel(stageId, stageRegistry) {
   const name = stageRegistry.getStageName(stageId) || `Stage ${getTrainingStageDisplayNumber(stageId)}`;
@@ -296,8 +300,9 @@ export class TrainingViewStateBuilder {
 
   buildMessageState({ scene, stageRegistry }) {
     const stageId = scene.currentLessonStageId || 1;
+    const resultStatus = scene.messageResultStatus || null;
     return {
-      layoutMode: 'focused',
+      layoutMode: resultStatus ? 'result' : 'focused',
       header: {
         title: 'Training',
         subtitle: 'Result',
@@ -311,6 +316,10 @@ export class TrainingViewStateBuilder {
       content: {
         visible: true,
         text: scene.messageTextValue || '',
+      },
+      result: {
+        status: resultStatus,
+        mascotKey: TRAINING_RESULT_MASCOT_KEYS[resultStatus] || null,
       },
       controls: 'Enter: Continue   Esc: Back',
       cursor: { visible: false, x: 0, y: 0 },

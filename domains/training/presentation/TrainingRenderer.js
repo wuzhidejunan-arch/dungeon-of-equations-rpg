@@ -33,19 +33,34 @@ export class TrainingRenderer {
 
   applyLayout(scene, layoutMode = 'menu') {
     const focused = layoutMode === 'focused';
+    const result = layoutMode === 'result';
     const layout = scene?.trainingLayout || {};
+    const board = layout.board || {};
+    const safe = layout.safe || {};
     const menu = layout.menu || {};
     const focusedLayout = layout.focused || {};
     const controls = layout.controls || {};
+    const resultLayout = layout.result || {};
+
+    if (result) {
+      this.applyResultLayout(scene, resultLayout);
+      return;
+    }
 
     scene.listPanel?.setVisible?.(!focused);
     scene.stageListText?.setVisible?.(!focused);
+    this.setPanelBounds(scene.panel, board.x || 400, board.y || 300, board.width || 780, board.height || 590);
+    scene.titleText?.setPosition?.(board.x || 400, safe.top || 100);
+    scene.titleText?.setFontSize?.('34px');
+    scene.subText?.setPosition?.(board.x || 400, (safe.top || 100) + 33);
+    scene.subText?.setFontSize?.('18px');
     scene.controlsPanel?.setPosition?.(controls.x || scene.controlsPanel?.x || 0, controls.y || scene.controlsPanel?.y || 0);
     scene.controlsPanel?.setDisplaySize?.(controls.width || scene.controlsPanel?.displayWidth || 0, controls.height || scene.controlsPanel?.displayHeight || 0);
     scene.controlsText?.setPosition?.(
       controls.x || scene.controlsText?.x || 0,
       controls.textY || controls.y || scene.controlsText?.y || 0,
     );
+    scene.controlsText?.setFontSize?.('16px');
 
     if (focused) {
       this.setPanelBounds(scene.detailPanel, 480, 225, 620, 86);
@@ -74,6 +89,44 @@ export class TrainingRenderer {
       scene.contentText?.setFontSize?.('17px');
       scene.contentText?.setLineSpacing?.(9);
     }
+  }
+
+  applyResultLayout(scene, layout = {}) {
+    const panel = layout.parchmentPanel || {};
+    const title = layout.title || {};
+    const subtitle = layout.subtitle || {};
+    const stageName = layout.stageName || {};
+    const goal = layout.goal || {};
+    const body = layout.body || {};
+    const instructionBar = layout.instructionBar || {};
+    const instructionText = layout.instructionText || {};
+
+    scene.listPanel?.setVisible?.(false);
+    scene.stageListText?.setVisible?.(false);
+    this.setPanelBounds(scene.panel, panel.x || 400, panel.y || 300, panel.width || 780, panel.height || 590);
+
+    scene.titleText?.setPosition?.(title.x || 400, title.y || 100);
+    scene.titleText?.setFontSize?.(title.fontSize || '34px');
+    scene.subText?.setPosition?.(subtitle.x || 400, subtitle.y || 133);
+    scene.subText?.setFontSize?.(subtitle.fontSize || '18px');
+
+    this.setPanelBounds(scene.detailPanel, stageName.x || 145, stageName.y || 175, stageName.wrapWidth || 580, 120);
+    this.setPanelBounds(scene.contentPanel, body.x || 145, body.y || 292, body.wrapWidth || 380, 220);
+    scene.detailTitleText?.setPosition?.(stageName.x || 145, stageName.y || 175);
+    scene.detailTitleText?.setFontSize?.(stageName.fontSize || '23px');
+    scene.detailTitleText?.setWordWrapWidth?.(stageName.wrapWidth || 580);
+    scene.detailText?.setPosition?.(goal.x || 145, goal.y || 233);
+    scene.detailText?.setFontSize?.(goal.fontSize || '17px');
+    scene.detailText?.setWordWrapWidth?.(goal.wrapWidth || 580);
+    scene.contentText?.setPosition?.(body.x || 145, body.y || 292);
+    scene.contentText?.setFontSize?.(body.fontSize || '17px');
+    scene.contentText?.setLineSpacing?.(body.lineSpacing ?? 9);
+    scene.contentText?.setWordWrapWidth?.(body.wrapWidth || 380);
+
+    scene.controlsPanel?.setPosition?.(instructionBar.x || 400, instructionBar.y || 505);
+    scene.controlsPanel?.setDisplaySize?.(instructionBar.width || 700, instructionBar.height || 58);
+    scene.controlsText?.setPosition?.(instructionText.x || 400, instructionText.y || 502);
+    scene.controlsText?.setFontSize?.(instructionText.fontSize || '16px');
   }
 
   setPanelBounds(node, x, y, width, height) {
@@ -143,6 +196,33 @@ export class TrainingRenderer {
       ?.setVisible?.(true);
   }
 
+  renderResultMascot(scene, viewState) {
+    const mascotKey = viewState?.result?.mascotKey || null;
+    const resultStatus = viewState?.result?.status || null;
+    const resultLayout = scene?.trainingLayout?.result || {};
+    const mascotLayout = resultStatus === 'success'
+      ? resultLayout.mascotSuccess
+      : resultStatus === 'retry'
+        ? resultLayout.mascotRetry
+        : null;
+
+    if (
+      viewState?.layoutMode !== 'result'
+      || !mascotKey
+      || !mascotLayout
+      || !scene?.textures?.exists?.(mascotKey)
+    ) {
+      this.setNodeVisible(scene.resultMascotImage, false);
+      return;
+    }
+
+    scene.resultMascotImage
+      ?.setTexture?.(mascotKey)
+      ?.setPosition?.(mascotLayout.x, mascotLayout.y)
+      ?.setDisplaySize?.(mascotLayout.width, mascotLayout.height)
+      ?.setVisible?.(true);
+  }
+
   render(scene, viewState) {
     this.applyLayout(scene, viewState?.layoutMode || 'menu');
     this.setText(scene.titleText, viewState?.header?.title || '');
@@ -163,6 +243,7 @@ export class TrainingRenderer {
     this.setText(scene.contentText, viewState?.content?.text || '');
     this.renderContentTextLayout(scene, viewState);
     this.renderContentVisual(scene, viewState);
+    this.renderResultMascot(scene, viewState);
 
     this.setNodeVisible(scene.controlsPanel, true);
     this.setNodeVisible(scene.controlsText, true);

@@ -22,7 +22,28 @@ const TRAINING_UI_ASSETS = {
     key: 'trainingParchmentPanel',
     path: 'assets/ui/training/parchment_panel.png',
   },
+  resultMascotSuccess: {
+    key: 'trainingResultMascotSuccess',
+    path: 'assets/ui/training/training_result_mascot_success.png',
+  },
+  resultMascotRetry: {
+    key: 'trainingResultMascotRetry',
+    path: 'assets/ui/training/training_result_mascot_retry.png',
+  },
 };
+
+const TRAINING_RESULT_LAYOUT = Object.freeze({
+  parchmentPanel: { x: 400, y: 300, width: 780, height: 590 },
+  title: { x: 400, y: 100, fontSize: '34px' },
+  subtitle: { x: 400, y: 133, fontSize: '18px' },
+  stageName: { x: 145, y: 175, fontSize: '23px', wrapWidth: 580 },
+  goal: { x: 145, y: 233, fontSize: '17px', wrapWidth: 580 },
+  body: { x: 145, y: 292, fontSize: '17px', lineSpacing: 9, wrapWidth: 380 },
+  instructionBar: { x: 400, y: 505, width: 700, height: 58 },
+  instructionText: { x: 400, y: 502, fontSize: '16px' },
+  mascotSuccess: { x: 550, y: 330, width: 200, height: 200 },
+  mascotRetry: { x: 560, y: 330, width: 200, height: 200 },
+});
 
 const TRAINING_VISUAL_ASSETS = [
   {
@@ -106,6 +127,12 @@ export class TrainingScene extends BaseScene {
     }
     if (!this.textures.exists(TRAINING_UI_ASSETS.parchmentPanel.key)) {
       this.load.image(TRAINING_UI_ASSETS.parchmentPanel.key, TRAINING_UI_ASSETS.parchmentPanel.path);
+    }
+    if (!this.textures.exists(TRAINING_UI_ASSETS.resultMascotSuccess.key)) {
+      this.load.image(TRAINING_UI_ASSETS.resultMascotSuccess.key, TRAINING_UI_ASSETS.resultMascotSuccess.path);
+    }
+    if (!this.textures.exists(TRAINING_UI_ASSETS.resultMascotRetry.key)) {
+      this.load.image(TRAINING_UI_ASSETS.resultMascotRetry.key, TRAINING_UI_ASSETS.resultMascotRetry.path);
     }
     TRAINING_VISUAL_ASSETS.forEach((asset) => {
       if (!this.textures.exists(asset.key)) {
@@ -192,6 +219,7 @@ export class TrainingScene extends BaseScene {
         width: Math.min(700, boardWidth - 240),
         height: controlBarHeight,
       },
+      result: TRAINING_RESULT_LAYOUT,
     };
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x1b120b);
@@ -254,6 +282,15 @@ export class TrainingScene extends BaseScene {
       this.trainingLayout.focused.visual.image.x,
       this.trainingLayout.focused.visual.image.y,
       TRAINING_VISUAL_ASSETS[0].key,
+    ).setDepth(2).setVisible(false);
+
+    this.resultMascotImage = this.add.image(
+      TRAINING_RESULT_LAYOUT.mascotSuccess.x,
+      TRAINING_RESULT_LAYOUT.mascotSuccess.y,
+      TRAINING_UI_ASSETS.resultMascotSuccess.key,
+    ).setDisplaySize(
+      TRAINING_RESULT_LAYOUT.mascotSuccess.width,
+      TRAINING_RESULT_LAYOUT.mascotSuccess.height,
     ).setDepth(2).setVisible(false);
 
     this.controlsText = this.add.text(boardX, this.trainingLayout.controls.textY, '', {
