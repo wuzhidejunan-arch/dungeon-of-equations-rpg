@@ -3,6 +3,7 @@ export const demoMenuConfig = Object.freeze({
   mainOptions: [
     { label: 'Training Demo', action: 'training' },
     { label: 'Battle Demo', action: 'battle' },
+    { label: 'Beginner Guide Tests', action: 'guideTests' },
     { label: 'Return to Level Select', action: 'levelSelect' },
   ],
   battleTitle: 'Choose Battle Demo',
@@ -17,6 +18,13 @@ export const demoMenuConfig = Object.freeze({
     { label: 'Beginner Training', action: 'trainingDemo', difficultyKey: 'beginner' },
     { label: 'Medium Training', action: 'trainingDemo', difficultyKey: 'intermediate' },
     { label: 'Challenge Training', action: 'trainingDemo', difficultyKey: 'challenge' },
+    { label: 'Back', action: 'back' },
+  ],
+  guideTestTitle: 'Beginner Guide Tests',
+  guideTestOptions: [
+    { label: 'Post-Training Guide', action: 'beginnerGuideTest', guideTestKey: 'postTraining' },
+    { label: 'Shop Guide', action: 'beginnerGuideTest', guideTestKey: 'shop' },
+    { label: 'Dungeon Guide', action: 'beginnerGuideTest', guideTestKey: 'dungeon' },
     { label: 'Back', action: 'back' },
   ],
 });

@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { playerData } from '../data/playerData.js';
-import { createPanel } from '../utils/ui.js';
+import { BEGINNER_GUIDE_PANEL_LAYOUT, createBeginnerGuidePanel } from '../utils/ui.js';
 import { TrainingController } from '../domains/training/TrainingController.js';
 import { TrainingStore } from '../domains/training/TrainingStore.js';
 import {
@@ -302,7 +302,7 @@ export class TrainingScene extends BaseScene {
       align: 'center',
     }).setOrigin(0.5).setDepth(2);
 
-    this.cursorText = this.add.text(this.trainingLayout.menu.markerX, this.trainingLayout.menu.listY, '▶', {
+    this.cursorText = this.add.text(this.trainingLayout.menu.markerX, this.trainingLayout.menu.listY, '\u25B6', {
       fontSize: '18px',
       color: '#8a5a14',
       fontStyle: 'bold',
@@ -320,7 +320,13 @@ export class TrainingScene extends BaseScene {
     this.statusUI?.container?.setVisible(false);
     this.setupLevelUpUI();
 
-    this.guideIntroPanel = createPanel(this, width / 2, height / 2, 520, 220);
+    this.guideIntroPanel = createBeginnerGuidePanel(
+      this,
+      width / 2 + BEGINNER_GUIDE_PANEL_LAYOUT.trainingXOffset,
+      height / 2 + BEGINNER_GUIDE_PANEL_LAYOUT.trainingYOffset,
+      BEGINNER_GUIDE_PANEL_LAYOUT.width,
+      BEGINNER_GUIDE_PANEL_LAYOUT.height,
+    );
 
     const app = this.game?.app || window.gameApp || null;
     const presentationFactory = app?.container?.get('trainingPresentationFactory');
@@ -350,7 +356,6 @@ export class TrainingScene extends BaseScene {
     if (this.handleLevelUpPopupInput()) {
       return;
     }
-
     if (this.guideIntroActive) {
       this.handleGuideIntroInput();
       return;
@@ -541,4 +546,3 @@ export class TrainingScene extends BaseScene {
     this.trainingController.showNextGuideIntroMessage();
   }
 }
-

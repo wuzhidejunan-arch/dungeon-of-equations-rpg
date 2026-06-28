@@ -14,6 +14,7 @@ const MENU_MODES = Object.freeze({
   MAIN: 'main',
   BATTLE: 'battle',
   TRAINING: 'training',
+  GUIDE_TESTS: 'guideTests',
 });
 
 const DEMO_MENU_BACKGROUND_KEY = 'demoMenuBackground';
@@ -126,6 +127,13 @@ export class DemoMenuScene extends Phaser.Scene {
       };
     }
 
+    if (this.mode === MENU_MODES.GUIDE_TESTS) {
+      return {
+        title: demoMenuConfig.guideTestTitle,
+        options: demoMenuConfig.guideTestOptions,
+      };
+    }
+
     return {
       title: demoMenuConfig.title,
       options: demoMenuConfig.mainOptions,
@@ -181,6 +189,13 @@ export class DemoMenuScene extends Phaser.Scene {
       return;
     }
 
+    if (option.action === 'guideTests') {
+      this.mode = MENU_MODES.GUIDE_TESTS;
+      this.selectedIndex = 0;
+      this.renderMenu();
+      return;
+    }
+
     if (option.action === 'trainingDemo') {
       this.startTrainingDemo(option.difficultyKey);
       return;
@@ -188,6 +203,11 @@ export class DemoMenuScene extends Phaser.Scene {
 
     if (option.action === 'battleDemo') {
       this.startBattleDemo(option.difficultyKey, option.enemyKey);
+      return;
+    }
+
+    if (option.action === 'beginnerGuideTest') {
+      this.startBeginnerGuideTest(option.guideTestKey);
       return;
     }
 
@@ -247,6 +267,53 @@ export class DemoMenuScene extends Phaser.Scene {
         demoMode: true,
         demoBattle: true,
       },
+    });
+  }
+
+  startBeginnerGuideTest(guideTestKey) {
+    const guideTestConfigs = {
+      postTraining: {
+        currentStepId: GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO,
+        testGuideMessageStepId: GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO,
+        position: { x: 600, y: 478 },
+        facing: 'down',
+      },
+      shop: {
+        currentStepId: GUIDE_STEP_IDS.SHOP_INTRO,
+        testGuideMessageStepId: GUIDE_STEP_IDS.SHOP_INTRO,
+        position: { x: 590, y: 218 },
+        facing: 'up',
+      },
+      dungeon: {
+        currentStepId: GUIDE_STEP_IDS.DUNGEON_INTRO,
+        testGuideMessageStepId: GUIDE_STEP_IDS.DUNGEON_INTRO,
+        position: { x: 195, y: 500 },
+        facing: 'up',
+      },
+    };
+    const config = guideTestConfigs[guideTestKey] || guideTestConfigs.postTraining;
+
+    beginDemoSession();
+    this.prepareDemoRuntime('beginner');
+
+    const trainingState = ensureTrainingState(playerData);
+    trainingState.completedStages = [1, 2, 3];
+
+    const guideState = ensureGuideState(playerData);
+    guideState.currentStepId = config.currentStepId;
+    guideState.bagOpened = true;
+    guideState.tutorialDone = false;
+
+    playerData.position.world.x = config.position.x;
+    playerData.position.world.y = config.position.y;
+
+    this.scene.start('WorldScene', {
+      returnScene: 'DemoMenuScene',
+      returnSceneData: {
+        initialMenuLayer: MENU_MODES.GUIDE_TESTS,
+      },
+      playerFacingDirection: config.facing,
+      testGuideMessageStepId: config.testGuideMessageStepId,
     });
   }
 

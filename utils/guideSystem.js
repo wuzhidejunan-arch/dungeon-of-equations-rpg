@@ -1,6 +1,7 @@
 import { playerData } from '../data/playerData.js';
 import { GUIDE_STEP_IDS, guideSteps } from '../data/guideSteps.js';
 import { isTesterMode } from './debugState.js';
+import { isTrainingStageCompleted } from './trainingSystem.js';
 
 const DEFAULT_GUIDE_STATE = {
   currentStepId: GUIDE_STEP_IDS.HOME_MOVE,
@@ -32,12 +33,35 @@ export function ensureGuideState(target = playerData) {
   return target.tutorialProgress;
 }
 
+function syncGuideWithTrainingCompletion(state, target = playerData) {
+  if (isTesterMode() || !isBeginnerTutorialEnabled(target)) return;
+
+  const stageCompletionSteps = [
+    [GUIDE_STEP_IDS.TRAINING_STAGE_1, 1],
+    [GUIDE_STEP_IDS.TRAINING_STAGE_2, 2],
+    [GUIDE_STEP_IDS.TRAINING_STAGE_3_INTRO, 3],
+  ];
+
+  const match = stageCompletionSteps.find(([stepId]) => state.currentStepId === stepId);
+  if (!match) return;
+
+  const [stepId, stageId] = match;
+  if (!isTrainingStageCompleted(stageId, target)) return;
+
+  const nextStepId = guideSteps[stepId]?.next;
+  if (nextStepId) {
+    state.currentStepId = nextStepId;
+  }
+}
+
 export function getCurrentGuideStep(target = playerData) {
   const state = ensureGuideState(target);
 
   if (state.currentStepId === GUIDE_STEP_IDS.BAG_INTRO && state.bagOpened) {
     state.currentStepId = guideSteps[GUIDE_STEP_IDS.BAG_INTRO].next;
   }
+
+  syncGuideWithTrainingCompletion(state, target);
 
   return guideSteps[state.currentStepId] || guideSteps[GUIDE_STEP_IDS.TUTORIAL_DONE];
 }

@@ -11,7 +11,8 @@ import {
   preloadWorldMapArt,
 } from "../utils/textureFactory.js";
 import {
-  createPanel,
+  BEGINNER_GUIDE_PANEL_LAYOUT,
+  createBeginnerGuidePanel,
   hidePanel,
   hidePrompt,
   preloadHudUiAssets,
@@ -81,6 +82,7 @@ export class WorldScene extends BaseScene {
 
   init(data) {
     this.initialPlayerFacingDirection = data?.playerFacingDirection || null;
+    this.testGuideMessageStepId = data?.testGuideMessageStepId || null;
   }
 
   preload() {
@@ -248,7 +250,21 @@ export class WorldScene extends BaseScene {
     this.registerDemoMenuHotkey();
 
     this.createShopUI();
-    this.guidePanel = createPanel(this, 400, 300, 520, 220);
+    this.guidePanel = createBeginnerGuidePanel(
+      this,
+      BEGINNER_GUIDE_PANEL_LAYOUT.worldX,
+      BEGINNER_GUIDE_PANEL_LAYOUT.worldY,
+      BEGINNER_GUIDE_PANEL_LAYOUT.width,
+      BEGINNER_GUIDE_PANEL_LAYOUT.worldHeight,
+      "",
+      {
+        mainTextOffsetY: BEGINNER_GUIDE_PANEL_LAYOUT.worldMainTextOffsetY,
+        promptTextOffsetY: BEGINNER_GUIDE_PANEL_LAYOUT.worldPromptTextOffsetY,
+      },
+    );
+    if (this.testGuideMessageStepId) {
+      this.time.delayedCall(0, () => this.startGuideMessageStep(this.testGuideMessageStepId));
+    }
 
     this.physics.add.overlap(this.player, this.shopZone, () => {
       this.interactTarget = "shop";
@@ -334,7 +350,6 @@ export class WorldScene extends BaseScene {
       this.handleWorldInteract();
     }
   }
-
   canOpenDemoMenu() {
     return !this.shopOpen &&
       !this.dialogueActive &&
@@ -798,7 +813,7 @@ export class WorldScene extends BaseScene {
       .setVisible(false);
 
     this.shopCursorText = this.add
-      .text(cursorX, listStartY, "▶", {
+      .text(cursorX, listStartY, "\u25B6", {
         fontSize: "22px",
         color: BOOK_TEXT_COLORS.accent,
         fontStyle: "bold",
@@ -868,7 +883,7 @@ export class WorldScene extends BaseScene {
       .setVisible(false);
 
     this.shopHelpText = this.add
-      .text(225, 474, "↑↓ Move   Enter Buy   ESC Close", {
+      .text(225, 474, "\u2191\u2193 Move   Enter Buy   ESC Close", {
         fontSize: "18px",
         color: BOOK_TEXT_COLORS.accent,
         fontStyle: "bold",
